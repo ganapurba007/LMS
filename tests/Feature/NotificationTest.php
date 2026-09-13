@@ -91,4 +91,32 @@ class NotificationTest extends TestCase
         $response->assertRedirect();
         $this->assertEquals(0, Notification::where('user_id', $this->user->id)->where('is_read', false)->count());
     }
+
+    public function test_clicking_assignment_notification_redirects_directly_to_the_assignment_detail(): void
+    {
+        $subject = \App\Models\Subject::create(['code' => 'BIO01', 'name' => 'Biologi']);
+        $assignment = \App\Models\Assignment::create([
+            'title' => 'Tugas Praktikum Biologi',
+            'description' => 'Amati struktur sel daun',
+            'due_date' => now()->addDays(3),
+            'subject_id' => $subject->id,
+            'class_id' => $this->user->class_id,
+            'instructor_id' => $this->user->id,
+        ]);
+
+        $notification = Notification::create([
+            'user_id' => $this->user->id,
+            'type' => 'new_assignment',
+            'title' => 'Tugas Baru Diterbitkan',
+            'message' => 'Tugas praktikum biologi telah tersedia',
+            'related_url' => 'http://localhost/student/assignments',
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('notifications.mark-read', $notification->id));
+
+        // Harus langsung mengarahkan ke halaman detail tugas tersebut, bukan 404
+        $response->assertRedirect(route('student.assignments.show', $assignment));
+    }
 }

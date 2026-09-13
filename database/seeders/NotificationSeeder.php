@@ -14,6 +14,10 @@ class NotificationSeeder extends Seeder
 
         foreach ($users as $user) {
             if ($user->isSiswa()) {
+                $material = \App\Models\Material::where('class_id', $user->class_id)->latest()->first();
+                $assignment = \App\Models\Assignment::where('class_id', $user->class_id)->latest()->first();
+                $quiz = \App\Models\Quiz::where('class_id', $user->class_id)->latest()->first();
+
                 Notification::firstOrCreate(
                     [
                         'user_id' => $user->id,
@@ -21,8 +25,8 @@ class NotificationSeeder extends Seeder
                     ],
                     [
                         'type' => 'new_material',
-                        'message' => 'Guru Dani telah menambahkan materi "Fisika Kuantum & Relativitas Khusus".',
-                        'related_url' => route('student.materials.index'),
+                        'message' => 'Guru telah menambahkan materi pembelajaran baru.',
+                        'related_url' => $material ? route('student.materials.show', $material) : route('student.materials.index'),
                         'is_read' => false,
                         'created_at' => now()->subMinutes(15),
                     ]
@@ -35,8 +39,8 @@ class NotificationSeeder extends Seeder
                     ],
                     [
                         'type' => 'new_assignment',
-                        'message' => 'Tugas baru "Latihan Soal Hukum Newton" telah tersedia dengan batas waktu 14 Sept.',
-                        'related_url' => route('student.assignments.index'),
+                        'message' => 'Tugas baru telah tersedia untuk kelas Anda. Segera periksa dan kumpulkan sebelum tenggat waktu.',
+                        'related_url' => $assignment ? route('student.assignments.show', $assignment) : route('student.assignments.index'),
                         'is_read' => false,
                         'created_at' => now()->subHours(2),
                     ]
@@ -49,8 +53,8 @@ class NotificationSeeder extends Seeder
                     ],
                     [
                         'type' => 'new_quiz',
-                        'message' => 'Kuis "Evaluasi Bab 2 Matematika Lanjut" telah dibuka. Segera kerjakan kuis Anda.',
-                        'related_url' => route('student.quizzes.index'),
+                        'message' => 'Kuis online baru telah dibuka. Segera kerjakan kuis Anda.',
+                        'related_url' => $quiz ? route('student.quizzes.show', $quiz) : route('student.quizzes.index'),
                         'is_read' => true,
                         'read_at' => now()->subDay(),
                         'created_at' => now()->subDay(),

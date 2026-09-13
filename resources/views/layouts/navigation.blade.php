@@ -138,7 +138,7 @@
                                     };
                                 @endphp
 
-                                <a href="{{ $notif->related_url ?? '#' }}"
+                                <a href="{{ $notif->resolved_url ?? '#' }}"
                                    onclick="event.preventDefault(); document.getElementById('mark-read-form-{{ $notif->id }}').submit();"
                                    style="display: flex; align-items: flex-start; gap: 12px; padding: 11px 12px; border-radius: 12px; margin-bottom: 5px; text-decoration: none; cursor: pointer; transition: background 0.2s;
                                           {{ $notif->is_read
@@ -361,7 +361,7 @@
                                         default          => ['icon' => 'ti-messages',   'iconColor' => '#34d399', 'bgColor' => 'rgba(16,185,129,0.15)',  'borderColor' => 'rgba(16,185,129,0.5)', 'badge' => 'Diskusi'],
                                     };
                                 @endphp
-                                <a href="{{ $notif->related_url ?? '#' }}"
+                                <a href="{{ $notif->resolved_url ?? '#' }}"
                                    onclick="event.preventDefault(); document.getElementById('mob-mark-read-{{ $notif->id }}').submit();"
                                    style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 11px; border-radius: 11px; margin-bottom: 4px; text-decoration: none;
                                           {{ $notif->is_read ? 'background: rgba(255,255,255,0.03); opacity: 0.7;' : 'background: rgba(255,255,255,0.06); border-left: 3px solid ' . $typeConfigM['borderColor'] . ';' }}">

@@ -2,6 +2,25 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 36] Notification Direct Redirection, Dynamic Host Resolution & 404 Prevention — 2026-09-13
+
+### Ditambahkan & Diperbarui
+- **Perbaikan Navigasi & Tautan Notifikasi Langsung ke Detail Tugas ([`app/Models/Notification.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Notification.php), [`app/Http/Controllers/NotificationController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/NotificationController.php))**:
+  - **Dynamic Host Resolution (`resolved_url`)**: Mengatasi masalah error 404 ketika notifikasi diklik pada konfigurasi Laragon virtual host / subpath dengan mem-parsing path dan menyelaraskannya secara dinamis terhadap domain request aktif saat ini.
+  - **Direct Resource Redirection**:
+    - Ketika siswa mengklik notifikasi tugas (`new_assignment`), sistem secara cerdas langsung mengarahkan browser ke halaman detail tugas terkait ([`student.assignments.show`](file:///c:/laragon/www/KELAS/lms_dani/routes/web.php)) alih-alih daftar umum atau URL mati.
+    - Begitu pula untuk notifikasi materi (`new_material`) dan kuis (`new_quiz`), link langsung mengarah ke detail modul atau halaman panduan kuis yang bersangkutan.
+- **Penerbitan Notifikasi Otomatis Guru ([`app/Http/Controllers/Admin/AssignmentController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/AssignmentController.php))**:
+  - Saat guru membuat tugas baru, sistem otomatis membuat record notifikasi di database untuk seluruh siswa di kelas terkait dengan tautan langsung ke detail tugas (`route('student.assignments.show', $assignment)`).
+- **Pembaruan Interface Navigasi ([`resources/views/layouts/navigation.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/layouts/navigation.blade.php))**:
+  - Menggunakan atribut `href="{{ $notif->resolved_url }}"` pada dropdown notifikasi desktop dan drawer mobile.
+- **Pembaruan Model & Seeder ([`app/Models/Assignment.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Assignment.php), [`database/seeders/NotificationSeeder.php`](file:///c:/laragon/www/KELAS/lms_dani/database/seeders/NotificationSeeder.php))**:
+  - Menambahkan `subject_id`, `class_id`, dan `instructor_id` ke dalam `$fillable` pada model `Assignment`.
+  - Memperbarui `NotificationSeeder` agar tautan notifikasi awal siswa langsung mengarah ke resource spesifik kelas.
+- **Automated Testing & Regresi**:
+  - Menambahkan test case `test_clicking_assignment_notification_redirects_directly_to_the_assignment_detail` pada [`NotificationTest`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/NotificationTest.php).
+  - Seluruh rangkaian test suite lengkap (**132 tests, 448 assertions**) di PHPUnit lulus 100%.
+
 ## [Fase 35] Exam Lockdown, Fullscreen Enforcement, Anti Tab-Switch & Exit Prevention — 2026-09-13
 
 ### Ditambahkan & Diperbarui

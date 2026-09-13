@@ -15,6 +15,9 @@ class Assignment extends Model
         'title',
         'description',
         'due_date',
+        'subject_id',
+        'class_id',
+        'instructor_id',
     ];
 
     protected function casts(): array

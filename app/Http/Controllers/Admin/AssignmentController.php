@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Events\AssignmentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\Notification;
 use App\Models\SchoolClass;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,6 +58,25 @@ class AssignmentController extends Controller
         $assignment->save();
 
         event(new AssignmentCreated($assignment));
+
+        // Buat notifikasi database untuk seluruh siswa di kelas terkait
+        $students = User::where('class_id', $assignment->class_id)
+            ->whereHas('role', function ($q) {
+                $q->where('name', 'siswa');
+            })->get();
+
+        $instructorName = $user->name ?? 'Guru Pengampu';
+        $subjectName = $assignment->subject->name ?? 'Mata Pelajaran';
+        foreach ($students as $student) {
+            Notification::create([
+                'user_id' => $student->id,
+                'type' => 'new_assignment',
+                'title' => 'Tugas Baru: ' . $assignment->title,
+                'message' => 'Guru ' . $instructorName . ' telah menerbitkan tugas baru "' . $assignment->title . '" (' . $subjectName . ').',
+                'related_url' => route('student.assignments.show', $assignment),
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->route('admin.assignments.index')
             ->with('success', 'Tugas siswa berhasil dibuat dan notifikasi realtime dikirim.');

@@ -20,8 +20,10 @@ class NotificationController extends Controller
             return response()->json(['success' => true]);
         }
 
-        if ($notification->related_url) {
-            return redirect($notification->related_url);
+        $targetUrl = $notification->resolved_url ?? $notification->related_url;
+
+        if ($targetUrl) {
+            return redirect($targetUrl);
         }
 
         return redirect()->back();
