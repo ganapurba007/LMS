@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\MaterialProgress;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,6 +48,61 @@ class ReportController extends Controller
         $sumEvaluations = $gradedSubmissions->sum('grade') + $quizAttempts->sum('score');
         $overallScore = $totalEvaluations > 0 ? round($sumEvaluations / $totalEvaluations, 1) : 0;
 
+        // Predicate calculation
+        if ($overallScore >= 85) {
+            $gradePredicate = 'Sangat Baik (A)';
+            $predicateClass = 'text-success';
+            $predicateBadgeBg = '#dcfce7';
+            $predicateBadgeColor = '#15803d';
+        } elseif ($overallScore >= 75) {
+            $gradePredicate = 'Baik (B)';
+            $predicateClass = 'text-primary';
+            $predicateBadgeBg = '#e0f2fe';
+            $predicateBadgeColor = '#0369a1';
+        } elseif ($overallScore >= 65) {
+            $gradePredicate = 'Cukup (C)';
+            $predicateClass = 'text-warning';
+            $predicateBadgeBg = '#fef3c7';
+            $predicateBadgeColor = '#b45309';
+        } else {
+            $gradePredicate = 'Perlu Peningkatan (D)';
+            $predicateClass = 'text-danger';
+            $predicateBadgeBg = '#fee2e2';
+            $predicateBadgeColor = '#b91c1c';
+        }
+
+        // Subject Breakdown (Rekap per Mata Pelajaran)
+        $subjects = Subject::whereHas('materials', fn($q) => $q->where('class_id', $classId))
+            ->orWhereHas('assignments', fn($q) => $q->where('class_id', $classId))
+            ->orWhereHas('quizzes', fn($q) => $q->where('class_id', $classId))
+            ->orderBy('name')
+            ->get();
+
+        $subjectBreakdown = [];
+        foreach ($subjects as $subject) {
+            $subMaterialsTotal = Material::where('class_id', $classId)->where('subject_id', $subject->id)->count();
+            $subMaterialsCompleted = MaterialProgress::where('user_id', $user->id)
+                ->where('is_completed', true)
+                ->whereHas('material', fn($q) => $q->where('subject_id', $subject->id))
+                ->count();
+            $subMatProgress = $subMaterialsTotal > 0 ? round(($subMaterialsCompleted / $subMaterialsTotal) * 100) : 0;
+
+            $subAssignments = $submissions->filter(fn($s) => $s->assignment && $s->assignment->subject_id === $subject->id && !is_null($s->grade));
+            $subAvgAssignment = $subAssignments->count() > 0 ? round($subAssignments->avg('grade'), 1) : null;
+
+            $subQuizzes = $quizAttempts->filter(fn($q) => $q->quiz && $q->quiz->subject_id === $subject->id && !is_null($q->score));
+            $subAvgQuiz = $subQuizzes->count() > 0 ? round($subQuizzes->avg('score'), 1) : null;
+
+            $subjectBreakdown[] = [
+                'subject' => $subject,
+                'materials_total' => $subMaterialsTotal,
+                'materials_completed' => $subMaterialsCompleted,
+                'materials_progress' => $subMatProgress,
+                'avg_assignment' => $subAvgAssignment,
+                'avg_quiz' => $subAvgQuiz,
+            ];
+        }
+
         return view('student.report.index', compact(
             'totalMaterials',
             'completedMaterials',
@@ -55,7 +111,13 @@ class ReportController extends Controller
             'avgAssignmentScore',
             'quizAttempts',
             'avgQuizScore',
-            'overallScore'
+            'overallScore',
+            'gradePredicate',
+            'predicateClass',
+            'predicateBadgeBg',
+            'predicateBadgeColor',
+            'subjectBreakdown'
         ));
     }
 }
+

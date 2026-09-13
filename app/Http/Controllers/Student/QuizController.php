@@ -129,6 +129,12 @@ class QuizController extends Controller
             return redirect()->route('student.quizzes.result', $quiz);
         }
 
+        // Cegah pengerjaan jika kuis belum memiliki soal
+        if ($quiz->questions()->count() === 0) {
+            return redirect()->route('student.quizzes.show', $quiz)
+                ->with('error', 'Kuis ini belum memiliki butir soal dari guru pengampu.');
+        }
+
         // Cegah pengerjaan jika kuis melewati batas waktu dan belum pernah dimulai
         if (!$attempt && $quiz->deadline && $quiz->deadline->isPast()) {
             return redirect()->route('student.quizzes.show', $quiz)
@@ -151,6 +157,11 @@ class QuizController extends Controller
         $user = Auth::user();
         if ($quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
+        if ($quiz->questions()->count() === 0) {
+            return redirect()->route('student.quizzes.show', $quiz)
+                ->with('error', 'Kuis ini belum memiliki butir soal dari guru pengampu.');
         }
 
         $attempt = QuizAttempt::where('quiz_id', $quiz->id)
@@ -277,12 +288,19 @@ class QuizController extends Controller
 
         $answers = $request->input('answers', []);
         $questions = $quiz->questions()->with('options')->get();
+        $existingAnswers = $attempt->answers()->get()->keyBy('quiz_question_id');
 
         $correctCount = 0;
         $totalQuestions = $questions->count();
 
         foreach ($questions as $question) {
-            $selectedOptionId = isset($answers[$question->id]) ? (int)$answers[$question->id] : null;
+            if (isset($answers[$question->id]) && !empty($answers[$question->id])) {
+                $selectedOptionId = (int)$answers[$question->id];
+            } elseif ($existingAnswers->has($question->id)) {
+                $selectedOptionId = $existingAnswers->get($question->id)->selected_option_id;
+            } else {
+                $selectedOptionId = null;
+            }
 
             QuizAnswer::updateOrCreate(
                 [

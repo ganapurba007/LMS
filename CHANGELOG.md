@@ -2,7 +2,58 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 35] Exam Lockdown, Fullscreen Enforcement, Anti Tab-Switch & Exit Prevention — 2026-09-13
+
+### Ditambahkan & Diperbarui
+- **Sistem Penguncian Pengerjaan Kuis & Anti-Kecurangan ([`resources/views/student/quizzes/attempt.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/quizzes/attempt.blade.php))**:
+  - **Enforcement Mode Layar Penuh (Fullscreen Lockdown)**:
+    - Saat kuis dimulai, siswa disambut dengan modal instruksi wajib Layar Penuh (*Fullscreen Exam Gate Modal*).
+    - Browser dipaksa masuk ke mode Fullscreen (`document.documentElement.requestFullscreen()`).
+    - Jika siswa keluar dari layar penuh (menekan tombol Esc atau F11), overlay darurat langsung mengunci seluruh konten kuis hingga tombol *"Kembalikan ke Layar Penuh"* diklik.
+  - **Deteksi Pembukaan Tab Baru / Berpindah Jendela (Page Visibility & Window Blur Monitoring)**:
+    - Memanfaatkan Page Visibility API (`visibilitychange` & `document.hidden`) serta event `window.blur` untuk mendeteksi seketika saat siswa membuka tab baru, beralih ke tab lain di browser, atau melakukan Alt+Tab ke aplikasi lain.
+    - Setiap pelanggaran perpindahan tab memicu **suara peringatan alarm beep** (via browser Web Audio API sintetis) dan memunculkan **Modal Peringatan Keras Pelanggaran** dengan indikator counter pelanggaran (1/3, 2/3, 3/3).
+    - Data pelanggaran dicatat dan disinkronkan secara persisten di `localStorage` (`quiz_violation_{quiz_id}_{attempt_id}`) sehingga tidak dapat di-reset dengan me-refresh halaman.
+    - **Auto-Submit Pelanggaran Ketat (Maksimal Toleransi 1 Kali)**: Batas toleransi ditetapkan maksimal **1 kali**. Jika siswa terdeteksi berpindah tab, beralih jendela/aplikasi, atau keluar dari mode layar penuh (Esc/F11), sistem akan langsung membunyikan alarm peringatan, menampilkan modal status penyerahan, dan mengumpulkan kuis secara otomatis ke server dalam 1.5 detik.
+    - **Penyembunyian Total Navigasi & Header Website (Immersive Focus)**:
+      - Seluruh elemen navbar utama (`nav`, `.edusite-header`, `.arsha-header`), menu navigasi, tombol akun, breadcrumb luar, mobile bottom nav, serta footer disembunyikan sepenuhnya (`display: none !important; height: 0 !important;`).
+      - Bar informasi kuis (`quiz-attempt-hero`) diposisikan langsung menempel di koordinat paling atas layar (`top: 0 !important;`), memastikan seluruh viewport dalam mode fullscreen terfokus 100% hanya pada lembar pengerjaan kuis tanpa distraksi menu luar.
+    - **Kunci Tombol Back Browser (History Lock)**: Mencegah navigasi tombol Back di browser menggunakan HTML5 History API (`pushState` & `popstate`), disertai toast peringatan bahwa navigasi keluar dilarang.
+    - **Kunci Refresh & Close Tab (`beforeunload`)**: Mencegah penutupan tab atau perubahan URL manual sebelum kuis diselesaikan secara resmi.
+    - **Blokir Shortcut & Klik Kanan**: Menonaktifkan klik kanan (`contextmenu`), text selection (`user-select: none`), jalan pintas keyboard DevTools (`F12`, `Ctrl+Shift+I`, `Ctrl+Shift+J`), `Ctrl+U`, copy/paste (`Ctrl+C`, `Ctrl+V`, `Ctrl+X`), serta shortcut tab baru (`Ctrl+T`, `Ctrl+N`).
+  - **Penanganan Kuis Tanpa Butir Soal & Proteksi Akses**:
+    - Validasi pada controller (`QuizController::start` & `attempt`) untuk mencegah siswa memulai kuis yang belum memiliki butir soal dari guru.
+    - Halaman panduan kuis (`show.blade.php`) menampilkan status informatif *"Soal Ujian Belum Tersedia"* dan menonaktifkan tombol pengerjaan jika kuis masih kosong.
+    - Halaman pengerjaan (`attempt.blade.php`) dilengkapi empty state terstruktur dengan tombol kembali ke daftar kuis dan tidak memicu lockdown jika tidak ada soal.
+    - Menambahkan 3 butir soal geografi pada kuis uji coba *"cek"* di database lokal.
+    - **Perbaikan Render Tampilan Kuis**: Memperbaiki tag penutup `</style>` yang terlewat pada stylesheet pengerjaan kuis sehingga seluruh antarmuka kuis dan modal ter-render dengan sempurna di browser.
+    - **Penanganan Soal Belum Terjawab (Unanswered Questions & Auto-Submit Safe)**:
+      - Menambahkan migrasi database `make_selected_option_id_nullable_in_quiz_answers_table` untuk mengubah kolom `selected_option_id` pada tabel `quiz_answers` menjadi `nullable()`.
+      - Memperbarui logika penyerahan kuis pada [`QuizController::submit`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/QuizController.php) agar jika siswa belum menjawab butir soal tertentu saat pengumpulan mandiri ataupun auto-submit darurat, nilai `null` dapat tersimpan tanpa memicu *Integrity constraint violation (1048)*.
+      - Memastikan jawaban tersimpan yang pernah masuk melalui auto-save AJAX tidak tertimpa kosong jika form diserahkan secara otomatis.
+- **Automated Testing & Regresi**:
+  - Penambahan test case `test_siswa_can_submit_quiz_with_unanswered_questions_without_integrity_error` di `StudentQuizTest`.
+  - Seluruh rangkaian test suite lengkap (**131 tests, 446 assertions**) di PHPUnit lulus 100%.
+
+## [Fase 34] Redesign of Student Learning Progress Report (Laporan Diri Siswa) — 2026-09-13
+
+### Ditambahkan & Diperbarui
+- **Redesain Menyeluruh Laporan Progres Belajar Diri Siswa ([`resources/views/student/report/index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/report/index.blade.php))**:
+  - **Dedicated Hero Section (`report-hero`)**: Banner visual modern dengan gradien khas RuangTerra (`#1e3d60` -> `#20456E`), background glow dekoratif, breadcrumb navigation, identitas siswa, kelas, tanggal pembaruan, dan status pill predikat nilai akhir (*Sangat Baik / Baik / Cukup*).
+  - **Proporsi Visual Seimbang & Rapi (Tidak Terlalu Besar & Tidak Dempet)**:
+    - Judul hero diatur ke `fs-4 fw-bold`, ukuran icon box proporsional (`42px`), serta padding vertikal hero disesuaikan ke `1.75rem` sehingga nyaman dan tidak mendominasi layar.
+    - 4 Kartu Metrik Ringkasan Prestasi (*Progres Materi*, *Rata-Rata Tugas*, *Rata-Rata Kuis*, dan *Nilai Keseluruhan*) dirancang seragam dengan mini progress meter bar di setiap kartu, pembagian vertikal rapi, dan jarak antar elemen berbatas garis tipis dashed yang bernapas lega.
+    - Tabel Rekapitulasi Performa per Mata Pelajaran dilengkapi nomor urut rata tengah, icon penanda mapel, badge kode mapel, progress bar modul berwarna gradien, badge nilai tugas & kuis yang kontras lembut, serta tombol *"Buka Materi"* yang interaktif.
+    - Dua kolom detail (*Riwayat & Nilai Tugas* dan *Riwayat & Skor Kuis*) ditata simetris dengan jarak vertikal antar baris yang rapi (`mb-1` pada judul, subtext tanggal dengan icon, badge nilai berborder tipis, dan tombol aksi link).
+- **Peningkatan Controller Laporan Siswa ([`app/Http/Controllers/Student/ReportController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/ReportController.php))**:
+  - Menghitung predikat nilai otomatis (A, B, C, D) berbasis skor gabungan.
+  - Menghitung metrik analitik breakdown per mata pelajaran (progres materi, rerata tugas, rerata kuis).
+- **Automated Testing ([`tests/Feature/Student/StudentReportTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentReportTest.php))**:
+  - Penambahan test case `test_student_can_view_subject_breakdown_and_evaluations_history`.
+  - Seluruh 130 tests (440 assertions) lulus 100%.
+
 ## [Fase 33] Real-Time Persistent Server Timer, Question Navigation Palette, Color Status Legend & Enhanced Quiz Guidelines — 2026-09-13
+
 
 ### Ditambahkan & Diperbarui
 - **Penghitungan Waktu Kuis Persisten Mutlak di Server ([`app/Http/Controllers/Student/QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/QuizController.php))**:

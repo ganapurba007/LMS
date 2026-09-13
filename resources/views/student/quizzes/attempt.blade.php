@@ -11,11 +11,11 @@
             border-bottom: 3px solid #66A3BF;
             color: #ffffff;
             position: sticky;
-            top: 4.1rem;
+            top: 0 !important;
             z-index: 1020;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-            padding-top: 2.25rem !important;
-            padding-bottom: 2.25rem !important;
+            padding-top: 1.25rem !important;
+            padding-bottom: 1.25rem !important;
         }
         
         /* Single Question Card Stepper */
@@ -113,7 +113,7 @@
         /* Navigasi Nomor Soal (Palette) Lega, Luas & Rapi */
         .palette-sticky-card {
             position: sticky;
-            top: 10.25rem;
+            top: 6.5rem !important;
             background: #ffffff;
             border-radius: 18px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
@@ -221,6 +221,146 @@
             font-size: 0.8rem;
             padding: 7px 16px;
             border-radius: 50rem;
+        }
+
+        /* ==========================================================================
+           SECURE EXAM LOCKDOWN & ANTI-CHEAT ENVIRONMENT
+           ========================================================================== */
+        /* Sembunyikan seluruh navigasi portal luar, header website, dan footer agar layar 100% fokus kuis */
+        nav,
+        .edusite-header,
+        .arsha-header,
+        header:not(.quiz-attempt-hero),
+        .arsha-footer,
+        footer,
+        .mobile-nav-bar,
+        .mobile-bottom-nav {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        body {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            background-color: #F8FAFC !important;
+            overflow-x: hidden !important;
+        }
+
+        .min-h-screen {
+            padding-bottom: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .quiz-attempt-hero {
+            top: 0 !important;
+            position: sticky !important;
+            z-index: 1020 !important;
+        }
+
+        /* Overlay & Modal Proteksi Ujian */
+        .exam-overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            animation: fadeInExamModal 0.2s ease-in-out;
+        }
+        @keyframes fadeInExamModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .exam-modal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 540px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            animation: popExamModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popExamModal {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .violation-pill-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 1.25rem 0;
+        }
+        .violation-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #F1F5F9;
+            border: 2px solid #CBD5E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #64748B;
+            transition: all 0.2s ease;
+        }
+        .violation-dot.active {
+            background: #DC2626;
+            border-color: #991B1B;
+            color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.25);
+            transform: scale(1.08);
+        }
+
+        /* Toast Peringatan Navigasi Back */
+        .exam-toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99998;
+            pointer-events: none;
+        }
+        .exam-toast {
+            background: #1E293B;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 50rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            border: 1.5px solid #EF4444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            animation: slideUpToast 0.3s ease;
+        }
+        @keyframes slideUpToast {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .exam-modal-body {
+            padding: 1.5rem 1.75rem;
+            background: #ffffff;
         }
     </style>
 
@@ -386,7 +526,7 @@
                                             <!-- Tombol Selesai & Kumpulkan pada Soal Terakhir -->
                                             @if($index === $totalQuestions - 1)
                                                 <button type="button" 
-                                                        onclick="document.getElementById('submitQuizBtn').click();" 
+                                                        onclick="openSubmitConfirmationModal();" 
                                                         class="btn text-white rounded-pill px-4 py-2 font-bold d-inline-flex align-items-center gap-1.5 hover-lift shadow-sm"
                                                         style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.88rem;">
                                                     <i class="ti ti-circle-check"></i> Selesai & Kumpulkan
@@ -404,17 +544,25 @@
                     @empty
                         <div class="card border-0 rounded-4 shadow-sm text-center py-5">
                             <div class="card-body p-5">
-                                <i class="ti ti-alert-triangle text-warning mb-2" style="font-size: 3rem;"></i>
-                                <h4 class="fw-bold">Tidak ada butir soal dalam kuis ini.</h4>
+                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="background: rgba(245, 158, 11, 0.12); width: 72px; height: 72px;">
+                                    <i class="ti ti-alert-triangle text-warning fs-1"></i>
+                                </div>
+                                <h4 class="fw-bold mb-2 text-dark">Tidak Ada Butir Soal dalam Kuis Ini</h4>
+                                <p class="text-muted small mb-4">Guru pengampu belum mengunggah pertanyaan untuk kuis ini. Silakan kembali lagi nanti.</p>
+                                <a href="{{ route('student.quizzes.index') }}" class="btn btn-primary rounded-pill px-4 py-2 font-bold" style="background: #20456E;">
+                                    <i class="ti ti-arrow-left me-1"></i> Kembali ke Daftar Kuis
+                                </a>
                             </div>
                         </div>
                     @endforelse
 
-                    <!-- Hidden actual submit button for modal confirmation -->
+                    <!-- Hidden input to track violation counts -->
+                    <input type="hidden" name="violation_count" id="violationCountInput" value="0">
+
+                    <!-- Hidden fallback submit button for accessibility and automated testing -->
                     <button type="submit" 
                             id="submitQuizBtn" 
-                            class="d-none"
-                            onclick="return confirm('Apakah Anda yakin ingin mengumpulkan seluruh jawaban kuis ini? Setelah dikumpulkan, Anda tidak dapat mengubah jawaban.')">
+                            class="d-none">
                     </button>
 
                 </div>
@@ -527,7 +675,7 @@
                         <!-- Sidebar Quick Submit Button (Berjarak Lega & Nyaman) -->
                         <div class="pt-1">
                             <button type="button" 
-                                    onclick="document.getElementById('submitQuizBtn').click();" 
+                                    onclick="openSubmitConfirmationModal();" 
                                     class="btn btn-outline-success w-100 rounded-pill py-2.5 font-bold shadow-2xs d-flex align-items-center justify-content-center gap-2 hover-lift"
                                     style="font-size: 0.9rem;">
                                 <i class="ti ti-check"></i> Kumpulkan Kuis
@@ -541,6 +689,147 @@
 
         </form>
 
+    </div>
+
+    <!-- =========================================================================
+         EXAM LOCKDOWN OVERLAYS & MODALS
+         ========================================================================= -->
+
+    <!-- 1. Modal Gerbang Mulai Kuis (Wajib Masuk Fullscreen) -->
+    <div id="examStartModal" class="exam-overlay-backdrop" style="display: none;">
+        <div class="exam-modal-card">
+            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%);">
+                <div class="rounded-circle bg-white text-primary mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px;">
+                    <i class="ti ti-shield-lock fs-1" style="color: #20456E;"></i>
+                </div>
+                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif;">Kuis Terproteksi RuangTerra</h4>
+                <p class="small text-white-50 mb-0">Mode Layar Penuh (Fullscreen) & Pengawasan Anti-Curang</p>
+            </div>
+            <div class="exam-modal-body text-dark">
+                <div class="alert alert-light border rounded-3 p-3 mb-3 small" style="background: #F8FAFC; border-color: #E2E8F0 !important;">
+                    <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-1.5">
+                        <i class="ti ti-info-circle text-primary fs-5"></i> Peraturan Ketat Selama Kuis Berlangsung:
+                    </div>
+                    <ul class="mb-0 ps-3 text-secondary d-flex flex-column gap-1.5" style="line-height: 1.5;">
+                        <li>Kuis <strong>wajib dikerjakan dalam mode Layar Penuh (Fullscreen)</strong>.</li>
+                        <li><strong>DILARANG membuka tab lain</strong>, berpindah jendela, atau meminimalkan browser.</li>
+                        <li><strong>DILARANG keluar dari kuis</strong> sebelum Anda menyelesaikan dan mengumpulkan kuis.</li>
+                        <li><strong>Batas toleransi pelanggaran HANYA 1 KALI</strong>: Berpindah tab, keluar layar penuh, atau beralih jendela akan langsung dicatat sebagai pelanggaran.</li>
+                        <li><strong class="text-danger">Jika melanggar (1 kali saja), lembar kuis akan LANGSUNG OTOMATIS DIKUMPULKAN ke server</strong> dan dinilai apa adanya!</li>
+                    </ul>
+                </div>
+
+                <div class="text-center pt-1">
+                    <button type="button" 
+                            id="btnEnterFullscreenExam" 
+                            onclick="startFullscreenExam()" 
+                            class="btn text-white w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2 hover-lift"
+                            style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.95rem;">
+                        <i class="ti ti-maximize fs-5"></i> Saya Mengerti, Mulai Kuis & Masuk Layar Penuh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Modal Peringatan Pelanggaran Pindah Tab / Layar Penuh Lepas / Blur Jendela -->
+    <div id="tabViolationModal" class="exam-overlay-backdrop" style="display: none;">
+        <div class="exam-modal-card">
+            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);">
+                <div class="rounded-circle bg-white text-danger mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px;">
+                    <i class="ti ti-alert-octagon fs-1" style="color: #dc2626;"></i>
+                </div>
+                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif;">PELANGGARAN TERDETEKSI!</h4>
+                <p class="small text-white-50 mb-0">Terdeteksi Membuka Tab Baru atau Meninggalkan Jendela Kuis</p>
+            </div>
+            <div class="exam-modal-body text-center">
+                <div class="alert alert-danger rounded-3 py-2.5 px-3 small font-bold mb-3" style="background-color: #fef2f2; border-color: #fecaca; color: #991b1b;">
+                    <i class="ti ti-ban me-1 fs-5"></i> Batas Toleransi Pelanggaran (1 Kali) Telah Terlampaui!
+                </div>
+
+                <p class="text-secondary small mb-3" style="line-height: 1.6;">
+                    Sistem mendeteksi Anda meninggalkan jendela kuis, beralih ke tab/aplikasi lain, atau keluar dari layar penuh. Sesuai ketentuan pengawasan, lembar kuis Anda <strong>sedang otomatis dikumpulkan ke server dan dinilai apa adanya</strong>.
+                </p>
+
+                <div class="p-3 rounded-3 mb-3 text-start border" style="background: #FFF5F5; border-color: #FED7D7 !important;">
+                    <div class="d-flex align-items-center gap-2 text-danger fw-bold small mb-1">
+                        <i class="ti ti-clock-pause fs-5"></i> Status Penyerahan Jawaban:
+                    </div>
+                    <div class="small text-muted">
+                        Seluruh jawaban Anda yang telah tersimpan sedang diserahkan ke server untuk dinilai. Harap tunggu sebentar...
+                    </div>
+                </div>
+
+                <button type="button" 
+                        id="btnAckViolation"
+                        disabled
+                        class="btn btn-danger w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                        style="font-size: 0.95rem;">
+                    <i class="ti ti-loader ti-spin fs-5"></i> Mengumpulkan Kuis Otomatis...
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Modal Konfirmasi Pengumpulan Kuis -->
+    <div id="submitConfirmModal" class="exam-overlay-backdrop" style="display: none;">
+        <div class="exam-modal-card">
+            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%);">
+                <div class="rounded-circle bg-white text-success mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px;">
+                    <i class="ti ti-file-check fs-1" style="color: #059669;"></i>
+                </div>
+                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif;">Konfirmasi Kumpulkan Kuis</h4>
+                <p class="small text-white-50 mb-0">Pastikan seluruh jawaban telah Anda periksa</p>
+            </div>
+            <div class="exam-modal-body">
+                <div class="row g-2 mb-3 text-center">
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 border" style="background: #F8FAFC;">
+                            <div class="small text-muted fw-semibold">Sudah Dijawab</div>
+                            <div class="fs-4 fw-extrabold text-success" id="modalAnsweredCount">0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 border" style="background: #F8FAFC;">
+                            <div class="small text-muted fw-semibold">Belum Dijawab</div>
+                            <div class="fs-4 fw-extrabold text-danger" id="modalUnansweredCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="unansweredWarningBox" class="alert alert-warning border rounded-3 p-3 mb-3 small d-none" style="background-color: #fffbeb; border-color: #fde68a !important; color: #92400e;">
+                    <i class="ti ti-alert-triangle me-1 fs-5"></i>
+                    <strong>Perhatian:</strong> Masih ada <span id="warningUnansweredNum">0</span> butir soal yang belum Anda jawab! Apakah Anda tetap ingin mengumpulkan?
+                </div>
+
+                <p class="small text-muted text-center mb-4">
+                    Setelah kuis dikumpulkan, Anda tidak dapat kembali mengubah jawaban. Kuis akan dinilai secara otomatis oleh sistem.
+                </p>
+
+                <div class="d-flex align-items-center gap-2.5">
+                    <button type="button" 
+                            onclick="closeSubmitModal()" 
+                            class="btn btn-outline-secondary w-50 rounded-pill py-2.5 font-bold"
+                            style="font-size: 0.9rem;">
+                        Periksa Kembali
+                    </button>
+                    <button type="button" 
+                            onclick="confirmActualSubmit()" 
+                            class="btn text-white w-50 rounded-pill py-2.5 font-bold shadow-sm hover-lift"
+                            style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.9rem;">
+                        <i class="ti ti-check me-1"></i> Ya, Kumpulkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Toast Notifikasi Penolakan Tombol Back -->
+    <div id="backNavToast" class="exam-toast-container d-none">
+        <div class="exam-toast">
+            <i class="ti ti-ban text-danger fs-4"></i>
+            <span>Tombol 'Kembali' dinonaktifkan! Kuis harus dikumpulkan untuk keluar.</span>
+        </div>
     </div>
 
     <!-- Countdown Timer, Single-Question Stepper, Auto-Save & Navigation Sync JavaScript -->
@@ -639,8 +928,245 @@
             }
         }
 
+        // =========================================================================
+        // EXAM LOCKDOWN, FULLSCREEN ENFORCEMENT & ANTI-CHEAT JAVASCRIPT
+        // =========================================================================
+        let isExamActive = false;
+        let isSubmitting = false;
+        let violationCount = 0;
+        const MAX_VIOLATIONS = 1;
+        const storageKey = 'quiz_end_{{ $quiz->id }}_{{ $attempt->id }}';
+        const violationStorageKey = 'quiz_violation_{{ $quiz->id }}_{{ $attempt->id }}';
+
+        // 1. Synthesized Audio Beep for Warning Alerts
+        function playWarningBeep() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(480, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.35);
+                gain.gain.setValueAtTime(0.35, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (e) {
+                // Fallback silently if audio blocked by browser policy
+            }
+        }
+
+        // 2. Fullscreen Handlers
+        function isFullscreenActive() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        }
+
+        function requestFullscreenSafe() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                return el.requestFullscreen();
+            } else if (el.webkitRequestFullscreen) {
+                return el.webkitRequestFullscreen();
+            } else if (el.mozRequestFullScreen) {
+                return el.mozRequestFullScreen();
+            } else if (el.msRequestFullscreen) {
+                return el.msRequestFullscreen();
+            }
+            return Promise.resolve();
+        }
+
+        function startFullscreenExam() {
+            requestFullscreenSafe().catch(err => {
+                console.warn('Fullscreen request rejected or not supported:', err);
+            }).finally(() => {
+                const startModal = document.getElementById('examStartModal');
+                if (startModal) startModal.style.display = 'none';
+                isExamActive = true;
+            });
+        }
+
+        function restoreFullscreenExam() {
+            requestFullscreenSafe().catch(err => {
+                console.warn('Fullscreen request rejected:', err);
+            }).finally(() => {
+                const restoreOverlay = document.getElementById('fullscreenRestoreOverlay');
+                if (restoreOverlay) restoreOverlay.style.display = 'none';
+            });
+        }
+
+        // 3. Tab Switch, Blur Window & Fullscreen Exit Violation Handlers (Maksimal 1 Kali Toleransi)
+        let lastViolationTime = 0;
+        function handleTabSwitchViolation() {
+            if (!isExamActive || isSubmitting) return;
+
+            // Hindari trigger ganda dalam 1 detik
+            const now = Date.now();
+            if (now - lastViolationTime < 1000) return;
+            lastViolationTime = now;
+
+            violationCount++;
+            localStorage.setItem(violationStorageKey, violationCount);
+            playWarningBeep();
+
+            // Tampilkan Modal Peringatan Pelanggaran
+            const violationModal = document.getElementById('tabViolationModal');
+            if (violationModal) {
+                violationModal.style.display = 'flex';
+            }
+
+            // Kuis Otomatis Dikumpulkan
+            isSubmitting = true;
+            localStorage.removeItem(violationStorageKey);
+            localStorage.removeItem(storageKey);
+
+            setTimeout(() => {
+                const quizForm = document.getElementById('quizForm');
+                if (quizForm) {
+                    quizForm.submit();
+                }
+            }, 1500);
+        }
+
+        // 4. Modal Konfirmasi Kumpulkan Kuis
+        function openSubmitConfirmationModal() {
+            const answeredCount = answeredSet.size;
+            const unansweredCount = Math.max(0, totalQuestions - answeredCount);
+
+            const elAnswered = document.getElementById('modalAnsweredCount');
+            const elUnanswered = document.getElementById('modalUnansweredCount');
+            const warningBox = document.getElementById('unansweredWarningBox');
+            const warningNum = document.getElementById('warningUnansweredNum');
+
+            if (elAnswered) elAnswered.innerText = answeredCount;
+            if (elUnanswered) elUnanswered.innerText = unansweredCount;
+
+            if (unansweredCount > 0) {
+                if (warningBox) warningBox.classList.remove('d-none');
+                if (warningNum) warningNum.innerText = unansweredCount;
+            } else {
+                if (warningBox) warningBox.classList.add('d-none');
+            }
+
+            const modal = document.getElementById('submitConfirmModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeSubmitModal() {
+            const modal = document.getElementById('submitConfirmModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function confirmActualSubmit() {
+            isSubmitting = true;
+            localStorage.removeItem(violationStorageKey);
+            localStorage.removeItem(storageKey);
+            document.getElementById('quizForm').submit();
+        }
+
+        // 5. Navigasi Lock (Back Button & Exit Prevention)
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function () {
+            if (!isSubmitting) {
+                history.pushState(null, null, location.href);
+                showBackToast();
+            }
+        });
+
+        let toastTimer = null;
+        function showBackToast() {
+            const toast = document.getElementById('backNavToast');
+            if (!toast) return;
+            toast.classList.remove('d-none');
+            playWarningBeep();
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('d-none');
+            }, 3500);
+        }
+
+        // Lock Browser Refresh & Tab Close
+        window.addEventListener('beforeunload', function (e) {
+            if (!isSubmitting) {
+                e.preventDefault();
+                e.returnValue = 'Kuis sedang berlangsung! Anda tidak dapat meninggalkan halaman sebelum kuis selesai dikumpulkan.';
+                return e.returnValue;
+            }
+        });
+
+        // Lock ContextMenu (Right Click)
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Lock Keyboard Shortcuts (DevTools, View Source, Copy-Paste, New Tab)
+        document.addEventListener('keydown', function (e) {
+            // F12 key
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl/Meta + Shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                const key = e.key.toLowerCase();
+                if (['c', 'v', 'x', 'u', 's', 'p', 'w', 't', 'n'].includes(key)) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl + Shift + (I, J, C)
+                if (e.shiftKey && ['i', 'j', 'c'].includes(key)) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
-            // 2. Interactive Radio Selection & AJAX Auto-Save
+            // Inisialisasi pelanggaran tersimpan
+            const savedViolations = parseInt(localStorage.getItem(violationStorageKey), 10);
+            if (savedViolations && !isNaN(savedViolations)) {
+                violationCount = savedViolations;
+                updateViolationUI();
+            }
+
+            // Tampilkan modal fullscreen jika belum fullscreen dan kuis memiliki soal
+            if (totalQuestions > 0) {
+                if (isFullscreenActive()) {
+                    isExamActive = true;
+                } else {
+                    const startModal = document.getElementById('examStartModal');
+                    if (startModal) startModal.style.display = 'flex';
+                }
+            }
+
+            // Monitor perubahan status Fullscreen (Keluar Fullscreen = Pelanggaran Langsung Kuis Dikumpulkan)
+            document.addEventListener('fullscreenchange', function () {
+                if (!isFullscreenActive() && isExamActive && !isSubmitting) {
+                    handleTabSwitchViolation();
+                }
+            });
+
+            // Monitor perpindahan tab / minimize (Page Visibility API)
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) {
+                    handleTabSwitchViolation();
+                }
+            });
+
+            // Monitor hilangnya fokus jendela (Alt+Tab / klik ke aplikasi lain)
+            window.addEventListener('blur', function () {
+                setTimeout(() => {
+                    if (!document.hasFocus() && isExamActive && !isSubmitting) {
+                        handleTabSwitchViolation();
+                    }
+                }, 250);
+            });
+
+            // 6. Interactive Radio Selection & AJAX Auto-Save
             const radioInputs = document.querySelectorAll('.option-radio');
 
             radioInputs.forEach(radio => {
@@ -679,6 +1205,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'expired') {
+                            isSubmitting = true;
                             alert('Batas waktu kuis telah berakhir. Lembar kuis akan otomatis dikumpulkan.');
                             document.getElementById('quizForm').submit();
                         } else {
@@ -692,9 +1219,8 @@
                 });
             });
 
-            // 3. Real-Time Countdown Timer (Persistent server countdown & browser state)
+            // 7. Real-Time Countdown Timer (Persistent server countdown & browser state)
             const serverRemainingSeconds = {{ (int)$remainingSeconds }};
-            const storageKey = 'quiz_end_{{ $quiz->id }}_{{ $attempt->id }}';
 
             // Hitung target waktu selesai berbasis timestamp server dan clock client
             let targetEndTime = Date.now() + (serverRemainingSeconds * 1000);
@@ -719,8 +1245,10 @@
                 if (remaining <= 0) {
                     timerElement.innerText = "00:00";
                     localStorage.removeItem(storageKey);
+                    localStorage.removeItem(violationStorageKey);
                     if (!autoSubmitted) {
                         autoSubmitted = true;
+                        isSubmitting = true;
                         alert('Waktu pengerjaan kuis telah habis! Jawaban Anda akan otomatis dikumpulkan ke sistem.');
                         quizForm.submit();
                     }
@@ -750,7 +1278,9 @@
             // Bersihkan storage ketika form dikumpulkan
             if (quizForm) {
                 quizForm.addEventListener('submit', function () {
+                    isSubmitting = true;
                     localStorage.removeItem(storageKey);
+                    localStorage.removeItem(violationStorageKey);
                 });
             }
 

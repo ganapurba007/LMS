@@ -391,8 +391,18 @@
                                         Tenggat waktu kuis ini telah terlewat pada <strong>{{ $quiz->deadline ? $quiz->deadline->format('d F Y - H:i') . ' WIB' : '-' }}</strong>. Kuis telah ditutup dan tidak dapat dimulai lagi.
                                     </p>
                                 </div>
+                            @elseif($quiz->questions->count() === 0)
+                                <div class="mb-3">
+                                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-warning mb-2" style="background: rgba(245, 158, 11, 0.15); width: 68px; height: 68px;">
+                                        <i class="ti ti-clock-pause text-warning" style="font-size: 2.4rem;"></i>
+                                    </div>
+                                    <h4 class="fw-bold text-dark mb-1">Soal Ujian Belum Tersedia</h4>
+                                    <p class="text-muted small mb-3">
+                                        Guru pengampu belum mengunggah butir pertanyaan untuk kuis ini. Silakan periksa kembali nanti atau hubungi guru Anda.
+                                    </p>
+                                </div>
                                 <button type="button" class="btn btn-secondary rounded-pill px-5 py-3 font-bold shadow-none" disabled style="opacity: 0.65; cursor: not-allowed; font-size: 1rem;">
-                                    <i class="ti ti-lock me-1"></i> Waktu Habis — Kuis Ditutup
+                                    <i class="ti ti-hourglass-empty me-1"></i> Soal Belum Tersedia
                                 </button>
                             @else
                                 <div class="mb-3">

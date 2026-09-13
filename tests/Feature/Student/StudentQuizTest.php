@@ -252,6 +252,46 @@ class StudentQuizTest extends TestCase
         $response->assertSee('Navigasi Soal');
         $response->assertSee('Jawaban Benar');
     }
+
+    public function test_siswa_can_submit_quiz_with_unanswered_questions_without_integrity_error(): void
+    {
+        // Tambahkan soal kedua
+        $question2 = QuizQuestion::create([
+            'quiz_id' => $this->quiz->id,
+            'question_text' => 'Berapakah 2 + 2?',
+        ]);
+        $opt2Correct = QuizQuestionOption::create([
+            'quiz_question_id' => $question2->id,
+            'option_text' => '4',
+            'is_correct' => true,
+        ]);
+
+        // Start quiz
+        $this->actingAs($this->student)->post(route('student.quizzes.start', $this->quiz));
+
+        // Submit quiz HANYA menjawab soal 1, soal 2 dikosongkan (unanswered)
+        $submitResponse = $this->actingAs($this->student)->post(route('student.quizzes.submit', $this->quiz), [
+            'answers' => [
+                $this->question->id => $this->optionCorrect->id,
+                // $question2->id sengaja tidak dijawab
+            ],
+        ]);
+
+        $submitResponse->assertRedirect(route('student.quizzes.result', $this->quiz));
+
+        // Attempt terupdate dengan skor 50% (1 dari 2 benar)
+        $attempt = QuizAttempt::where('quiz_id', $this->quiz->id)
+            ->where('student_id', $this->student->id)
+            ->first();
+
+        $this->assertEquals(50, $attempt->score);
+        $this->assertNotNull($attempt->submitted_at);
+
+        // Halaman result dapat diakses dengan normal
+        $resultResponse = $this->actingAs($this->student)->get(route('student.quizzes.result', $this->quiz));
+        $resultResponse->assertStatus(200);
+        $resultResponse->assertSee('Skor: 50 / 100');
+    }
 }
 
 
