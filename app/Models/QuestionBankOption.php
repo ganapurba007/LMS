@@ -15,6 +15,7 @@ class QuestionBankOption extends Model
     protected $fillable = [
         'question_bank_id',
         'option_text',
+        'match_text',
         'is_correct',
     ];
 

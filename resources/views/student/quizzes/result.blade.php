@@ -224,18 +224,45 @@
         foreach($quiz->questions as $index => $q) {
             $step = $index + 1;
             $userAnswer = $answersMap->get($q->id);
-            $selectedOptionId = $userAnswer ? $userAnswer->selected_option_id : null;
-            $correctOption = $q->options->firstWhere('is_correct', true);
 
-            if ($selectedOptionId && $correctOption && $selectedOptionId === $correctOption->id) {
-                $correctCount++;
-                $questionStatuses[$step] = 'correct';
-            } elseif ($selectedOptionId) {
-                $wrongCount++;
-                $questionStatuses[$step] = 'wrong';
+            if ($q->isMatching()) {
+                $pairsAnswer = ($userAnswer && is_array($userAnswer->answer_data)) ? $userAnswer->answer_data : [];
+                $totalPairs = $q->options->count();
+                $matchedCount = 0;
+                if ($totalPairs > 0 && !empty($pairsAnswer)) {
+                    foreach ($q->options as $opt) {
+                        if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
+                            $matchedCount++;
+                        }
+                    }
+                    if ($matchedCount === $totalPairs) {
+                        $correctCount++;
+                        $questionStatuses[$step] = 'correct';
+                    } elseif ($matchedCount > 0) {
+                        $correctCount += ($matchedCount / $totalPairs);
+                        $questionStatuses[$step] = 'correct';
+                    } else {
+                        $wrongCount++;
+                        $questionStatuses[$step] = 'wrong';
+                    }
+                } else {
+                    $unansweredCount++;
+                    $questionStatuses[$step] = 'unanswered';
+                }
             } else {
-                $unansweredCount++;
-                $questionStatuses[$step] = 'unanswered';
+                $selectedOptionId = $userAnswer ? $userAnswer->selected_option_id : null;
+                $correctOption = $q->options->firstWhere('is_correct', true);
+
+                if ($selectedOptionId && $correctOption && $selectedOptionId === $correctOption->id) {
+                    $correctCount++;
+                    $questionStatuses[$step] = 'correct';
+                } elseif ($selectedOptionId) {
+                    $wrongCount++;
+                    $questionStatuses[$step] = 'wrong';
+                } else {
+                    $unansweredCount++;
+                    $questionStatuses[$step] = 'unanswered';
+                }
             }
         }
 
@@ -348,10 +375,33 @@
                     @php
                         $stepNumber = $index + 1;
                         $userAnswer = $answersMap->get($question->id);
-                        $selectedOptionId = $userAnswer ? $userAnswer->selected_option_id : null;
-                        $correctOption = $question->options->firstWhere('is_correct', true);
-                        $isCorrect = $selectedOptionId && $correctOption && $selectedOptionId === $correctOption->id;
                         $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                        
+                        $isMatching = $question->isMatching();
+                        $isTrueFalse = $question->isTrueFalse();
+                        
+                        if ($isMatching) {
+                            $pairsAnswer = ($userAnswer && is_array($userAnswer->answer_data)) ? $userAnswer->answer_data : [];
+                            $totalPairs = $question->options->count();
+                            $correctPairs = 0;
+                            if ($totalPairs > 0 && !empty($pairsAnswer)) {
+                                foreach ($question->options as $opt) {
+                                    if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
+                                        $correctPairs++;
+                                    }
+                                }
+                            }
+                            $isAnswered = !empty($pairsAnswer);
+                            $isFullCorrect = ($totalPairs > 0 && $correctPairs === $totalPairs);
+                            $isPartialCorrect = ($correctPairs > 0 && $correctPairs < $totalPairs);
+                            $cardBorderColor = $isFullCorrect ? '#10B981' : ($isPartialCorrect ? '#F59E0B' : ($isAnswered ? '#EF4444' : '#94A3B8'));
+                        } else {
+                            $selectedOptionId = $userAnswer ? $userAnswer->selected_option_id : null;
+                            $correctOption = $question->options->firstWhere('is_correct', true);
+                            $isCorrect = $selectedOptionId && $correctOption && $selectedOptionId === $correctOption->id;
+                            $isAnswered = !is_null($selectedOptionId);
+                            $cardBorderColor = $isCorrect ? '#10B981' : ($isAnswered ? '#EF4444' : '#94A3B8');
+                        }
                     @endphp
 
                     <!-- Single Question Card Container -->
@@ -359,7 +409,7 @@
                          id="question-step-{{ $stepNumber }}" 
                          data-step="{{ $stepNumber }}">
                         
-                        <div class="question-card-modern" style="border-left: 5px solid {{ $isCorrect ? '#10B981' : ($selectedOptionId ? '#EF4444' : '#94A3B8') }} !important;">
+                        <div class="question-card-modern" style="border-left: 5px solid {{ $cardBorderColor }} !important;">
                             
                             <!-- Question Card Header -->
                             <div class="question-card-header">
@@ -368,21 +418,55 @@
                                         <i class="ti ti-file-text fs-6"></i> Soal No. {{ $stepNumber }}
                                     </span>
                                     <span class="text-muted small fw-semibold">dari {{ $totalQuestions }} Soal</span>
+                                    
+                                    @if($isMatching)
+                                        <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+                                            <i class="ti ti-arrows-exchange"></i> Menjodohkan
+                                        </span>
+                                    @elseif($isTrueFalse)
+                                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+                                            <i class="ti ti-check-details"></i> Benar / Salah
+                                        </span>
+                                    @else
+                                        <span class="badge bg-blue-subtle text-primary border border-blue-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+                                            <i class="ti ti-list-check"></i> Pilihan Ganda
+                                        </span>
+                                    @endif
                                 </div>
                                 
                                 <div class="d-flex align-items-center gap-2">
-                                    @if($isCorrect)
-                                        <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #dcfce7; color: #15803d; font-size: 0.78rem;">
-                                            <i class="ti ti-circle-check fs-6"></i> Benar (+{{ $quiz->points_per_question ?? 100 }} Poin)
-                                        </span>
-                                    @elseif($selectedOptionId)
-                                        <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fee2e2; color: #b91c1c; font-size: 0.78rem;">
-                                            <i class="ti ti-circle-x fs-6"></i> Salah (0 Poin)
-                                        </span>
+                                    @if($isMatching)
+                                        @if($isFullCorrect)
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #dcfce7; color: #15803d; font-size: 0.78rem;">
+                                                <i class="ti ti-circle-check fs-6"></i> Benar Sempurna ({{ $correctPairs }}/{{ $totalPairs }} Pasangan)
+                                            </span>
+                                        @elseif($isPartialCorrect)
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fef3c7; color: #b45309; font-size: 0.78rem;">
+                                                <i class="ti ti-alert-triangle fs-6"></i> Benar Sebagian ({{ $correctPairs }}/{{ $totalPairs }} Pasangan)
+                                            </span>
+                                        @elseif($isAnswered)
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fee2e2; color: #b91c1c; font-size: 0.78rem;">
+                                                <i class="ti ti-circle-x fs-6"></i> Salah (0/{{ $totalPairs }} Pasangan)
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #f1f5f9; color: #475569; font-size: 0.78rem;">
+                                                <i class="ti ti-alert-circle fs-6"></i> Tidak Dijawab (0 Poin)
+                                            </span>
+                                        @endif
                                     @else
-                                        <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #f1f5f9; color: #475569; font-size: 0.78rem;">
-                                            <i class="ti ti-alert-circle fs-6"></i> Tidak Dijawab (0 Poin)
-                                        </span>
+                                        @if($isCorrect)
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #dcfce7; color: #15803d; font-size: 0.78rem;">
+                                                <i class="ti ti-circle-check fs-6"></i> Benar (+{{ $quiz->points_per_question ?? 100 }} Poin)
+                                            </span>
+                                        @elseif($isAnswered)
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fee2e2; color: #b91c1c; font-size: 0.78rem;">
+                                                <i class="ti ti-circle-x fs-6"></i> Salah (0 Poin)
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #f1f5f9; color: #475569; font-size: 0.78rem;">
+                                                <i class="ti ti-alert-circle fs-6"></i> Tidak Dijawab (0 Poin)
+                                            </span>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
@@ -395,57 +479,152 @@
                                     {!! nl2br(e($question->question_text)) !!}
                                 </div>
 
-                                <!-- Review Options List -->
-                                <div class="d-flex flex-column mb-3">
-                                    @foreach($question->options as $optIndex => $option)
-                                        @php
-                                            $letter = $letters[$optIndex % count($letters)];
-                                            $isUserSelected = $selectedOptionId === $option->id;
-                                            $isOptionCorrect = (bool)$option->is_correct;
+                                @if($isMatching)
+                                    <!-- Matching Format Review Table -->
+                                    <div class="table-responsive rounded-3 border mb-3">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="ps-3" style="width: 38%; font-size: 0.85rem;">Premis / Pertanyaan</th>
+                                                    <th style="width: 34%; font-size: 0.85rem;">Pasangan Jawaban Anda</th>
+                                                    <th class="pe-3" style="width: 28%; font-size: 0.85rem;">Kunci Pasangan Benar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($question->options as $opt)
+                                                    @php
+                                                        $studentMatch = $pairsAnswer[$opt->id] ?? null;
+                                                        $isPairCorrect = ($studentMatch !== null && trim($studentMatch) === trim($opt->match_text));
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="ps-3 fw-semibold text-dark" style="font-size: 0.92rem;">
+                                                            {{ $opt->option_text }}
+                                                        </td>
+                                                        <td>
+                                                            @if($studentMatch)
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <span class="badge {{ $isPairCorrect ? 'bg-success' : 'bg-danger' }} rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
+                                                                        <i class="ti {{ $isPairCorrect ? 'ti-check' : 'ti-x' }}" style="font-size: 0.75rem;"></i>
+                                                                    </span>
+                                                                    <span class="{{ $isPairCorrect ? 'text-success fw-bold' : 'text-danger fw-medium' }}" style="font-size: 0.92rem;">
+                                                                        {{ $studentMatch }}
+                                                                    </span>
+                                                                </div>
+                                                            @else
+                                                                <span class="badge bg-secondary-subtle text-muted" style="font-size: 0.78rem;">Tidak Dipilih</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="pe-3">
+                                                            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle fw-semibold px-2.5 py-1" style="font-size: 0.88rem;">
+                                                                <i class="ti ti-check me-1"></i> {{ $opt->match_text }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @elseif($isTrueFalse)
+                                    <!-- True/False Format Review -->
+                                    <div class="row g-3 mb-3">
+                                        @foreach($question->options as $option)
+                                            @php
+                                                $isUserSelected = $selectedOptionId === $option->id;
+                                                $isOptionCorrect = (bool)$option->is_correct;
+                                                $isBenar = strtolower(trim($option->option_text)) === 'benar';
 
-                                            $tileClass = 'review-option-tile';
-                                            $letterBg = 'background: #e2e8f0; color: #334155;';
-
-                                            if ($isUserSelected && $isOptionCorrect) {
-                                                $tileClass .= ' tile-correct-selected';
-                                                $letterBg = 'background: #10B981; color: #ffffff;';
-                                            } elseif ($isUserSelected) {
-                                                $tileClass .= ' tile-wrong-selected';
-                                                $letterBg = 'background: #EF4444; color: #ffffff;';
-                                            } elseif ($isOptionCorrect) {
-                                                $tileClass .= ' tile-correct-unselected';
-                                                $letterBg = 'background: #10B981; color: #ffffff;';
-                                            }
-                                        @endphp
-
-                                        <div class="{{ $tileClass }}">
-                                            <div class="d-flex align-items-center">
-                                                <span class="option-badge-letter" style="{{ $letterBg }}">
-                                                    {{ $letter }}
-                                                </span>
-                                                <div class="text-dark fw-medium" style="font-size: 0.95rem; line-height: 1.45;">
-                                                    {{ $option->option_text }}
+                                                $tileBorder = 'border: 1.5px solid rgba(51, 104, 160, 0.15);';
+                                                $tileBg = 'background: #ffffff;';
+                                                if ($isUserSelected && $isOptionCorrect) {
+                                                    $tileBg = 'background: #ecfdf5;';
+                                                    $tileBorder = 'border: 2px solid #10B981;';
+                                                } elseif ($isUserSelected) {
+                                                    $tileBg = 'background: #fef2f2;';
+                                                    $tileBorder = 'border: 2px solid #ef4444;';
+                                                } elseif ($isOptionCorrect) {
+                                                    $tileBg = 'background: #f0fdf4;';
+                                                    $tileBorder = 'border: 2px dashed #10B981;';
+                                                }
+                                            @endphp
+                                            <div class="col-md-6">
+                                                <div class="p-3 rounded-3 d-flex align-items-center justify-content-between" style="{{ $tileBg }} {{ $tileBorder }}">
+                                                    <div class="d-flex align-items-center gap-2.5">
+                                                        <span class="badge {{ $isBenar ? 'bg-success' : 'bg-danger' }} rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.88rem;">
+                                                            <i class="ti {{ $isBenar ? 'ti-check' : 'ti-x' }} me-1"></i> {{ $option->option_text }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        @if($isUserSelected && $isOptionCorrect)
+                                                            <span class="badge bg-success rounded-pill px-2.5 py-1 small fw-bold">
+                                                                <i class="ti ti-check"></i> Jawaban Anda &amp; Benar
+                                                            </span>
+                                                        @elseif($isUserSelected)
+                                                            <span class="badge bg-danger rounded-pill px-2.5 py-1 small fw-bold">
+                                                                <i class="ti ti-x"></i> Jawaban Anda
+                                                            </span>
+                                                        @elseif($isOptionCorrect)
+                                                            <span class="badge bg-success-subtle text-success border border-success rounded-pill px-2.5 py-1 small fw-bold">
+                                                                <i class="ti ti-circle-check"></i> Kunci Benar
+                                                            </span>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <!-- Multiple Choice Review Options List -->
+                                    <div class="d-flex flex-column mb-3">
+                                        @foreach($question->options as $optIndex => $option)
+                                            @php
+                                                $letter = $letters[$optIndex % count($letters)];
+                                                $isUserSelected = $selectedOptionId === $option->id;
+                                                $isOptionCorrect = (bool)$option->is_correct;
 
-                                            <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-3">
-                                                @if($isUserSelected && $isOptionCorrect)
-                                                    <span class="badge bg-success rounded-pill px-3 py-1 font-bold small d-inline-flex align-items-center gap-1">
-                                                        <i class="ti ti-check"></i> Jawaban Anda &amp; Jawaban Benar
+                                                $tileClass = 'review-option-tile';
+                                                $letterBg = 'background: #e2e8f0; color: #334155;';
+
+                                                if ($isUserSelected && $isOptionCorrect) {
+                                                    $tileClass .= ' tile-correct-selected';
+                                                    $letterBg = 'background: #10B981; color: #ffffff;';
+                                                } elseif ($isUserSelected) {
+                                                    $tileClass .= ' tile-wrong-selected';
+                                                    $letterBg = 'background: #EF4444; color: #ffffff;';
+                                                } elseif ($isOptionCorrect) {
+                                                    $tileClass .= ' tile-correct-unselected';
+                                                    $letterBg = 'background: #10B981; color: #ffffff;';
+                                                }
+                                            @endphp
+
+                                            <div class="{{ $tileClass }}">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="option-badge-letter" style="{{ $letterBg }}">
+                                                        {{ $letter }}
                                                     </span>
-                                                @elseif($isUserSelected)
-                                                    <span class="badge bg-danger rounded-pill px-3 py-1 font-bold small d-inline-flex align-items-center gap-1">
-                                                        <i class="ti ti-x"></i> Jawaban Anda
-                                                    </span>
-                                                @elseif($isOptionCorrect)
-                                                    <span class="badge bg-success-subtle text-success-emphasis border border-success rounded-pill px-3 py-1 font-bold small d-inline-flex align-items-center gap-1">
-                                                        <i class="ti ti-circle-check"></i> Jawaban Benar
-                                                    </span>
-                                                @endif
+                                                    <div class="text-dark fw-medium" style="font-size: 0.95rem; line-height: 1.45;">
+                                                        {{ $option->option_text }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-3">
+                                                    @if($isUserSelected && $isOptionCorrect)
+                                                        <span class="badge bg-success rounded-pill px-3 py-1 font-bold small d-inline-flex align-items-center gap-1">
+                                                            <i class="ti ti-check"></i> Jawaban Anda &amp; Jawaban Benar
+                                                        </span>
+                                                    @elseif($isUserSelected)
+                                                        <span class="badge bg-danger rounded-pill px-3 py-1 font-bold small d-inline-flex align-items-center gap-1">
+                                                            <i class="ti ti-x"></i> Jawaban Anda
+                                                        </span>
+                                                    @elseif($isOptionCorrect)
+                                                        <span class="badge bg-success-subtle text-success-emphasis border border-success rounded-pill px-3 py-1 font-bold small d-inline-flex align-items-center gap-1">
+                                                            <i class="ti ti-circle-check"></i> Jawaban Benar
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endforeach
-                                </div>
+                                        @endforeach
+                                    </div>
+                                @endif
 
                                 <!-- Card Footer: Stepper Navigation Buttons (Sama Seperti Saat Kuis) -->
                                 <div class="d-flex align-items-center justify-content-between pt-3 mt-4 border-top" style="border-color: rgba(51, 104, 160, 0.1) !important;">

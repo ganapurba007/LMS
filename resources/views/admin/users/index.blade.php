@@ -61,7 +61,7 @@
                             </td>
                             <td class="pe-4 text-end">
                                 <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary" title="Assign Role / Edit">
-                                    <i class="ti ti-edit me-1"></i> Edit
+                                    <i class="ti ti-edit me-1"></i>
                                 </a>
                             </td>
                         </tr>

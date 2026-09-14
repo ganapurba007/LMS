@@ -53,13 +53,11 @@
                                     </a>
 
                                     @if(!in_array($role->name, ['guru', 'siswa']))
-                                        <form method="POST" action="{{ route('admin.roles.destroy', $role) }}" onsubmit="return confirm('Yakin ingin menghapus role ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="openDeleteRoleModal('{{ route('admin.roles.destroy', $role) }}', '{{ addslashes($role->name) }}')" 
+                                                title="Hapus">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
                                     @endif
                                 </div>
                             </td>
@@ -79,4 +77,42 @@
         </div>
     @endif
 </div>
+
+<!-- Modal Konfirmasi Hapus Role -->
+<div class="modal fade" id="modalDeleteRole" tabindex="-1" aria-labelledby="modalDeleteRoleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-body text-center p-4">
+                <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                    <i class="ti ti-trash fs-2"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Hapus Role Ini?</h5>
+                <p class="text-muted small mb-4" id="deleteModalRoleText">Role yang dihapus tidak dapat dikembalikan.</p>
+                <form id="deleteRoleForm" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="ti ti-trash me-1"></i> Ya, Hapus
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openDeleteRoleModal(url, roleName) {
+        const form = document.getElementById('deleteRoleForm');
+        form.action = url;
+        const textEl = document.getElementById('deleteModalRoleText');
+        if (textEl && roleName) {
+            textEl.innerText = `Anda akan menghapus role: "${roleName}". Tindakan ini tidak dapat dibatalkan.`;
+        }
+        const modal = new bootstrap.Modal(document.getElementById('modalDeleteRole'));
+        modal.show();
+    }
+</script>
 @endsection

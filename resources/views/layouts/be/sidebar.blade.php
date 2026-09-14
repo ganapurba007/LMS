@@ -3,7 +3,6 @@
   <div class="sidebar-header">
     <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
       <div class="sidebar-brand-icon">
-        <i class="ti ti-brand-tabler"></i>
       </div>
       <span>RuangTerra</span>
     </a>

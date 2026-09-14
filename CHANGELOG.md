@@ -2,6 +2,135 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 47] Quiz Student Results Monitoring, Attempt Reset & UI Refinement — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Fitur Monitoring Hasil Siswa per Kelas & Reset Pengerjaan Kuis**:
+  - **Halaman Monitoring Hasil Siswa ([`resources/views/admin/quizzes/students.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/students.blade.php))**:
+    - Menyajikan data pengerjaan seluruh siswa di kelas kuis bersangkutan (Total Siswa, Sudah Selesai, Sedang Mengerjakan, Belum Mengerjakan, Rata-rata Nilai Kelas).
+    - Menampilkan tabel lengkap dengan status pengerjaan, timestamp mulai/selesai, durasi pengerjaan, serta perolehan skor siswa.
+    - Dilengkapi **DataTable Cerdas** (`data-table`) untuk pencarian instan (*live search*), paginasi, dan pengurutan kolom.
+  - **Fitur Reset Pengerjaan Siswa**:
+    - Tombol **Reset Pengerjaan** dengan konfirmasi **Modal Bootstrap 5 Custom** (`#modalResetAttempt`).
+    - Mengizinkan guru mengosongkan riwayat pengerjaan siswa sehingga siswa dapat mengikuti ulang kuis dari awal selama batas waktu belum berakhir.
+    - Dilengkapi notifikasi peringatan otomatis jika deadline kuis telah berakhir.
+- **Penyederhanaan Format Soal Menjodohkan (Opsi Teks Instruksi)**:
+  - Pada format *Menjodohkan*, form instruksi soal disembunyikan dan diubah menjadi opsional.
+  - Backend controller ([`QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php) & [`QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php)) secara otomatis memberikan teks default `"Jodohkanlah item berikut dengan pasangannya yang benar:"` jika dikosongkan.
+- **Standarisasi Modal Konfirmasi Hapus & Penataan UI Backend**:
+  - Seluruh konfirmasi hapus bawaan browser `confirm()` di halaman Master Data (*Kelas, Mata Pelajaran, Kuis, Tugas, Materi, Role*) telah diganti menggunakan **Modal Bootstrap 5 Custom** yang rapi & informatif.
+  - Menata tombol aksi (Edit, Hapus, Hasil Siswa) dengan ikon Tabler, badge warna, dan spacing tipografi yang presisi.
+- **Pengujian & Regresi**:
+  - **150 passed (528 assertions)** 100% green.
+
+## [Fase 46] Smart Tab Switching Auto-Spawn & Custom Bootstrap Delete Modals — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Fitur Auto-Spawn Cerdas saat Berpindah Format Soal**:
+  - **Penyimpanan Semua Soal Sekaligus**: Ketika guru mengisikan soal (Pilihan Ganda) lalu mengeklik tab format lain (*Benar/Salah* atau *Menjodohkan*), sistem cerdas mendeteksi isi soal yang sudah ada, mempertahankan soal lama sebagai **Soal #1**, dan **secara otomatis menambahkan kartu baru (Soal #2)** untuk format baru yang dipilih.
+  - Guru dapat membuat soal *Pilihan Ganda*, *Benar/Salah*, dan *Menjodohkan* secara berurutan hanya dengan mengeklik tab format, dan **seluruh soal akan otomatis tersimpan sekaligus dalam satu kali klik tombol Simpan**.
+- **Penggantian Konfirmasi Hapus bawaan Browser dengan Modal Bootstrap**:
+  - Seluruh konfirmasi hapus bawaan JS/browser (`confirm(...)`) diganti dengan **Custom Bootstrap 5 Modal** modern yang menarik:
+    - **Modal Hapus Bank Soal ([`index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/index.blade.php))**: `#modalDeleteQuestionBank` lengkap dengan teks konfirmasi spesifik dan tombol *Ya, Hapus*.
+    - **Modal Hapus Soal Kuis ([`show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**: `#modalDeleteQuizQuestion` untuk menghapus soal kuis terdaftar.
+    - **Modal Hapus Kartu Form Builder ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php) & [`show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**: `#modalConfirmDeleteCard` dan `#modalAlertQb` untuk mengganti seluruh popup `alert()` & `confirm()`.
+- **Pengujian & Regresi**:
+  - **149 passed (523 assertions)** 100% green.
+
+## [Fase 45] Question Bank UI Refinement & Matching Pair Simplification — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Penyederhanaan & Penataan Tampilan Format Soal Menjodohkan (Matching)**:
+  - **Halaman Daftar Bank Soal ([`resources/views/admin/question-banks/index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/index.blade.php))**:
+    - Kolom kunci jawaban pada soal tipe *Menjodohkan* kini menampilkan seluruh daftar pasangan premis & pasangan jawaban secara langsung dan rapi (contoh: `Premis ➔ Pasangan Jawaban`), tidak lagi menampilkan 1 opsi tunggal yang membingungkan.
+    - Menata tata letak tabel agar sepenuhnya responsif di perangkat seluler dan desktop dengan badge format warna-warni yang kontras.
+  - **Halaman Tambah Bank Soal ([`resources/views/admin/question-banks/create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**:
+    - Memperbarui antarmuka pengisian soal format *Menjodohkan* sehingga hanya fokus pada *Teks Pertanyaan / Instruksi* dan *Baris Pasangan Jawaban* (Premis ➔ Pasangan) secara bersih.
+    - Responsivitas penuh dengan penyesuaian kolom grid (`col-12` pada layar seluler dan `col-md-5` dengan ikon panah di layar komputer).
+  - **Halaman Edit Bank Soal ([`resources/views/admin/question-banks/edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/edit.blade.php))**:
+    - Memperbarui halaman edit agar mendukung penuh ketiga format soal (*Pilihan Ganda*, *Benar/Salah*, dan *Menjodohkan*) secara dinamis.
+    - Guru dapat mengedit soal menjodohkan dengan menambah/menghapus baris pasangan langsung di halaman edit.
+- **Pengujian & Regresi**:
+  - **149 passed (523 assertions)** 100% green.
+
+## [Fase 44] Batch Question Creation & Quick Paste Parser (Buat & Simpan Banyak Soal Sekaligus) — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Fitur Batch Question Builder di Detail Kuis & Bank Soal**:
+  - **Multi-Question Form Builder**: Guru tidak lagi harus mengisi dan menyimpan soal satu per satu.
+  - Tombol **"+ Tambah Butir Soal Lagi"**: Guru dapat menambah form butir soal sebanyak yang diinginkan dalam satu halaman dengan nomor butir otomatis dan switcher tipe format soal (*Pilihan Ganda*, *Benar/Salah*, *Menjodohkan*) yang independen untuk setiap butir.
+  - Fitur **Duplikasi Butir Soal**: Tombol salin butir soal untuk mempercepat pembuatan variasi soal serupa.
+  - Fitur **Hapus Butir Soal**: Tombol hapus kartu butir soal dinamis dengan proteksi minimal 1 kartu soal.
+  - **Input Cepat Berbasis Teks (Modal ⚡ Input Cepat)**:
+    - Parser teks cerdas regex di sisi klien yang secara otomatis mengenali format teks soal dari Word/Notepad:
+      - *Pilihan Ganda*: Mendeteksi `1. Pertanyaan`, `A. Pilihan`, `B. Pilihan`, `Kunci: A`.
+      - *Benar / Salah*: Mendeteksi `2. Pernyataan`, `Kunci: Benar` atau `Kunci: Salah`.
+      - *Menjodohkan*: Mendeteksi format premis dan pasangan `Premis = Pasangan`.
+    - Dilengkapi tombol **"Muat Contoh Format"** dan **"Konversi & Masukkan ke Form"** yang langsung memetakan teks ke kartu form builder.
+  - Tombol **"Simpan Semua Soal (X Butir)"**: Mengirim seluruh butir soal dalam satu kali request dengan payload array `questions: [...]`.
+- **Backend Batch Processing & Data Integrity**:
+  - [`app/Http/Controllers/Admin/QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php) (`storeQuestion`):
+    - Mendukung penerimaan payload array `questions: [...]` maupun payload tunggal (kompatibel penuh ke belakang).
+    - Membungkus proses penyimpanan dalam `DB::transaction` sehingga jika ada kegagalan, tidak ada data parsial tertinggal.
+    - Filter sanitasi opsi kosong (`array_values(array_filter(...))`) otomatis mengabaikan baris opsi kosong.
+  - [`app/Http/Controllers/Admin/QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php) (`store`):
+    - Mendukung penyimpanan batch banyak butir soal sekaligus ke Bank Soal dengan pemetaan kategori mata pelajaran yang konsisten.
+- **Pengujian Otomatis & Regresi**:
+  - Menambahkan test batch di [`tests/Feature/Admin/QuizCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuizCrudTest.php) (`test_guru_can_create_multiple_questions_simultaneously_batch`).
+  - Menambahkan test batch di [`tests/Feature/Admin/QuestionBankCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuestionBankCrudTest.php) (`test_guru_can_create_multiple_questions_in_question_bank_batch`).
+  - **149 passed (523 assertions)** 100% green.
+
+## [Fase 43] Multi-Format Quiz Support (Pilihan Ganda, Benar/Salah, Menjodohkan) — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Dukungan Tiga Format Soal Kuis Lengkap**:
+  - **Pilihan Ganda (Multiple Choice)**: Format standar 2-5 opsi dengan 1 kunci jawaban benar.
+  - **Benar / Salah (True / False)**: Format pernyataan dengan 2 pilihan pasti ("Benar" atau "Salah") dilengkapi switch interaktif.
+  - **Menjodohkan (Matching Pairs)**: Format pasangan premis/pernyataan dan pasangan jawaban yang dapat ditambah/dikurangi secara dinamis oleh guru.
+- **Skema Basis Data & Model Eloquent**:
+  - Migrasi [`database/migrations/2026_09_14_000002_add_question_types_and_matching_support.php`](file:///c:/laragon/www/KELAS/lms_dani/database/migrations/2026_09_14_000002_add_question_types_and_matching_support.php):
+    - Menambahkan kolom `question_type` (`multiple_choice`, `true_false`, `matching`) pada tabel `quiz_questions` dan `question_bank`.
+    - Menambahkan kolom `match_text` pada tabel `quiz_question_options` dan `question_bank_options`.
+    - Menambahkan kolom `answer_data` (tipe JSON) pada tabel `quiz_answers` untuk menyimpan pasangan jawaban siswa.
+  - Model [`app/Models/QuizQuestion.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuizQuestion.php) & [`app/Models/QuestionBank.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuestionBank.php):
+    - Menambahkan atribut fillable: `question_type`, `instructor_id`.
+    - Menambahkan helper method: `isMultipleChoice()`, `isTrueFalse()`, `isMatching()`.
+  - Model [`app/Models/QuizQuestionOption.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuizQuestionOption.php) & [`app/Models/QuestionBankOption.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuestionBankOption.php):
+    - Menambahkan atribut fillable: `match_text`.
+  - Model [`app/Models/QuizAnswer.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuizAnswer.php):
+    - Menambahkan atribut fillable `answer_data` dengan array casting `['answer_data' => 'array']`.
+- **Portal Guru / Admin (Pembuatan & Impor Soal)**:
+  - **Detail Kuis Guru ([`resources/views/admin/quizzes/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**:
+    - Format switcher interaktif dengan tab pills: *Pilihan Ganda*, *Benar / Salah*, dan *Menjodohkan*.
+    - Form dinamis untuk *Benar / Salah* dengan pemilihan kunci cepat (radio card).
+    - Form dinamis untuk *Menjodohkan* dengan tombol tambah baris pasangan dan hapus baris.
+    - Menampilkan badge format soal (`Pilihan Ganda`, `Benar / Salah`, `Menjodohkan`) pada setiap kartu soal.
+    - Menampilkan tabel pratinjau pasangan premis & kunci cocok untuk soal tipe menjodohkan.
+  - **Controller Kuis Admin ([`app/Http/Controllers/Admin/QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php))**:
+    - Method `storeQuestion`: Mendukung validasi dan penyimpanan spesifik untuk tipe `true_false` dan `matching`.
+    - Method `importQuestions`: Mengimpor seluruh metadata format dan pasangan jawaban dari Bank Soal ke kuis aktif.
+  - **Bank Soal Guru ([`app/Http/Controllers/Admin/QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php), [`resources/views/admin/question-banks/create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php), [`resources/views/admin/question-banks/index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/index.blade.php))**:
+    - Guru dapat membuat soal tipe Pilihan Ganda, Benar/Salah, dan Menjodohkan di bank soal dengan UI responsif dan badge format di daftar tabel.
+- **Portal Siswa (Pengerjaan Kuis Interaktif)**:
+  - **Lembar Pengerjaan ([`resources/views/student/quizzes/attempt.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/quizzes/attempt.blade.php))**:
+    - **Adaptive Question Card**: Menyesuaikan tampilan berdasarkan format soal:
+      - Pilihan Ganda: Kartu pilihan A/B/C/D/E interaktif.
+      - Benar / Salah: Dua tombol seleksi besar dengan ikon centang/silang.
+      - Menjodohkan: Antarmuka tabel premis dengan select dropdown pasangan acak (shuffled) untuk mencegah tebak urutan.
+    - **Auto-Save AJAX Cerdas**: Menyimpan pilihan secara instan saat siswa memilih opsi atau mencocokkan dropdown (`matching_answers` payload).
+  - **Engine Penilaian Otomatis & Submit ([`app/Http/Controllers/Student/QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/QuizController.php))**:
+    - Mendukung penilaian proporsional untuk soal tipe Menjodohkan (misal: 2 dari 4 pasang benar = 50% poin pada soal tersebut).
+    - Menangani penyimpanan auto-save maupun final submit (termasuk kasus waktu habis otomatis).
+- **Halaman Hasil & Review Siswa ([`resources/views/student/quizzes/result.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/quizzes/result.blade.php))**:
+    - **Badge Status Format**: Setiap soal menampilkan format soal dan status ketercapaian (*Benar Sempurna*, *Benar Sebagian*, *Salah*, atau *Tidak Dijawab*).
+    - **Review Kartu Benar/Salah**: Menampilkan pilihan siswa vs kunci jawaban dengan badge berwarna tegas.
+    - **Tabel Review Menjodohkan**: Menampilkan kolom premis, pasangan yang dipilih siswa (dengan ikon centang/silang), dan kunci jawaban yang benar.
+    - **Statistik & Navigasi**: Palet nomor soal dan penghitungan akurasi mendukung penilaian parsial soal menjodohkan.
+- **Pengujian Otomatis & Regresi**:
+  - Menambahkan test case di [`tests/Feature/Admin/QuizCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuizCrudTest.php) dan [`tests/Feature/Student/StudentQuizTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentQuizTest.php).
+  - **147 Passed (511 assertions)** tanpa satupun kegagalan / error.
+  - Verifikasi end-to-end browser subagent mencakup pengerjaan kuis kombinasi 3 format soal dan konfirmasi skor 100/100 pada halaman review.
+
 ## [Fase 42] Dedicated Student Profile Page & Strict Admin Portal Security — 2026-09-14
 
 ### Ditambahkan & Diperbarui

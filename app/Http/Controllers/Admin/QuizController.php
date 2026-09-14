@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\QuestionBank;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
 use App\Models\QuizQuestionOption;
 use App\Models\SchoolClass;
@@ -162,12 +163,14 @@ class QuizController extends Controller
                     'quiz_id' => $quiz->id,
                     'question_bank_id' => $qb->id,
                     'question_text' => $qb->question_text,
+                    'question_type' => $qb->question_type ?? 'multiple_choice',
                 ]);
 
                 foreach ($qb->options as $opt) {
                     QuizQuestionOption::create([
                         'quiz_question_id' => $qq->id,
                         'option_text' => $opt->option_text,
+                        'match_text' => $opt->match_text,
                         'is_correct' => $opt->is_correct,
                     ]);
                 }
@@ -179,28 +182,207 @@ class QuizController extends Controller
 
     public function storeQuestion(Request $request, Quiz $quiz)
     {
-        $request->validate([
-            'question_text' => ['required', 'string'],
-            'options' => ['required', 'array', 'min:2'],
-            'options.*' => ['required', 'string'],
-            'correct_option' => ['required', 'integer', 'min:0'],
-        ]);
+        // 1. Batch / Bulk Questions Processing
+        if ($request->has('questions') && is_array($request->input('questions')) && count($request->input('questions')) > 0) {
+            $createdCount = 0;
 
-        DB::transaction(function () use ($request, $quiz) {
-            $qq = QuizQuestion::create([
-                'quiz_id' => $quiz->id,
-                'question_bank_id' => null,
-                'question_text' => $request->question_text,
+            DB::transaction(function () use ($request, $quiz, &$createdCount) {
+                foreach ($request->input('questions') as $qData) {
+                    $qType = $qData['question_type'] ?? 'multiple_choice';
+                    $qText = trim($qData['question_text'] ?? '');
+                    if ($qText === '') {
+                        if ($qType === 'matching') {
+                            $qText = 'Jodohkanlah item berikut dengan pasangannya yang benar:';
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if ($qType === 'true_false') {
+                        $correctTf = $qData['correct_tf'] ?? ($qData['tf_correct_answer'] ?? 'Benar');
+                        $qq = QuizQuestion::create([
+                            'quiz_id' => $quiz->id,
+                            'question_bank_id' => null,
+                            'question_text' => $qText,
+                            'question_type' => 'true_false',
+                        ]);
+
+                        QuizQuestionOption::create([
+                            'quiz_question_id' => $qq->id,
+                            'option_text' => 'Benar',
+                            'is_correct' => ($correctTf === 'Benar'),
+                        ]);
+                        QuizQuestionOption::create([
+                            'quiz_question_id' => $qq->id,
+                            'option_text' => 'Salah',
+                            'is_correct' => ($correctTf === 'Salah'),
+                        ]);
+                        $createdCount++;
+                    } elseif ($qType === 'matching') {
+                        $pairs = $qData['pairs'] ?? ($qData['matching_pairs'] ?? []);
+                        if (is_array($pairs) && count($pairs) >= 2) {
+                            $qq = QuizQuestion::create([
+                                'quiz_id' => $quiz->id,
+                                'question_bank_id' => null,
+                                'question_text' => $qText,
+                                'question_type' => 'matching',
+                            ]);
+
+                            foreach ($pairs as $pair) {
+                                if (isset($pair['premise']) && isset($pair['match'])) {
+                                    QuizQuestionOption::create([
+                                        'quiz_question_id' => $qq->id,
+                                        'option_text' => trim($pair['premise']),
+                                        'match_text' => trim($pair['match']),
+                                        'is_correct' => true,
+                                    ]);
+                                }
+                            }
+                            $createdCount++;
+                        }
+                    } else {
+                        // Multiple Choice
+                        $options = $qData['options'] ?? [];
+                        $filteredOptions = [];
+                        $rawCorrectOpt = isset($qData['correct_option']) ? (int)$qData['correct_option'] : 0;
+                        $correctOptText = $options[$rawCorrectOpt] ?? null;
+
+                        foreach ($options as $idx => $optText) {
+                            $t = trim($optText);
+                            if ($t !== '') {
+                                $filteredOptions[] = [
+                                    'text' => $t,
+                                    'is_correct' => ($idx === $rawCorrectOpt || ($correctOptText !== null && $t === trim($correctOptText)))
+                                ];
+                            }
+                        }
+
+                        if (count($filteredOptions) >= 2) {
+                            $qq = QuizQuestion::create([
+                                'quiz_id' => $quiz->id,
+                                'question_bank_id' => null,
+                                'question_text' => trim($qData['question_text']),
+                                'question_type' => 'multiple_choice',
+                            ]);
+
+                            $hasCorrect = false;
+                            foreach ($filteredOptions as $fOpt) {
+                                if ($fOpt['is_correct']) {
+                                    $hasCorrect = true;
+                                    break;
+                                }
+                            }
+                            if (!$hasCorrect) {
+                                $filteredOptions[0]['is_correct'] = true;
+                            }
+
+                            foreach ($filteredOptions as $fOpt) {
+                                QuizQuestionOption::create([
+                                    'quiz_question_id' => $qq->id,
+                                    'option_text' => $fOpt['text'],
+                                    'is_correct' => $fOpt['is_correct'],
+                                ]);
+                            }
+                            $createdCount++;
+                        }
+                    }
+                }
+            });
+
+            if ($createdCount > 0) {
+                return back()->with('success', $createdCount . ' soal kuis berhasil disimpan sekaligus.');
+            }
+
+            return back()->with('error', 'Tidak ada butir soal yang valid untuk disimpan.');
+        }
+
+        // 2. Single Question Processing (Existing Fallback)
+        if ($request->has('tf_correct_answer') && !$request->has('correct_tf')) {
+            $request->merge(['correct_tf' => $request->input('tf_correct_answer')]);
+        }
+        if ($request->has('matching_pairs') && !$request->has('pairs')) {
+            $request->merge(['pairs' => $request->input('matching_pairs')]);
+        }
+
+        $questionType = $request->input('question_type', 'multiple_choice');
+
+        if ($questionType === 'true_false') {
+            $request->validate([
+                'question_text' => ['required', 'string'],
+                'correct_tf' => ['required', 'in:Benar,Salah'],
             ]);
 
-            foreach ($request->options as $index => $optionText) {
+            DB::transaction(function () use ($request, $quiz) {
+                $qq = QuizQuestion::create([
+                    'quiz_id' => $quiz->id,
+                    'question_bank_id' => null,
+                    'question_text' => $request->question_text,
+                    'question_type' => 'true_false',
+                ]);
+
                 QuizQuestionOption::create([
                     'quiz_question_id' => $qq->id,
-                    'option_text' => $optionText,
-                    'is_correct' => ($index == $request->correct_option),
+                    'option_text' => 'Benar',
+                    'is_correct' => ($request->correct_tf === 'Benar'),
                 ]);
-            }
-        });
+
+                QuizQuestionOption::create([
+                    'quiz_question_id' => $qq->id,
+                    'option_text' => 'Salah',
+                    'is_correct' => ($request->correct_tf === 'Salah'),
+                ]);
+            });
+        } elseif ($questionType === 'matching') {
+            $request->validate([
+                'question_text' => ['required', 'string'],
+                'pairs' => ['required', 'array', 'min:2'],
+                'pairs.*.premise' => ['required', 'string'],
+                'pairs.*.match' => ['required', 'string'],
+            ]);
+
+            DB::transaction(function () use ($request, $quiz) {
+                $qq = QuizQuestion::create([
+                    'quiz_id' => $quiz->id,
+                    'question_bank_id' => null,
+                    'question_text' => $request->question_text,
+                    'question_type' => 'matching',
+                ]);
+
+                foreach ($request->pairs as $pair) {
+                    QuizQuestionOption::create([
+                        'quiz_question_id' => $qq->id,
+                        'option_text' => trim($pair['premise']),
+                        'match_text' => trim($pair['match']),
+                        'is_correct' => true,
+                    ]);
+                }
+            });
+        } else {
+            // Default: Multiple Choice
+            $request->validate([
+                'question_text' => ['required', 'string'],
+                'options' => ['required', 'array', 'min:2'],
+                'options.*' => ['required', 'string'],
+                'correct_option' => ['required', 'integer', 'min:0'],
+            ]);
+
+            DB::transaction(function () use ($request, $quiz) {
+                $qq = QuizQuestion::create([
+                    'quiz_id' => $quiz->id,
+                    'question_bank_id' => null,
+                    'question_text' => $request->question_text,
+                    'question_type' => 'multiple_choice',
+                ]);
+
+                foreach ($request->options as $index => $optionText) {
+                    QuizQuestionOption::create([
+                        'quiz_question_id' => $qq->id,
+                        'option_text' => $optionText,
+                        'is_correct' => ($index == $request->correct_option),
+                    ]);
+                }
+            });
+        }
 
         return back()->with('success', 'Soal kuis baru berhasil ditambahkan.');
     }
@@ -214,5 +396,56 @@ class QuizController extends Controller
         $question->delete();
 
         return back()->with('success', 'Soal kuis berhasil dihapus.');
+    }
+
+    public function students(Quiz $quiz)
+    {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
+        $quiz->load(['subject', 'schoolClass', 'instructor', 'questions']);
+
+        $students = User::where('class_id', $quiz->class_id)
+            ->whereHas('role', function ($q) {
+                $q->where('name', 'siswa');
+            })
+            ->orderBy('name')
+            ->get();
+
+        $attempts = QuizAttempt::where('quiz_id', $quiz->id)
+            ->get()
+            ->keyBy('student_id');
+
+        return view('admin.quizzes.students', compact('quiz', 'students', 'attempts'));
+    }
+
+    public function resetStudentAttempt(Quiz $quiz, User $student)
+    {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
+        $attempt = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if (!$attempt) {
+            return back()->with('error', 'Siswa "' . $student->name . '" belum memiliki riwayat pengerjaan kuis ini.');
+        }
+
+        DB::transaction(function () use ($attempt) {
+            $attempt->answers()->delete();
+            $attempt->delete();
+        });
+
+        $msg = 'Riwayat pengerjaan kuis untuk siswa "' . $student->name . '" berhasil direset.';
+        if ($quiz->deadline && now()->greaterThan($quiz->deadline)) {
+            $msg .= ' Catatan: Batas waktu (deadline) kuis ini sudah berakhir. Silakan perpanjang deadline kuis pada menu Edit Kuis jika ingin siswa mengerjakan ulang.';
+        }
+
+        return back()->with('success', $msg);
     }
 }

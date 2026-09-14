@@ -466,29 +466,96 @@
                                         {!! nl2br(e($question->question_text)) !!}
                                     </div>
 
-                                    <!-- Options List (Sedikit Diperkecil Agar Pas Layar) -->
-                                    <div class="d-flex flex-column mb-3">
-                                        @foreach($question->options as $optIndex => $option)
+                                    <!-- Options Container (Adaptive based on Question Type) -->
+                                    <div class="mb-3">
+                                        @if($question->isMatching())
+                                            <!-- MATCHING QUESTION INTERFACE -->
                                             @php
-                                                $letter = $letters[$optIndex % count($letters)];
-                                                $isSelected = ($currentSavedOptionId == $option->id);
+                                                $shuffledMatches = $question->options->pluck('match_text')->filter()->unique()->shuffle();
+                                                $userMatchingData = $savedMatchingAnswers[$question->id] ?? [];
                                             @endphp
+                                            <div class="alert alert-info py-2 px-3 mb-3 small d-flex align-items-center gap-2" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.3); color: #0284c7;">
+                                                <i class="ti ti-arrows-left-right fs-5"></i>
+                                                <span>Pasangkan setiap pernyataan di kolom kiri dengan jawaban yang sesuai di kolom kanan:</span>
+                                            </div>
+                                            <div class="vstack gap-2.5">
+                                                @foreach($question->options as $pairIndex => $opt)
+                                                    <div class="p-3 rounded-3 border bg-light d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                                        <div class="fw-semibold text-dark small" style="max-width: 50%;">
+                                                            <span class="badge bg-primary rounded-circle me-1.5" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">{{ $pairIndex + 1 }}</span>
+                                                            {{ $opt->option_text }}
+                                                        </div>
+                                                        <div class="flex-grow-1" style="max-width: 48%;">
+                                                            <select name="matching_answers[{{ $question->id }}][{{ $opt->id }}]" 
+                                                                    class="form-select form-select-sm matching-select" 
+                                                                    data-question-id="{{ $question->id }}"
+                                                                    data-option-id="{{ $opt->id }}"
+                                                                    data-question-index="{{ $stepNumber }}"
+                                                                    style="border-radius: 8px; border-color: #cbd5e1; font-size: 0.88rem;">
+                                                                <option value="">-- Pilih Pasangan --</option>
+                                                                @foreach($shuffledMatches as $match)
+                                                                    <option value="{{ $match }}" {{ ($userMatchingData[$opt->id] ?? '') === $match ? 'selected' : '' }}>
+                                                                        {{ $match }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @elseif($question->isTrueFalse())
+                                            <!-- TRUE / FALSE QUESTION INTERFACE -->
+                                            <div class="row g-3">
+                                                @foreach($question->options as $option)
+                                                    @php
+                                                        $isTrue = ($option->option_text === 'Benar');
+                                                        $isSelected = ($currentSavedOptionId == $option->id);
+                                                    @endphp
+                                                    <div class="col-6">
+                                                        <label class="quiz-option-tile d-flex flex-column align-items-center justify-content-center p-3 text-center h-100 {{ $isSelected ? 'selected' : '' }}" for="opt-{{ $option->id }}" style="cursor: pointer; min-height: 90px;">
+                                                            <input type="radio" 
+                                                                   name="answers[{{ $question->id }}]" 
+                                                                   id="opt-{{ $option->id }}" 
+                                                                   value="{{ $option->id }}" 
+                                                                   data-question-id="{{ $question->id }}"
+                                                                   data-question-index="{{ $stepNumber }}"
+                                                                   data-option-id="{{ $option->id }}"
+                                                                   {{ $isSelected ? 'checked' : '' }}
+                                                                   class="form-check-input option-radio d-none">
+                                                            <div class="rounded-circle p-2 mb-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: {{ $isTrue ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; color: {{ $isTrue ? '#059669' : '#dc2626' }};">
+                                                                <i class="ti {{ $isTrue ? 'ti-check' : 'ti-x' }} fs-4"></i>
+                                                            </div>
+                                                            <span class="fw-bold fs-6 {{ $isTrue ? 'text-success' : 'text-danger' }}">{{ $option->option_text }}</span>
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <!-- MULTIPLE CHOICE OPTIONS LIST -->
+                                            <div class="d-flex flex-column">
+                                                @foreach($question->options as $optIndex => $option)
+                                                    @php
+                                                        $letter = $letters[$optIndex % count($letters)];
+                                                        $isSelected = ($currentSavedOptionId == $option->id);
+                                                    @endphp
 
-                                            <label class="quiz-option-tile {{ $isSelected ? 'selected' : '' }}" for="opt-{{ $option->id }}">
-                                                <input type="radio" 
-                                                       name="answers[{{ $question->id }}]" 
-                                                       id="opt-{{ $option->id }}" 
-                                                       value="{{ $option->id }}" 
-                                                       data-question-id="{{ $question->id }}"
-                                                       data-question-index="{{ $stepNumber }}"
-                                                       data-option-id="{{ $option->id }}"
-                                                       {{ $isSelected ? 'checked' : '' }}
-                                                       class="form-check-input option-radio" 
-                                                       style="width: 1.18rem; height: 1.18rem; margin-right: 1.15rem !important; cursor: pointer;">
-                                                <span class="option-badge-letter">{{ $letter }}</span>
-                                                <span class="text-dark fw-medium" style="font-size: 0.92rem; line-height: 1.45;">{{ $option->option_text }}</span>
-                                            </label>
-                                        @endforeach
+                                                    <label class="quiz-option-tile {{ $isSelected ? 'selected' : '' }}" for="opt-{{ $option->id }}">
+                                                        <input type="radio" 
+                                                               name="answers[{{ $question->id }}]" 
+                                                               id="opt-{{ $option->id }}" 
+                                                               value="{{ $option->id }}" 
+                                                               data-question-id="{{ $question->id }}"
+                                                               data-question-index="{{ $stepNumber }}"
+                                                               data-option-id="{{ $option->id }}"
+                                                               {{ $isSelected ? 'checked' : '' }}
+                                                               class="form-check-input option-radio" 
+                                                               style="width: 1.18rem; height: 1.18rem; margin-right: 1.15rem !important; cursor: pointer;">
+                                                        <span class="option-badge-letter">{{ $letter }}</span>
+                                                        <span class="text-dark fw-medium" style="font-size: 0.92rem; line-height: 1.45;">{{ $option->option_text }}</span>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <!-- Bottom Action & Navigation Bar (Langsung Terlihat Tanpa Scroll) -->
@@ -843,8 +910,14 @@
 
         // Populate initially answered question numbers
         @foreach($quiz->questions as $index => $q)
-            @if(isset($savedAnswers[$q->id]) && !empty($savedAnswers[$q->id]))
-                answeredSet.add({{ $index + 1 }});
+            @if($q->isMatching())
+                @if(isset($savedMatchingAnswers[$q->id]) && !empty($savedMatchingAnswers[$q->id]))
+                    answeredSet.add({{ $index + 1 }});
+                @endif
+            @else
+                @if(isset($savedAnswers[$q->id]) && !empty($savedAnswers[$q->id]))
+                    answeredSet.add({{ $index + 1 }});
+                @endif
             @endif
         @endforeach
 
@@ -1200,6 +1273,61 @@
                         body: JSON.stringify({
                             question_id: qId,
                             option_id: optId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'expired') {
+                            isSubmitting = true;
+                            alert('Batas waktu kuis telah berakhir. Lembar kuis akan otomatis dikumpulkan.');
+                            document.getElementById('quizForm').submit();
+                        } else {
+                            setSyncStatus('saved');
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('Auto-save error:', err);
+                        setSyncStatus('error');
+                    });
+                });
+            });
+
+            // 6b. Matching Select Change Listener & AJAX Auto-Save
+            const matchingSelects = document.querySelectorAll('.matching-select');
+            matchingSelects.forEach(select => {
+                select.addEventListener('change', function () {
+                    const qId = this.getAttribute('data-question-id');
+                    const qIndex = parseInt(this.getAttribute('data-question-index'));
+                    const card = this.closest('.question-step-card');
+
+                    const pairsData = {};
+                    let hasSelection = false;
+                    if (card) {
+                        card.querySelectorAll('.matching-select').forEach(sel => {
+                            const optId = sel.getAttribute('data-option-id');
+                            if (sel.value) {
+                                pairsData[optId] = sel.value;
+                                hasSelection = true;
+                            }
+                        });
+                    }
+
+                    if (hasSelection) {
+                        answeredSet.add(qIndex);
+                    }
+                    updateLegendAndProgress();
+
+                    setSyncStatus('saving');
+                    fetch(saveAnswerUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            question_id: qId,
+                            answer_data: pairsData
                         })
                     })
                     .then(response => response.json())

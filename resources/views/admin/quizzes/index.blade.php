@@ -64,21 +64,22 @@
                                     {{ $quiz->deadline ? $quiz->deadline->format('d M Y H:i') : '-' }}
                                 </div>
                             </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-inline-flex gap-2">
-                                    <a href="{{ route('admin.quizzes.show', $quiz) }}" class="btn btn-sm btn-outline-warning" title="Kelola Soal Kuis">
-                                        <i class="ti ti-list-check"></i>
+                            <td class="pe-4 text-end align-middle text-nowrap">
+                                <div class="d-inline-flex align-items-center gap-2">
+                                    <a href="{{ route('admin.quizzes.students', $quiz) }}" class="btn btn-sm btn-outline-info rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" title="Hasil & Status Siswa">
+                                        <i class="ti ti-users fs-6"></i>
                                     </a>
-                                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="btn btn-sm btn-outline-primary" title="Edit Kuis">
-                                        <i class="ti ti-edit"></i>
+                                    <a href="{{ route('admin.quizzes.show', $quiz) }}" class="btn btn-sm btn-outline-warning rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" title="Kelola Soal Kuis">
+                                        <i class="ti ti-list-check fs-6"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('admin.quizzes.destroy', $quiz) }}" onsubmit="return confirm('Hapus kuis ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </form>
+                                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="btn btn-sm btn-outline-primary rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" title="Edit Kuis">
+                                        <i class="ti ti-edit fs-6"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" 
+                                            onclick="openDeleteQuizModal('{{ route('admin.quizzes.destroy', $quiz) }}', '{{ addslashes($quiz->title) }}')" 
+                                            title="Hapus Kuis">
+                                        <i class="ti ti-trash fs-6"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -97,4 +98,42 @@
         </div>
     @endif
 </div>
+
+<!-- Modal Konfirmasi Hapus Kuis -->
+<div class="modal fade" id="modalDeleteQuiz" tabindex="-1" aria-labelledby="modalDeleteQuizLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-body text-center p-4">
+                <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                    <i class="ti ti-trash fs-2"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Hapus Kuis Ini?</h5>
+                <p class="text-muted small mb-4" id="deleteModalQuizText">Kuis dan data pengerjaan siswa yang dihapus tidak dapat dikembalikan.</p>
+                <form id="deleteQuizForm" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="ti ti-trash me-1"></i> Ya, Hapus
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openDeleteQuizModal(url, quizTitle) {
+        const form = document.getElementById('deleteQuizForm');
+        form.action = url;
+        const textEl = document.getElementById('deleteModalQuizText');
+        if (textEl && quizTitle) {
+            textEl.innerText = `Anda akan menghapus kuis: "${quizTitle}". Tindakan ini tidak dapat dibatalkan.`;
+        }
+        const modal = new bootstrap.Modal(document.getElementById('modalDeleteQuiz'));
+        modal.show();
+    }
+</script>
 @endsection

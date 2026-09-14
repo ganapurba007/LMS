@@ -14,8 +14,25 @@ class QuestionBank extends Model
     protected $table = 'question_bank';
 
     protected $fillable = [
+        'instructor_id',
         'question_text',
+        'question_type',
     ];
+
+    public function isMultipleChoice(): bool
+    {
+        return $this->question_type === 'multiple_choice' || empty($this->question_type);
+    }
+
+    public function isTrueFalse(): bool
+    {
+        return $this->question_type === 'true_false';
+    }
+
+    public function isMatching(): bool
+    {
+        return $this->question_type === 'matching';
+    }
 
     public function instructor(): BelongsTo
     {

@@ -96,6 +96,8 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
 
     // Master Kuis CRUD & Question Management
     Route::resource('quizzes', QuizController::class);
+    Route::get('quizzes/{quiz}/students', [QuizController::class, 'students'])->name('quizzes.students');
+    Route::delete('quizzes/{quiz}/students/{student}/reset', [QuizController::class, 'resetStudentAttempt'])->name('quizzes.students.reset');
     Route::post('quizzes/{quiz}/import-questions', [QuizController::class, 'importQuestions'])->name('quizzes.import-questions');
     Route::post('quizzes/{quiz}/questions', [QuizController::class, 'storeQuestion'])->name('quizzes.store-question');
     Route::delete('quizzes/{quiz}/questions/{question}', [QuizController::class, 'destroyQuestion'])->name('quizzes.destroy-question');

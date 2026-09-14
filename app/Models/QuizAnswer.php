@@ -14,7 +14,15 @@ class QuizAnswer extends Model
         'quiz_attempt_id',
         'quiz_question_id',
         'selected_option_id',
+        'answer_data',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'answer_data' => 'array',
+        ];
+    }
 
     public function quizAttempt(): BelongsTo
     {

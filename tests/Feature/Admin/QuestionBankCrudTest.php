@@ -103,6 +103,56 @@ class QuestionBankCrudTest extends TestCase
         $this->assertDatabaseMissing('question_bank', ['id' => $qb->id]);
     }
 
+    public function test_guru_can_create_multiple_questions_in_question_bank_batch(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        $batchPayload = [
+            'questions' => [
+                [
+                    'question_text' => 'QB Batch 1: Rumus luas persegi?',
+                    'question_type' => 'multiple_choice',
+                    'options' => ['s x s', 's + s', '4 x s', '2 x s'],
+                    'correct_option' => 0,
+                ],
+                [
+                    'question_text' => 'QB Batch 2: Segitiga memiliki 3 sisi.',
+                    'question_type' => 'true_false',
+                    'correct_tf' => 'Benar',
+                ],
+                [
+                    'question_text' => 'QB Batch 3: Jodohkan bangun datar dengan cirinya.',
+                    'question_type' => 'matching',
+                    'pairs' => [
+                        ['premise' => 'Lingkaran', 'match' => 'Tidak memiliki sudut'],
+                        ['premise' => 'Persegi', 'match' => '4 sisi sama panjang'],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($guru)->post('/admin/question-banks', $batchPayload);
+
+        $response->assertRedirect('/admin/question-banks');
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('question_bank', [
+            'question_text' => 'QB Batch 1: Rumus luas persegi?',
+            'instructor_id' => $guru->id,
+            'question_type' => 'multiple_choice',
+        ]);
+        $this->assertDatabaseHas('question_bank', [
+            'question_text' => 'QB Batch 2: Segitiga memiliki 3 sisi.',
+            'instructor_id' => $guru->id,
+            'question_type' => 'true_false',
+        ]);
+        $this->assertDatabaseHas('question_bank', [
+            'question_text' => 'QB Batch 3: Jodohkan bangun datar dengan cirinya.',
+            'instructor_id' => $guru->id,
+            'question_type' => 'matching',
+        ]);
+    }
+
     public function test_siswa_cannot_access_question_bank_crud(): void
     {
         $siswa = User::where('email', 'siswa1@lms.com')->first();
@@ -112,3 +162,4 @@ class QuestionBankCrudTest extends TestCase
         $response->assertRedirect('/dashboard');
     }
 }
+

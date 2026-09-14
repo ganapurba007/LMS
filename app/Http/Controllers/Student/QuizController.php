@@ -194,20 +194,38 @@ class QuizController extends Controller
         if ($remainingSeconds <= 0) {
             $questions = $quiz->questions()->with('options')->get();
             $existingAnswers = $attempt->answers()->get();
-            $correctCount = 0;
+            $earnedPoints = 0.0;
             $totalQuestions = $questions->count();
 
             foreach ($questions as $question) {
                 $ans = $existingAnswers->firstWhere('quiz_question_id', $question->id);
-                if ($ans && $ans->selected_option_id) {
-                    $cOpt = $question->options->firstWhere('is_correct', true);
-                    if ($cOpt && $cOpt->id === $ans->selected_option_id) {
-                        $correctCount++;
+                if (!$ans) {
+                    continue;
+                }
+
+                if ($question->isMatching()) {
+                    $pairsAnswer = is_array($ans->answer_data) ? $ans->answer_data : [];
+                    $totalPairs = $question->options->count();
+                    $correctPairs = 0;
+                    if ($totalPairs > 0 && !empty($pairsAnswer)) {
+                        foreach ($question->options as $opt) {
+                            if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
+                                $correctPairs++;
+                            }
+                        }
+                        $earnedPoints += ($correctPairs / $totalPairs);
+                    }
+                } else {
+                    if ($ans->selected_option_id) {
+                        $cOpt = $question->options->firstWhere('is_correct', true);
+                        if ($cOpt && $cOpt->id === $ans->selected_option_id) {
+                            $earnedPoints += 1.0;
+                        }
                     }
                 }
             }
 
-            $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
+            $score = $totalQuestions > 0 ? round(($earnedPoints / $totalQuestions) * 100, 2) : 0;
             $attempt->update([
                 'score' => $score,
                 'submitted_at' => now(),
@@ -218,8 +236,9 @@ class QuizController extends Controller
         }
 
         $savedAnswers = $attempt->answers()->pluck('selected_option_id', 'quiz_question_id')->toArray();
+        $savedMatchingAnswers = $attempt->answers()->whereNotNull('answer_data')->pluck('answer_data', 'quiz_question_id')->toArray();
 
-        return view('student.quizzes.attempt', compact('quiz', 'attempt', 'remainingSeconds', 'savedAnswers'));
+        return view('student.quizzes.attempt', compact('quiz', 'attempt', 'remainingSeconds', 'savedAnswers', 'savedMatchingAnswers'));
     }
 
     public function saveAnswer(Request $request, Quiz $quiz)
@@ -251,7 +270,8 @@ class QuizController extends Controller
 
         $validated = $request->validate([
             'question_id' => 'required|exists:quiz_questions,id',
-            'option_id' => 'required|exists:quiz_question_options,id',
+            'option_id' => 'nullable|exists:quiz_question_options,id',
+            'answer_data' => 'nullable|array',
         ]);
 
         QuizAnswer::updateOrCreate(
@@ -260,7 +280,8 @@ class QuizController extends Controller
                 'quiz_question_id' => $validated['question_id'],
             ],
             [
-                'selected_option_id' => $validated['option_id'],
+                'selected_option_id' => $validated['option_id'] ?? null,
+                'answer_data' => $validated['answer_data'] ?? null,
             ]
         );
 
@@ -287,40 +308,77 @@ class QuizController extends Controller
         }
 
         $answers = $request->input('answers', []);
+        $matchingAnswers = $request->input('matching_answers', []);
         $questions = $quiz->questions()->with('options')->get();
         $existingAnswers = $attempt->answers()->get()->keyBy('quiz_question_id');
 
-        $correctCount = 0;
+        $earnedPoints = 0.0;
         $totalQuestions = $questions->count();
 
         foreach ($questions as $question) {
-            if (isset($answers[$question->id]) && !empty($answers[$question->id])) {
-                $selectedOptionId = (int)$answers[$question->id];
-            } elseif ($existingAnswers->has($question->id)) {
-                $selectedOptionId = $existingAnswers->get($question->id)->selected_option_id;
+            $questionCredit = 0.0;
+
+            if ($question->isMatching()) {
+                // Matching Question Answer
+                $pairsAnswer = $matchingAnswers[$question->id] ?? ($existingAnswers->has($question->id) ? $existingAnswers->get($question->id)->answer_data : []);
+                if (!is_array($pairsAnswer)) {
+                    $pairsAnswer = [];
+                }
+
+                QuizAnswer::updateOrCreate(
+                    [
+                        'quiz_attempt_id' => $attempt->id,
+                        'quiz_question_id' => $question->id,
+                    ],
+                    [
+                        'selected_option_id' => null,
+                        'answer_data' => $pairsAnswer,
+                    ]
+                );
+
+                $totalPairs = $question->options->count();
+                $correctPairs = 0;
+                if ($totalPairs > 0 && !empty($pairsAnswer)) {
+                    foreach ($question->options as $opt) {
+                        if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
+                            $correctPairs++;
+                        }
+                    }
+                    $questionCredit = $correctPairs / $totalPairs;
+                }
             } else {
-                $selectedOptionId = null;
-            }
+                // Multiple Choice or True/False Question Answer
+                if (isset($answers[$question->id]) && !empty($answers[$question->id])) {
+                    $selectedOptionId = (int)$answers[$question->id];
+                } elseif ($existingAnswers->has($question->id)) {
+                    $selectedOptionId = $existingAnswers->get($question->id)->selected_option_id;
+                } else {
+                    $selectedOptionId = null;
+                }
 
-            QuizAnswer::updateOrCreate(
-                [
-                    'quiz_attempt_id' => $attempt->id,
-                    'quiz_question_id' => $question->id,
-                ],
-                [
-                    'selected_option_id' => $selectedOptionId,
-                ]
-            );
+                QuizAnswer::updateOrCreate(
+                    [
+                        'quiz_attempt_id' => $attempt->id,
+                        'quiz_question_id' => $question->id,
+                    ],
+                    [
+                        'selected_option_id' => $selectedOptionId,
+                        'answer_data' => null,
+                    ]
+                );
 
-            if ($selectedOptionId) {
-                $correctOption = $question->options->firstWhere('is_correct', true);
-                if ($correctOption && $correctOption->id === $selectedOptionId) {
-                    $correctCount++;
+                if ($selectedOptionId) {
+                    $correctOption = $question->options->firstWhere('is_correct', true);
+                    if ($correctOption && $correctOption->id === $selectedOptionId) {
+                        $questionCredit = 1.0;
+                    }
                 }
             }
+
+            $earnedPoints += $questionCredit;
         }
 
-        $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
+        $score = $totalQuestions > 0 ? round(($earnedPoints / $totalQuestions) * 100, 2) : 0;
 
         $attempt->update([
             'score' => $score,

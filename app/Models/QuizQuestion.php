@@ -15,7 +15,23 @@ class QuizQuestion extends Model
         'quiz_id',
         'question_bank_id',
         'question_text',
+        'question_type',
     ];
+
+    public function isMultipleChoice(): bool
+    {
+        return $this->question_type === 'multiple_choice' || empty($this->question_type);
+    }
+
+    public function isTrueFalse(): bool
+    {
+        return $this->question_type === 'true_false';
+    }
+
+    public function isMatching(): bool
+    {
+        return $this->question_type === 'matching';
+    }
 
     public function quiz(): BelongsTo
     {

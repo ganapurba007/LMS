@@ -207,9 +207,188 @@ class QuizCrudTest extends TestCase
         $this->assertDatabaseMissing('quizzes', ['id' => $quiz->id]);
     }
 
+    public function test_guru_can_create_true_false_question(): void
+    {
+        $quiz = Quiz::create([
+            'title' => 'Kuis Benar Salah',
+            'duration_minutes' => 15,
+            'points_per_question' => 10,
+            'deadline' => now()->addDays(2),
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
+        $response = $this->actingAs($this->guru)->post(route('admin.quizzes.store-question', $quiz), [
+            'question_type' => 'true_false',
+            'question_text' => 'Bumi mengelilingi matahari.',
+            'tf_correct_answer' => 'Benar',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quiz->id,
+            'question_type' => 'true_false',
+            'question_text' => 'Bumi mengelilingi matahari.',
+        ]);
+
+        $question = QuizQuestion::where('quiz_id', $quiz->id)->first();
+        $this->assertCount(2, $question->options);
+
+        $benarOpt = $question->options->firstWhere('option_text', 'Benar');
+        $salahOpt = $question->options->firstWhere('option_text', 'Salah');
+
+        $this->assertTrue((bool)$benarOpt->is_correct);
+        $this->assertFalse((bool)$salahOpt->is_correct);
+    }
+
+    public function test_guru_can_create_matching_question(): void
+    {
+        $quiz = Quiz::create([
+            'title' => 'Kuis Menjodohkan',
+            'duration_minutes' => 25,
+            'points_per_question' => 20,
+            'deadline' => now()->addDays(3),
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
+        $response = $this->actingAs($this->guru)->post(route('admin.quizzes.store-question', $quiz), [
+            'question_type' => 'matching',
+            'question_text' => 'Jodohkan negara berikut dengan ibukotanya.',
+            'matching_pairs' => [
+                ['premise' => 'Indonesia', 'match' => 'Jakarta'],
+                ['premise' => 'Jepang', 'match' => 'Tokyo'],
+                ['premise' => 'Perancis', 'match' => 'Paris'],
+            ],
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quiz->id,
+            'question_type' => 'matching',
+            'question_text' => 'Jodohkan negara berikut dengan ibukotanya.',
+        ]);
+
+        $question = QuizQuestion::where('quiz_id', $quiz->id)->first();
+        $this->assertCount(3, $question->options);
+        $this->assertDatabaseHas('quiz_question_options', [
+            'quiz_question_id' => $question->id,
+            'option_text' => 'Indonesia',
+            'match_text' => 'Jakarta',
+        ]);
+        $this->assertDatabaseHas('quiz_question_options', [
+            'quiz_question_id' => $question->id,
+            'option_text' => 'Jepang',
+            'match_text' => 'Tokyo',
+        ]);
+    }
+
+    public function test_guru_can_create_multiple_questions_simultaneously_batch(): void
+    {
+        $quiz = Quiz::create([
+            'title' => 'Kuis Ujian Batch Lengkap',
+            'duration_minutes' => 60,
+            'points_per_question' => 25,
+            'deadline' => now()->addDays(5),
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
+        $batchPayload = [
+            'questions' => [
+                // Soal 1: Pilihan Ganda
+                [
+                    'question_text' => 'Soal Batch 1: Ibukota Indonesia?',
+                    'question_type' => 'multiple_choice',
+                    'options' => ['Jakarta', 'Bandung', 'Surabaya', 'Semarang'],
+                    'correct_option' => 0,
+                ],
+                // Soal 2: Benar / Salah
+                [
+                    'question_text' => 'Soal Batch 2: Air mendidih pada 100C.',
+                    'question_type' => 'true_false',
+                    'correct_tf' => 'Benar',
+                ],
+                // Soal 3: Menjodohkan
+                [
+                    'question_text' => 'Soal Batch 3: Jodohkan singkatan komputer.',
+                    'question_type' => 'matching',
+                    'pairs' => [
+                        ['premise' => 'CPU', 'match' => 'Processor'],
+                        ['premise' => 'RAM', 'match' => 'Memory'],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($this->guru)->post(route('admin.quizzes.store-question', $quiz), $batchPayload);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('success');
+
+        // Pastikan ketiga butir soal tersimpan dalam database untuk kuis ini
+        $this->assertEquals(3, QuizQuestion::where('quiz_id', $quiz->id)->count());
+
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quiz->id,
+            'question_text' => 'Soal Batch 1: Ibukota Indonesia?',
+            'question_type' => 'multiple_choice',
+        ]);
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quiz->id,
+            'question_text' => 'Soal Batch 2: Air mendidih pada 100C.',
+            'question_type' => 'true_false',
+        ]);
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quiz->id,
+            'question_text' => 'Soal Batch 3: Jodohkan singkatan komputer.',
+            'question_type' => 'matching',
+        ]);
+    }
+
     public function test_siswa_cannot_access_quiz_crud(): void
     {
         $response = $this->actingAs($this->siswa)->get(route('admin.quizzes.index'));
         $response->assertRedirect(route('dashboard'));
     }
+
+    public function test_guru_can_view_quiz_student_results_and_reset_attempt(): void
+    {
+        $quiz = Quiz::create([
+            'title' => 'Kuis Uji Reset',
+            'duration_minutes' => 30,
+            'points_per_question' => 10,
+            'deadline' => now()->addDays(3),
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
+        $attempt = \App\Models\QuizAttempt::create([
+            'student_id' => $this->siswa->id,
+            'quiz_id' => $quiz->id,
+            'score' => 80,
+            'started_at' => now()->subMinutes(20),
+            'submitted_at' => now()->subMinutes(5),
+        ]);
+
+        // Guru dapat membuka halaman hasil & status siswa
+        $response = $this->actingAs($this->guru)->get(route('admin.quizzes.students', $quiz));
+        $response->assertStatus(200);
+        $response->assertSee($this->siswa->name);
+        $response->assertSee('80');
+
+        // Guru dapat melakukan reset pengerjaan siswa
+        $resetResponse = $this->actingAs($this->guru)->delete(route('admin.quizzes.students.reset', [$quiz, $this->siswa]));
+        $resetResponse->assertSessionHas('success');
+
+        // Pastikan attempt terhapus dari database
+        $this->assertDatabaseMissing('quiz_attempts', [
+            'id' => $attempt->id,
+        ]);
+    }
 }
+

@@ -292,6 +292,139 @@ class StudentQuizTest extends TestCase
         $resultResponse->assertStatus(200);
         $resultResponse->assertSee('Skor: 50 / 100');
     }
+
+    public function test_siswa_can_attempt_and_submit_true_false_and_matching_questions(): void
+    {
+        // 1. Create a true_false question
+        $tfQuestion = QuizQuestion::create([
+            'quiz_id' => $this->quiz->id,
+            'question_type' => 'true_false',
+            'question_text' => 'Air mendidih pada suhu 100 derajat Celcius.',
+        ]);
+        $tfOptBenar = QuizQuestionOption::create([
+            'quiz_question_id' => $tfQuestion->id,
+            'option_text' => 'Benar',
+            'is_correct' => true,
+        ]);
+        QuizQuestionOption::create([
+            'quiz_question_id' => $tfQuestion->id,
+            'option_text' => 'Salah',
+            'is_correct' => false,
+        ]);
+
+        // 2. Create a matching question
+        $matchQuestion = QuizQuestion::create([
+            'quiz_id' => $this->quiz->id,
+            'question_type' => 'matching',
+            'question_text' => 'Jodohkan istilah berikut.',
+        ]);
+        $optPair1 = QuizQuestionOption::create([
+            'quiz_question_id' => $matchQuestion->id,
+            'option_text' => 'CPU',
+            'match_text' => 'Central Processing Unit',
+            'is_correct' => false,
+        ]);
+        $optPair2 = QuizQuestionOption::create([
+            'quiz_question_id' => $matchQuestion->id,
+            'option_text' => 'RAM',
+            'match_text' => 'Random Access Memory',
+            'is_correct' => false,
+        ]);
+
+        // Siswa starts quiz
+        $this->actingAs($this->student)->post(route('student.quizzes.start', $this->quiz));
+
+        // Siswa auto-saves answer for matching via AJAX
+        $saveResponse = $this->actingAs($this->student)->postJson(route('student.quizzes.save-answer', $this->quiz), [
+            'question_id' => $matchQuestion->id,
+            'match_answers' => [
+                $optPair1->id => 'Central Processing Unit',
+                $optPair2->id => 'Random Access Memory',
+            ],
+        ]);
+        $saveResponse->assertStatus(200);
+        $saveResponse->assertJson(['status' => 'saved']);
+
+        // Siswa submits quiz: original MC question + TF question + Matching question
+        $submitResponse = $this->actingAs($this->student)->post(route('student.quizzes.submit', $this->quiz), [
+            'answers' => [
+                $this->question->id => $this->optionCorrect->id,
+                $tfQuestion->id => $tfOptBenar->id,
+            ],
+            'matching_answers' => [
+                $matchQuestion->id => [
+                    $optPair1->id => 'Central Processing Unit',
+                    $optPair2->id => 'Random Access Memory',
+                ],
+            ],
+        ]);
+
+        $submitResponse->assertRedirect(route('student.quizzes.result', $this->quiz));
+
+        // Semua 3 soal dijawab benar sempurna => Skor 100
+        $attempt = QuizAttempt::where('quiz_id', $this->quiz->id)
+            ->where('student_id', $this->student->id)
+            ->first();
+
+        $this->assertEquals(100, $attempt->score);
+
+        // Halaman result menampilkan format dan preview
+        $resultResponse = $this->actingAs($this->student)->get(route('student.quizzes.result', $this->quiz));
+        $resultResponse->assertStatus(200);
+        $resultResponse->assertSee('Menjodohkan');
+        $resultResponse->assertSee('Benar / Salah');
+        $resultResponse->assertSee('Central Processing Unit');
+        $resultResponse->assertSee('Random Access Memory');
+    }
+
+    public function test_matching_question_scores_proportionally(): void
+    {
+        // Kuis khusus dengan 1 soal menjodohkan (4 pasangan)
+        $matchingQuiz = Quiz::create([
+            'title' => 'Kuis Menjodohkan Proporsional',
+            'duration_minutes' => 20,
+            'points_per_question' => 100,
+            'deadline' => now()->addDays(3),
+            'class_id' => $this->class->id,
+            'subject_id' => $this->quiz->subject_id,
+            'instructor_id' => $this->quiz->instructor_id,
+        ]);
+
+        $qMatch = QuizQuestion::create([
+            'quiz_id' => $matchingQuiz->id,
+            'question_type' => 'matching',
+            'question_text' => 'Jodohkan 4 negara dengan ibukotanya.',
+        ]);
+
+        $p1 = QuizQuestionOption::create(['quiz_question_id' => $qMatch->id, 'option_text' => 'A', 'match_text' => 'Alpha']);
+        $p2 = QuizQuestionOption::create(['quiz_question_id' => $qMatch->id, 'option_text' => 'B', 'match_text' => 'Beta']);
+        $p3 = QuizQuestionOption::create(['quiz_question_id' => $qMatch->id, 'option_text' => 'C', 'match_text' => 'Charlie']);
+        $p4 = QuizQuestionOption::create(['quiz_question_id' => $qMatch->id, 'option_text' => 'D', 'match_text' => 'Delta']);
+
+        // Siswa starts quiz
+        $this->actingAs($this->student)->post(route('student.quizzes.start', $matchingQuiz));
+
+        // Siswa menjawab 2 benar (A & B) dan 2 salah (C & D)
+        $submitResponse = $this->actingAs($this->student)->post(route('student.quizzes.submit', $matchingQuiz), [
+            'matching_answers' => [
+                $qMatch->id => [
+                    $p1->id => 'Alpha',    // Benar
+                    $p2->id => 'Beta',     // Benar
+                    $p3->id => 'Salah C',  // Salah
+                    $p4->id => 'Salah D',  // Salah
+                ],
+            ],
+        ]);
+
+        $submitResponse->assertRedirect(route('student.quizzes.result', $matchingQuiz));
+
+        $attempt = QuizAttempt::where('quiz_id', $matchingQuiz->id)
+            ->where('student_id', $this->student->id)
+            ->first();
+
+        // 2 benar dari 4 pasangan = 50%
+        $this->assertEquals(50, $attempt->score);
+    }
 }
 
 
