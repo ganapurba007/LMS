@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\QuestionBank;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
 use App\Models\QuizQuestionOption;
 use App\Models\SchoolClass;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +61,25 @@ class QuizController extends Controller
         $quiz->class_id = $request->class_id;
         $quiz->instructor_id = Auth::id();
         $quiz->save();
+
+        // Buat notifikasi database untuk seluruh siswa di kelas terkait
+        $students = User::where('class_id', $quiz->class_id)
+            ->whereHas('role', function ($q) {
+                $q->where('name', 'siswa');
+            })->get();
+
+        $instructorName = Auth::user()->name ?? 'Guru Pengampu';
+        $subjectName = $quiz->subject->name ?? 'Mata Pelajaran';
+        foreach ($students as $student) {
+            Notification::create([
+                'user_id' => $student->id,
+                'type' => 'new_quiz',
+                'title' => 'Kuis Baru: ' . $quiz->title,
+                'message' => 'Guru ' . $instructorName . ' telah membuka kuis baru "' . $quiz->title . '" (' . $subjectName . ').',
+                'related_url' => route('student.quizzes.show', $quiz),
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->route('admin.quizzes.show', $quiz)
             ->with('success', 'Kuis berhasil dibuat. Silakan tambahkan atau impor soal ke dalam kuis.');

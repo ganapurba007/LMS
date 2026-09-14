@@ -27,6 +27,9 @@ Route::get('/', function () {
 
 // Alias & Shortcut Akses Backend / Admin
 Route::get('admin', function () {
+    if (auth()->check() && ! auth()->user()->isGuru()) {
+        return redirect()->route('dashboard')->with('error', 'Akses ditolak. Anda tidak memiliki akses ke portal admin.');
+    }
     return redirect()->route('admin.dashboard');
 });
 

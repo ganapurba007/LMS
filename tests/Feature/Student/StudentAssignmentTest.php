@@ -115,4 +115,33 @@ class StudentAssignmentTest extends TestCase
             'answer_text' => 'Jawaban setelah batas waktu lewat',
         ]);
     }
+
+    public function test_siswa_cannot_submit_assignment_more_than_once(): void
+    {
+        // Pengumpulan pertama (berhasil)
+        $firstSubmit = $this->actingAs($this->siswa)->post(route('student.assignments.submit', $this->assignmentClassA), [
+            'answer_text' => 'Jawaban pertama siswa',
+        ]);
+        $firstSubmit->assertRedirect(route('student.assignments.show', $this->assignmentClassA));
+        $firstSubmit->assertSessionHas('success');
+
+        // Pengumpulan kedua (harus ditolak karena hanya 1 kali)
+        $secondSubmit = $this->actingAs($this->siswa)->post(route('student.assignments.submit', $this->assignmentClassA), [
+            'answer_text' => 'Mencoba kirim jawaban kedua',
+        ]);
+        $secondSubmit->assertRedirect(route('student.assignments.show', $this->assignmentClassA));
+        $secondSubmit->assertSessionHas('error');
+
+        // Pastikan jawaban di database tidak berubah menjadi jawaban kedua
+        $this->assertDatabaseHas('assignment_submissions', [
+            'assignment_id' => $this->assignmentClassA->id,
+            'student_id' => $this->siswa->id,
+            'answer_text' => 'Jawaban pertama siswa',
+        ]);
+        $this->assertDatabaseMissing('assignment_submissions', [
+            'assignment_id' => $this->assignmentClassA->id,
+            'student_id' => $this->siswa->id,
+            'answer_text' => 'Mencoba kirim jawaban kedua',
+        ]);
+    }
 }

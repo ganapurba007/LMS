@@ -16,6 +16,9 @@ class Quiz extends Model
         'points_per_question',
         'deadline',
         'duration_minutes',
+        'subject_id',
+        'class_id',
+        'instructor_id',
     ];
 
     protected function casts(): array

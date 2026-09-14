@@ -72,27 +72,99 @@
             margin: 1.25rem 0;
         }
         .comment-bubble {
-            background: #F8FAFC;
-            border: 1px solid rgba(51, 104, 160, 0.1);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border: 1px solid rgba(51, 104, 160, 0.12);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
             transition: all 0.2s ease;
         }
         .comment-bubble:hover {
-            background: #ffffff;
-            border-color: rgba(51, 104, 160, 0.25);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border-color: rgba(51, 104, 160, 0.28);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+        }
+        .comment-bubble.teacher-comment {
+            background: #f8fbff;
+            border-color: #bfdbfe;
+            border-left: 3.5px solid #3b82f6;
         }
         .comment-avatar {
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             flex-shrink: 0;
+        }
+        .reply-avatar {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 0.72rem !important;
+        }
+        .discussion-thread {
+            position: relative;
+        }
+        .discussion-replies {
+            position: relative;
+            margin-left: 1rem;
+            padding-left: 0.85rem;
+            border-left: 2px solid rgba(51, 104, 160, 0.2);
+        }
+        @media (min-width: 768px) {
+            .discussion-replies {
+                margin-left: 1.75rem;
+                padding-left: 1rem;
+            }
+        }
+        .reply-bubble {
+            background: #f8fafc;
+            border: 1px solid rgba(51, 104, 160, 0.12);
+            border-radius: 10px;
+            padding: 0.6rem 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .reply-bubble:hover {
+            background: #ffffff;
+            border-color: rgba(51, 104, 160, 0.28);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .reply-bubble.teacher-reply {
+            background: #f0f7ff;
+            border-color: #bfdbfe;
+            border-left: 3px solid #3b82f6;
+        }
+        .discussion-scroll-box {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(51, 104, 160, 0.2) transparent;
+            padding-right: 0.35rem;
+        }
+        .discussion-scroll-box::-webkit-scrollbar {
+            width: 5px;
+        }
+        .discussion-scroll-box::-webkit-scrollbar-thumb {
+            background-color: rgba(51, 104, 160, 0.2);
+            border-radius: 6px;
+        }
+        .btn-reply-action {
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #3368A0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-reply-action:hover {
+            color: #1e40af;
+            text-decoration: underline;
         }
         .sidebar-sticky-box {
             position: sticky;
@@ -299,77 +371,178 @@
 
                 <!-- 2.4 Ruang Diskusi Interaktif Realtime -->
                 <div class="content-card-modern">
-                    <div class="content-card-header">
+                    <div class="content-card-header py-2.5 px-3 px-md-4">
                         <div class="d-flex align-items-center gap-2">
-                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #059669, #10B981); width: 32px; height: 32px;">
-                                <i class="ti ti-messages fs-5"></i>
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center shadow-xs" style="background: linear-gradient(135deg, #059669, #10B981); width: 28px; height: 28px;">
+                                <i class="ti ti-messages fs-6"></i>
                             </div>
-                            <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 1.1rem;">
+                            <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.98rem;">
                                 Ruang Diskusi & Tanya Jawab
-                            </h5>
+                            </h6>
                         </div>
-                        <span class="badge rounded-pill px-3 py-1 font-bold small" style="background: rgba(16, 185, 129, 0.12); color: #059669;">
-                            <i class="ti ti-users me-1"></i> Diskusi Kelas
+                        <span class="badge rounded-pill px-2.5 py-1 font-semibold small shadow-xs" style="background: rgba(16, 185, 129, 0.12); color: #059669; font-size: 0.72rem;">
+                            <i class="ti ti-users me-1"></i> {{ $material->discussions->count() }} Diskusi
                         </span>
                     </div>
 
-                    <div class="p-4 p-md-5">
+                    <div class="p-3 p-md-3.5">
                         
                         <!-- Discussion Comments Feed Container -->
-                        <div id="discussion-list" class="d-flex flex-column gap-3 mb-4" style="max-height: 480px; overflow-y: auto; padding-right: 0.5rem;">
-                            @forelse($material->discussions as $disc)
+                        <div id="discussion-list" class="discussion-scroll-box d-flex flex-column gap-2 mb-3">
+                            @forelse($material->rootDiscussions as $disc)
                                 @php
                                     $isTeacherComment = ($disc->user->role->name ?? '') === 'guru';
                                 @endphp
-                                <div class="comment-bubble d-flex gap-3 {{ $isTeacherComment ? 'border-primary-subtle' : '' }}" style="{{ $isTeacherComment ? 'background: #eff6ff;' : '' }}">
-                                    <!-- Avatar -->
-                                    <div class="comment-avatar text-white shadow-sm" style="background: {{ $isTeacherComment ? 'linear-gradient(135deg, #1e40af, #3b82f6)' : 'linear-gradient(135deg, #0f766e, #14b8a6)' }};">
-                                        {{ strtoupper(substr($disc->user->name ?? 'U', 0, 1)) }}
-                                    </div>
-                                    
-                                    <!-- Body -->
-                                    <div class="flex-grow-1">
-                                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-1.5">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <span class="fw-bold text-dark fs-6">{{ $disc->user->name ?? 'Pengguna' }}</span>
-                                                <span class="badge rounded-pill px-2 py-0.5 text-uppercase font-bold" style="font-size: 0.65rem; background: {{ $isTeacherComment ? '#3b82f6' : '#64748b' }}; color: #ffffff;">
-                                                    {{ $disc->user->role->name ?? 'Siswa' }}
+                                <div id="discussion-item-{{ $disc->id }}" class="discussion-thread d-flex flex-column gap-1.5">
+                                    <!-- Parent Comment Bubble -->
+                                    <div class="comment-bubble d-flex gap-2.5 {{ $isTeacherComment ? 'teacher-comment' : '' }}">
+                                        <!-- Avatar -->
+                                        <div class="comment-avatar text-white shadow-xs" style="background: {{ $isTeacherComment ? 'linear-gradient(135deg, #1e40af, #3b82f6)' : 'linear-gradient(135deg, #0f766e, #14b8a6)' }};">
+                                            {{ strtoupper(substr($disc->user->name ?? 'U', 0, 1)) }}
+                                        </div>
+                                        
+                                        <!-- Body -->
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-1">
+                                                <div class="d-flex align-items-center gap-1.5">
+                                                    <span class="fw-bold text-dark" style="font-size: 0.85rem;">{{ $disc->user->name ?? 'Pengguna' }}</span>
+                                                    @if($isTeacherComment)
+                                                        <span class="badge rounded-pill px-1.5 py-0.5 font-bold" style="font-size: 0.62rem; background: #3b82f6; color: #ffffff;">
+                                                            <i class="ti ti-school me-0.5"></i> Guru
+                                                        </span>
+                                                    @else
+                                                        <span class="badge rounded-pill px-1.5 py-0.5 font-semibold" style="font-size: 0.62rem; background: #f1f5f9; color: #475569;">
+                                                            Siswa
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <span class="text-muted" style="font-size: 0.7rem;" title="{{ $disc->created_at ? $disc->created_at->locale('id')->translatedFormat('l, d F Y H:i') . ' WIB' : '' }}">
+                                                    <i class="ti ti-clock me-0.5"></i> {{ $disc->created_at ? $disc->created_at->locale('id')->diffForHumans() : '' }}
                                                 </span>
                                             </div>
-                                            <span class="text-muted small" style="font-size: 0.72rem;">
-                                                <i class="ti ti-clock me-1"></i> {{ $disc->created_at ? $disc->created_at->diffForHumans() : '' }}
-                                            </span>
+                                            <p class="text-secondary mb-1.5" style="line-height: 1.5; white-space: pre-line; font-size: 0.84rem;">{{ $disc->comment }}</p>
+
+                                            <!-- Reply Action Line -->
+                                            <div class="d-flex align-items-center gap-3">
+                                                <button type="button" 
+                                                        class="btn-reply-action" 
+                                                        onclick="openReplyForm('reply-form-{{ $disc->id }}', '{{ addslashes($disc->user->name ?? 'Pengguna') }}')">
+                                                    <i class="ti ti-arrow-back-up"></i> Balas
+                                                </button>
+                                                @if($disc->replies->count() > 0)
+                                                    <span class="badge rounded-pill bg-light text-secondary border px-2 py-0.5 font-semibold" style="font-size: 0.68rem;">
+                                                        <i class="ti ti-corner-down-right me-0.5 text-primary"></i> {{ $disc->replies->count() }} balasan
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <p class="text-secondary mb-0 small" style="line-height: 1.6; white-space: pre-line;">{{ $disc->comment }}</p>
+                                    </div>
+
+                                    <!-- Nested Replies (Menjorok ke Kanan Seperti di Media Sosial) -->
+                                    @if($disc->replies->count() > 0)
+                                        <div class="discussion-replies d-flex flex-column gap-1.5 mt-0.5">
+                                            @foreach($disc->replies as $reply)
+                                                @php
+                                                    $isTeacherReply = ($reply->user->role->name ?? '') === 'guru';
+                                                @endphp
+                                                <div id="discussion-item-{{ $reply->id }}" class="reply-bubble d-flex gap-2 {{ $isTeacherReply ? 'teacher-reply' : '' }}">
+                                                    <!-- Avatar Reply -->
+                                                    <div class="comment-avatar reply-avatar text-white shadow-xs" style="background: {{ $isTeacherReply ? 'linear-gradient(135deg, #1e40af, #3b82f6)' : 'linear-gradient(135deg, #475569, #64748b)' }};">
+                                                        {{ strtoupper(substr($reply->user->name ?? 'U', 0, 1)) }}
+                                                    </div>
+                                                    <!-- Body Reply -->
+                                                    <div class="flex-grow-1 min-w-0">
+                                                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-0.5">
+                                                            <div class="d-flex align-items-center gap-1.5">
+                                                                <span class="fw-bold text-dark" style="font-size: 0.8rem;">{{ $reply->user->name ?? 'Pengguna' }}</span>
+                                                                @if($isTeacherReply)
+                                                                    <span class="badge rounded-pill px-1.5 py-0.2 font-bold" style="font-size: 0.58rem; background: #3b82f6; color: #ffffff;">
+                                                                        <i class="ti ti-school me-0.5"></i> Guru
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge rounded-pill px-1.5 py-0.2 font-semibold" style="font-size: 0.58rem; background: #f1f5f9; color: #475569;">
+                                                                        Siswa
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            <span class="text-muted" style="font-size: 0.68rem;" title="{{ $reply->created_at ? $reply->created_at->locale('id')->translatedFormat('l, d F Y H:i') . ' WIB' : '' }}">
+                                                                <i class="ti ti-clock me-0.5"></i> {{ $reply->created_at ? $reply->created_at->locale('id')->diffForHumans() : '' }}
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-secondary mb-1" style="line-height: 1.45; white-space: pre-line; font-size: 0.8rem;">{{ $reply->comment }}</p>
+                                                        
+                                                        <button type="button" 
+                                                                class="btn-reply-action" 
+                                                                style="font-size: 0.7rem;"
+                                                                onclick="openReplyForm('reply-form-{{ $disc->id }}', '{{ addslashes($reply->user->name ?? 'Pengguna') }}')">
+                                                            <i class="ti ti-arrow-back-up"></i> Balas
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    <!-- Inline Reply Form for this Thread (Menjorok ke Kanan) -->
+                                    <div id="reply-form-{{ $disc->id }}" class="reply-form-container ms-3 ms-md-4 ps-2.5 d-none mt-1">
+                                        <form action="{{ route('student.materials.discussions', $material) }}" method="POST" class="p-2 rounded-3 border bg-light-subtle shadow-xs">
+                                            @csrf
+                                            <input type="hidden" name="parent_id" value="{{ $disc->id }}">
+                                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                                <span class="badge bg-white text-primary border px-2 py-0.5 small font-medium reply-target-label" style="font-size: 0.7rem;">
+                                                    <i class="ti ti-arrow-back-up me-1"></i> Membalas <strong class="reply-username">{{ $disc->user->name ?? 'Pengguna' }}</strong>
+                                                </span>
+                                                <button type="button" class="btn-close shadow-none" style="font-size: 0.6rem;" onclick="closeReplyForm('reply-form-{{ $disc->id }}')"></button>
+                                            </div>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" 
+                                                       name="comment" 
+                                                       class="form-control form-control-sm px-2.5 py-1 shadow-none reply-input border-end-0" 
+                                                       placeholder="Tulis balasan Anda..." 
+                                                       style="font-size: 0.8rem;"
+                                                       required>
+                                                <button type="submit" class="btn text-white px-3 font-semibold d-flex align-items-center gap-1 shadow-none" style="background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%); font-size: 0.78rem;">
+                                                    <i class="ti ti-send"></i> Balas
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             @empty
-                                <div class="text-center py-5 text-muted small" id="no-comments-msg">
-                                    <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="background: rgba(51, 104, 160, 0.06); width: 50px; height: 50px;">
-                                        <i class="ti ti-message-2-plus fs-3 text-muted"></i>
+                                <div class="text-center py-4 text-muted small" id="no-comments-msg">
+                                    <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="background: rgba(51, 104, 160, 0.06); width: 44px; height: 44px;">
+                                        <i class="ti ti-message-2-plus fs-4 text-muted"></i>
                                     </div>
-                                    <p class="fw-medium text-secondary mb-1">Belum ada tanggapan atau pertanyaan di materi ini.</p>
-                                    <span class="text-muted small">Jadilah yang pertama memulai diskusi interaktif bersama guru dan teman sekelas!</span>
+                                    <p class="fw-medium text-secondary mb-0.5" style="font-size: 0.85rem;">Belum ada tanggapan atau pertanyaan di materi ini.</p>
+                                    <span class="text-muted" style="font-size: 0.75rem;">Jadilah yang pertama memulai diskusi interaktif bersama guru dan teman sekelas!</span>
                                 </div>
                             @endforelse
                         </div>
 
-                        <!-- Comment Input Form -->
-                        <form action="{{ route('student.materials.discussions', $material) }}" method="POST" class="pt-3 border-top" style="border-color: rgba(51, 104, 160, 0.12) !important;">
+                        <!-- Comment Input Form (Utama / Komentar Baru) -->
+                        <form action="{{ route('student.materials.discussions', $material) }}" method="POST" class="pt-2.5 border-top" style="border-color: rgba(51, 104, 160, 0.1) !important;">
                             @csrf
-                            <label class="form-label small fw-bold text-dark mb-2">Tulis Tanggapan atau Pertanyaan:</label>
-                            <div class="input-group shadow-sm rounded-4 overflow-hidden border" style="border-color: rgba(51, 104, 160, 0.25) !important;">
+                            <div class="d-flex align-items-center gap-2 mb-1.5">
+                                <span class="fw-bold small text-dark" style="font-size: 0.8rem;">
+                                    <i class="ti ti-message-dots text-primary me-1"></i> Tulis Komentar atau Pertanyaan Baru:
+                                </span>
+                            </div>
+                            <div class="input-group input-group-sm shadow-xs rounded-3 overflow-hidden border" style="border-color: rgba(51, 104, 160, 0.22) !important;">
                                 <input type="text" 
                                        name="comment" 
-                                       class="form-control border-0 px-3.5 py-3 shadow-none @error('comment') is-invalid @enderror" 
-                                       placeholder="Ketik pertanyaan seputar materi ini..." 
+                                       class="form-control border-0 px-3 py-2 shadow-none @error('comment') is-invalid @enderror" 
+                                       placeholder="Ketik pertanyaan atau tanggapan seputar materi..." 
+                                       style="font-size: 0.84rem;"
                                        required>
-                                <button type="submit" class="btn text-white px-4 font-bold d-flex align-items-center gap-1.5 shadow-none" style="background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%);">
+                                <button type="submit" class="btn text-white px-3.5 font-bold d-flex align-items-center gap-1 shadow-none" style="background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%); font-size: 0.82rem;">
                                     <i class="ti ti-send"></i> Kirim
                                 </button>
                             </div>
+                            <div class="text-muted mt-1" style="font-size: 0.7rem;">
+                                <i class="ti ti-info-circle me-1"></i> Pertanyaan dan tanggapan kamu dapat dilihat oleh guru serta rekan sekelas.
+                            </div>
                             @error('comment')
-                                <div class="text-danger small mt-1.5 fw-semibold">{{ $message }}</div>
+                                <div class="text-danger small mt-1 fw-semibold" style="font-size: 0.75rem;">{{ $message }}</div>
                             @enderror
                         </form>
 
@@ -498,4 +671,53 @@
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function openReplyForm(formId, targetUsername) {
+            // Tutup form balasan lain yang sedang terbuka
+            document.querySelectorAll('.reply-form-container').forEach(function(el) {
+                el.classList.add('d-none');
+            });
+            const container = document.getElementById(formId);
+            if (container) {
+                container.classList.remove('d-none');
+                const usernameEl = container.querySelector('.reply-username');
+                if (usernameEl && targetUsername) {
+                    usernameEl.textContent = targetUsername;
+                }
+                const inputEl = container.querySelector('.reply-input');
+                if (inputEl) {
+                    if (targetUsername) {
+                        inputEl.value = '@' + targetUsername + ' ';
+                    }
+                    inputEl.focus();
+                }
+            }
+        }
+
+        function closeReplyForm(formId) {
+            const container = document.getElementById(formId);
+            if (container) {
+                container.classList.add('d-none');
+                const inputEl = container.querySelector('.reply-input');
+                if (inputEl) {
+                    inputEl.value = '';
+                }
+            }
+        }
+
+        // Auto-scroll ke komentar/balasan jika terdapat hash di URL
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.hash) {
+                const targetEl = document.querySelector(window.location.hash);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetEl.classList.add('bg-warning-subtle');
+                    setTimeout(() => {
+                        targetEl.classList.remove('bg-warning-subtle');
+                    }, 2500);
+                }
+            }
+        });
+    </script>
 </x-app-layout>

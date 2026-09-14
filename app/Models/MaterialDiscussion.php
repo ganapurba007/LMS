@@ -12,6 +12,7 @@ class MaterialDiscussion extends Model
 
     protected $fillable = [
         'material_id',
+        'parent_id',
         'user_id',
         'comment',
     ];
@@ -24,5 +25,15 @@ class MaterialDiscussion extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(MaterialDiscussion::class, 'parent_id');
+    }
+
+    public function replies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MaterialDiscussion::class, 'parent_id')->oldest();
     }
 }

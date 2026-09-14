@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Events\MaterialCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use App\Models\Notification;
 use App\Models\SchoolClass;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -75,6 +77,25 @@ class MaterialController extends Controller
         $material->save();
 
         event(new MaterialCreated($material));
+
+        // Buat notifikasi database untuk seluruh siswa di kelas terkait
+        $students = User::where('class_id', $material->class_id)
+            ->whereHas('role', function ($q) {
+                $q->where('name', 'siswa');
+            })->get();
+
+        $instructorName = Auth::user()->name ?? 'Guru Pengampu';
+        $subjectName = $material->subject->name ?? 'Mata Pelajaran';
+        foreach ($students as $student) {
+            Notification::create([
+                'user_id' => $student->id,
+                'type' => 'new_material',
+                'title' => 'Materi Baru: ' . $material->title,
+                'message' => 'Guru ' . $instructorName . ' telah menerbitkan materi baru "' . $material->title . '" (' . $subjectName . ').',
+                'related_url' => route('student.materials.show', $material),
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->route('admin.materials.index')
             ->with('success', 'Materi pembelajaran berhasil ditambahkan dan notifikasi realtime dikirim.');

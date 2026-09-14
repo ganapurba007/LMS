@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -105,6 +106,16 @@ class AssignmentController extends Controller
             abort(403);
         }
 
+        // Cegah pengumpulan jika siswa sudah pernah mengumpulkan tugas ini (hanya 1 kali pengumpulan)
+        $existingSubmission = AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_id', $user->id)
+            ->first();
+
+        if ($existingSubmission) {
+            return redirect()->route('student.assignments.show', $assignment)
+                ->with('error', 'Anda sudah mengumpulkan jawaban untuk tugas ini. Pengumpulan tugas hanya dapat dilakukan 1 (satu) kali.');
+        }
+
         // Cegah pengumpulan jika batas waktu telah lewat
         if ($assignment->due_date && $assignment->due_date->isPast()) {
             return redirect()->route('student.assignments.show', $assignment)
@@ -115,14 +126,24 @@ class AssignmentController extends Controller
             'answer_text' => ['required', 'string', 'max:5000'],
         ]);
 
-        $submission = AssignmentSubmission::firstOrNew([
+        AssignmentSubmission::create([
             'assignment_id' => $assignment->id,
             'student_id' => $user->id,
+            'answer_text' => $request->answer_text,
+            'submitted_at' => now(),
         ]);
 
-        $submission->answer_text = $request->answer_text;
-        $submission->submitted_at = now();
-        $submission->save();
+        // Buat notifikasi untuk guru pengampu tugas
+        if ($assignment->instructor_id) {
+            Notification::create([
+                'user_id' => $assignment->instructor_id,
+                'type' => 'new_assignment',
+                'title' => 'Tugas Dikumpulkan: ' . $assignment->title,
+                'message' => 'Siswa ' . $user->name . ' telah mengumpulkan jawaban untuk tugas "' . $assignment->title . '".',
+                'related_url' => route('admin.submissions.index'),
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->route('student.assignments.show', $assignment)
             ->with('success', 'Tugas Anda berhasil dikumpulkan.');

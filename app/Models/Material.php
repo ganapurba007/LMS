@@ -18,6 +18,9 @@ class Material extends Model
         'document_path',
         'video_url',
         'order',
+        'subject_id',
+        'class_id',
+        'instructor_id',
     ];
 
     public function schoolClass(): BelongsTo
@@ -43,5 +46,10 @@ class Material extends Model
     public function discussions(): HasMany
     {
         return $this->hasMany(MaterialDiscussion::class);
+    }
+
+    public function rootDiscussions(): HasMany
+    {
+        return $this->hasMany(MaterialDiscussion::class)->whereNull('parent_id');
     }
 }

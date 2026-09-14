@@ -30,6 +30,37 @@
         <div class="min-h-screen pb-16 lg:pb-0 bg-geometric-canvas">
             @include('layouts.navigation')
 
+            <!-- Global Flash Messages (Error / Success) -->
+            @if(session('error'))
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" data-aos="fade-down">
+                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm rounded-4 py-3 px-4 mb-0 border-0" role="alert" style="background: #fef2f2; border-left: 5px solid #ef4444 !important; color: #991b1b;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px; background: rgba(239, 68, 68, 0.15);">
+                            <i class="ti ti-alert-triangle fs-4 text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <strong class="d-block fw-bold" style="font-size: 0.95rem;">Perhatian</strong>
+                            <span style="font-size: 0.88rem;">{{ session('error') }}</span>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" data-aos="fade-down">
+                    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm rounded-4 py-3 px-4 mb-0 border-0" role="alert" style="background: #ecfdf5; border-left: 5px solid #10b981 !important; color: #065f46;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px; background: rgba(16, 185, 129, 0.15);">
+                            <i class="ti ti-circle-check fs-4 text-success"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <strong class="d-block fw-bold" style="font-size: 0.95rem;">Berhasil</strong>
+                            <span style="font-size: 0.88rem;">{{ session('success') }}</span>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            @endif
+
             <!-- Page Heading -->
             @if(isset($header) && trim($header) !== '')
                 <header class="shadow-sm border-b" style="background-color: #F2EFE7; border-color: rgba(102, 163, 191, 0.2);">
@@ -44,24 +75,31 @@
                 {{ $slot }}
             </main>
 
-            <!-- Arsha Premium Modern Footer Bar -->
-            <footer class="arsha-footer" style="background-color: #0b1727; color: #94a3b8; padding: 4rem 0 2rem 0; border-top: 4px solid #66A3BF;">
+            <!-- RuangTerra Premium Modern Footer Bar -->
+            <footer class="arsha-footer">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="row g-4 mb-5">
                         <!-- Col 1: Brand & Social Media -->
                         <div class="col-lg-5">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <div class="rounded-circle text-white flex items-center justify-center p-2.5 shadow-sm" style="background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%); width: 42px; height: 42px;">
-                                    <i class="ti ti-school text-xl"></i>
+                            <a href="{{ Auth::user() && Auth::user()->isGuru() ? route('admin.dashboard') : route('dashboard') }}" class="arsha-footer-brand mb-3">
+                                <img src="{{ asset('images/icon.png') }}"
+                                     alt="RuangTerra Icon"
+                                     class="footer-brand-icon">
+                                <div>
+                                    <div class="footer-brand-title">
+                                        Ruang<span>Terra</span>
+                                    </div>
+                                    <div class="footer-brand-subtitle">
+                                        Learning Platform
+                                    </div>
                                 </div>
-                                <span class="arsha-sitename text-white" style="font-size: 1.5rem; letter-spacing: 1px;">Ruang<span style="color: #66A3BF;">Terra</span></span>
-                            </div>
-                            <p class="small text-slate-400 pe-lg-4 mb-3">
-                                Platform E-Learning SMA terpadu untuk mengakses modul materi interaktif, mengumpulkan tugas kelas, dan mengikuti kuis online dengan pengalaman belajar yang menyenangkan.
+                            </a>
+                            <p class="small text-slate-400 pe-lg-4 mb-4" style="line-height: 1.65; max-width: 440px;">
+                                Platform E-Learning SMA terpadu untuk mengakses modul materi interaktif, mengumpulkan tugas kelas, dan mengikuti kuis online dengan pengalaman belajar modern yang menyenangkan.
                             </p>
 
                             <!-- Tidy & Beautiful Social Media Badges -->
-                            <div class="d-flex align-items-center gap-2.5 mt-3">
+                            <div class="d-flex align-items-center gap-2.5 mt-2">
                                 <a href="#" class="social-icon-btn instagram" title="Instagram">
                                     <i class="ti ti-brand-instagram"></i>
                                 </a>
@@ -79,37 +117,42 @@
 
                         <!-- Col 2: Navigasi Utama -->
                         <div class="col-6 col-lg-3">
-                            <h5 class="text-white font-bold mb-3" style="font-family: 'Jost', sans-serif;">Navigasi Utama</h5>
-                            <ul class="list-unstyled small d-flex flex-column gap-2.5 mb-0">
-                                <li><a href="{{ route('dashboard') }}" class="text-slate-400 text-decoration-none hover-text-white transition d-inline-flex align-items-center"><i class="ti ti-chevron-right me-1 text-primary"></i> Home / Dashboard</a></li>
-                                <li><a href="{{ route('student.materials.index') }}" class="text-slate-400 text-decoration-none hover-text-white transition d-inline-flex align-items-center"><i class="ti ti-chevron-right me-1 text-primary"></i> Courses / Materi</a></li>
-                                <li><a href="{{ route('student.assignments.index') }}" class="text-slate-400 text-decoration-none hover-text-white transition d-inline-flex align-items-center"><i class="ti ti-chevron-right me-1 text-primary"></i> Tugas Kelas</a></li>
-                                <li><a href="{{ route('student.quizzes.index') }}" class="text-slate-400 text-decoration-none hover-text-white transition d-inline-flex align-items-center"><i class="ti ti-chevron-right me-1 text-primary"></i> Kuis Online</a></li>
-                                <li><a href="{{ route('student.report.index') }}" class="text-slate-400 text-decoration-none hover-text-white transition d-inline-flex align-items-center"><i class="ti ti-chevron-right me-1 text-primary"></i> Laporan Diri</a></li>
+                            <h5 class="footer-widget-title">Navigasi Utama</h5>
+                            <ul class="list-unstyled d-flex flex-column gap-2.5 mb-0">
+                                <li><a href="{{ route('dashboard') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Home / Dashboard</a></li>
+                                <li><a href="{{ route('student.materials.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Courses / Materi</a></li>
+                                <li><a href="{{ route('student.assignments.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Tugas Kelas</a></li>
+                                <li><a href="{{ route('student.quizzes.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Kuis Online</a></li>
+                                <li><a href="{{ route('student.report.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Laporan Diri</a></li>
                             </ul>
                         </div>
 
-
-                        <!-- Col 4: Dukungan & Bantuan -->
+                        <!-- Col 3: Dukungan & Bantuan -->
                         <div class="col-lg-4">
-                            <h5 class="text-white font-bold mb-3" style="font-family: 'Jost', sans-serif;">Bantuan & Kontak</h5>
-                            <div class="d-flex flex-column gap-2 small text-slate-400 mb-3">
-                                <div><i class="ti ti-map-pin me-2 text-primary fs-6"></i> Kampus RuangTerra, Indonesia</div>
-                                <div><i class="ti ti-mail me-2 text-primary fs-6"></i> support@ruangterra.sch.id</div>
-                                <div><i class="ti ti-phone me-2 text-primary fs-6"></i> (021) 555-0199</div>
+                            <h5 class="footer-widget-title">Bantuan & Kontak</h5>
+                            <div class="d-flex flex-column gap-3 mb-3">
+                                <div class="footer-contact-item">
+                                    <div class="footer-contact-icon"><i class="ti ti-mail"></i></div>
+                                    <div class="pt-0.5">danisetyowati8@gmail.com</div>
+                                </div>
+                                <div class="footer-contact-item">
+                                    <div class="footer-contact-icon"><i class="ti ti-phone"></i></div>
+                                    <div class="pt-0.5">+62 858 2465 8011</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Bottom Copyright Bar & Scroll Top -->
-                    <div class="border-top border-slate-800 pt-4 d-flex flex-wrap align-items-center justify-content-between text-center text-md-start small text-slate-500 gap-3">
+                    <div class="border-top pt-4 d-flex flex-wrap align-items-center justify-content-between text-center text-md-start small text-slate-400 gap-3" style="border-top-color: rgba(255, 255, 255, 0.08) !important;">
                         <div>
-                            &copy; {{ date('Y') }} <strong>RuangTerra</strong>. All rights reserved.
+                            &copy; {{ date('Y') }} <strong class="text-white" style="font-family: 'Jost', sans-serif; letter-spacing: 0.3px;">Ruang<span style="color: #38bdf8;">Terra</span></strong>. All rights reserved.
                         </div>
                         <div class="d-flex align-items-center gap-3 mx-auto mx-md-0">
-                            <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;" class="btn btn-sm btn-outline-secondary rounded-pill text-white px-3 py-1 text-decoration-none">
-                                <i class="ti ti-arrow-up me-1"></i> Kembali ke Atas
-                            </a>
+                            <button type="button" onclick="window.scrollTo({top:0, behavior:'smooth'});" class="footer-back-to-top" title="Kembali ke Bagian Atas">
+                                <i class="ti ti-arrow-up"></i>
+                                <span>Kembali ke Atas</span>
+                            </button>
                         </div>
                     </div>
                 </div>

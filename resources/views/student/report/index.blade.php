@@ -176,7 +176,7 @@
                 <!-- Hero Right: Predikat & Skor Rata-rata -->
                 <div class="col-lg-4 text-lg-end">
                     <div class="d-inline-flex flex-column align-items-lg-end gap-1.5">
-                        <div class="d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill shadow-sm"
+                        <div class="d-inline-flex align-items-center gap-2 px-4 py-1.5 rounded-pill shadow-sm"
                              style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);">
                             <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.6px;">Predikat:</span>
                             <span class="badge rounded-pill px-3 py-1 font-bold shadow-2xs" 
@@ -362,9 +362,6 @@
                                         </div>
                                         <div>
                                             <div class="fw-bold text-dark mb-1" style="font-size: 0.88rem;">{{ $item['subject']->name }}</div>
-                                            <span class="badge bg-light text-secondary border font-monospace px-2 py-0.5" style="font-size: 0.7rem;">
-                                                {{ $item['subject']->code }}
-                                            </span>
                                         </div>
                                     </div>
                                 </td>

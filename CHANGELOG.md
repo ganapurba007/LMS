@@ -2,6 +2,142 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 42] Dedicated Student Profile Page & Strict Admin Portal Security — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Halaman Profil Mandiri Khusus Siswa ([`resources/views/student/profile/edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/profile/edit.blade.php))**:
+  - **Layout Frontend Terpisah**: Mengganti template bawaan yang sebelumnya menggunakan layout admin backend (`layouts.be.master`) dengan `<x-app-layout>` bertema RuangTerra tanpa menu/sidebar master data admin.
+  - **Hero Header Profil Siswa**:
+    - Breadcrumbs navigasi: *Dashboard / Profil Saya*.
+    - Badge kategori *Akun & Pengaturan Profil Siswa*.
+    - Heading utama dan ringkasan akun dengan badge *Siswa Aktif*.
+  - **Kartu Identitas & Metadata Siswa**:
+    - Lingkaran avatar besar dengan inisial nama siswa berkilau gradien.
+    - Status akun aktif dan email.
+    - Informasi akademik terdaftar: Kelas (`X-IPA-1`), NIS, dan tanggal terdaftar.
+    - Tautan cepat langsung menuju *Laporan Belajar Siswa*.
+    - Kartu tips keamanan akun belajar.
+  - **Formulir Data Pribadi & Kontak**:
+    - Input Nama Lengkap (dapat diedit).
+    - Input Alamat Email (dapat diedit).
+    - Field Kelas dan NIS ditampilkan secara informatif (read-only) dengan penjelas bahwa perubahan kelas dikelola pihak sekolah.
+    - Tombol simpan perubahan berkilau dengan indikator status tersimpan.
+  - **Formulir Keamanan & Kata Sandi Interaktif**:
+    - Input kata sandi saat ini, kata sandi baru, dan konfirmasi kata sandi baru.
+    - **Toggle Show/Hide Password**: Dilengkapi tombol ikon mata interaktif (`ti-eye` / `ti-eye-off`) untuk melihat/menyembunyikan teks kata sandi.
+  - **Zona Berbahaya (Hapus Akun)**:
+    - Peringatan detail mengenai konsekuensi penghapusan akun secara permanen.
+    - Modal konfirmasi berbasis Bootstrap dengan validasi kata sandi wajib sebelum penghapusan.
+- **Pemisahan Controller Profil ([`app/Http/Controllers/ProfileController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/ProfileController.php))**:
+  - Method `edit()` secara otomatis mengembalikan `view('student.profile.edit')` untuk siswa, dan mempertahankan `view('profile.edit')` dengan layout backend untuk guru.
+- **Pembatasan Akses Ketat Siswa ke Portal Admin**:
+  - **Blokir Halaman Login Admin ([`app/Http/Controllers/Admin/Auth/AdminAuthenticatedSessionController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/Auth/AdminAuthenticatedSessionController.php))**: Siswa yang sedang login dan membuka `/admin/login` tidak lagi di-logout diam-diam, melainkan langsung dicegah dan dialihkan ke dashboard siswa dengan pesan peringatan: *"Akses ditolak. Anda login sebagai Siswa dan tidak diizinkan masuk ke portal admin."*
+  - **Blokir Reset Password Admin ([`app/Http/Controllers/Admin/Auth/AdminPasswordResetLinkController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/Auth/AdminPasswordResetLinkController.php))**: Siswa yang membuka `/admin/forgot-password` langsung dicegah dan dialihkan ke dashboard siswa.
+  - **Pengamanan Rute Akses `/admin` ([`routes/web.php`](file:///c:/laragon/www/KELAS/lms_dani/routes/web.php))**: Rute shortcut `/admin` memverifikasi peran pengguna terlebih dahulu sebelum mengarahkan ke dashboard admin.
+  - **Pembaruan Middleware Role ([`app/Http/Middleware/EnsureUserHasRole.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Middleware/EnsureUserHasRole.php))**: Menyeragamkan pesan error akses ditolak ke portal admin.
+  - **Banner Notifikasi Global ([`resources/views/layouts/app.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/layouts/app.blade.php))**: Menambahkan wadah alert dismissal untuk `session('error')` dan `session('success')` di bawah navbar.
+- **Pengujian & Regresi**:
+  - Menambahkan test case di [`tests/Feature/ProfileTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/ProfileTest.php) dan [`tests/Feature/AuthMiddlewareTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/AuthMiddlewareTest.php).
+  - 100% PHPUnit test suite (**143 passed, 488 assertions**) lolos tanpa regresi.
+  - Verifikasi browser lengkap mencakup screenshot profil mandiri, toggle visibilitas password, dan pencegahan pengalihan akses portal admin.
+
+## [Fase 41] Discussion & QA Section Aesthetic Refinement & Compact Proportioning — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Perampingan & Proporsi Kompak Ruang Diskusi ([`resources/views/student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php))**:
+  - **Dimensi & Padding Seimbang**: Mengganti padding tebal `p-4 p-md-5` menjadi `p-3 p-md-3.5`, menghilangkan ruang kosong berlebih agar selaras rapi dengan sidebar kanan.
+  - **Header Card Kompak**: Menggunakan icon 28px proporsional, heading bersih `font-size: 0.98rem`, dan pill badge jumlah diskusi yang elegan.
+  - **Desain Bubble Komentar Modern**:
+    - Bubble utama berlatar putih bersih dengan border halus `#e2e8f0` dan bayangan lembut saat di-hover.
+    - Komentar guru dilengkapi strip aksen biru di sisi kiri (`border-left: 3.5px solid #3b82f6`) dan badge pill `Guru` dengan ikon topi toga.
+    - Komentar siswa dilengkapi badge pill `Siswa` yang rapi.
+    - Avatar berukuran proporsional: 34px untuk komentar utama dan 28px untuk balasan.
+    - Tombol aksi **Balas** dibuat diskret dan minimalis ala media sosial tanpa garis pemisah tebal yang memotong kartu.
+  - **Scrollbox Terbatas & Halus**: Mengatur `max-height: 400px` dengan scrollbar tipis kustom (`scrollbar-width: thin;`) agar daftar komentar tidak mendominasi tinggi halaman.
+  - **Formulir Balasan & Komentar Baru Minimalis**:
+    - Form balasan inline dikemas dalam container halus dengan badge mention dan input group `form-control-sm`.
+    - Form komentar baru utama di bagian bawah didesain ringkas dengan input rounded-3, tombol submit gradient bertema, serta catatan informasi kecil.
+- **Automated Testing & Regresi**:
+  - Seluruh rangkaian test suite (**141 passed, 478 assertions**) lulus 100%.
+
+## [Fase 40] Threaded Discussion Replies (Social Media Style) & Indonesian Localization — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Struktur Diskusi Bersarang / Threaded Replies ([`database/migrations/2026_09_14_000001_add_parent_id_to_material_discussions_table.php`](file:///c:/laragon/www/KELAS/lms_dani/database/migrations/2026_09_14_000001_add_parent_id_to_material_discussions_table.php))**:
+  - Menambahkan kolom `parent_id` (foreign key nullable cascade on delete) pada tabel `material_discussions`.
+  - Memperbarui model [`app/Models/MaterialDiscussion.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/MaterialDiscussion.php) dengan relasi `parent()` dan `replies()`.
+  - Memperbarui model [`app/Models/Material.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Material.php) dengan relasi `rootDiscussions()` (hanya komentar utama ber-`parent_id IS NULL`).
+- **Tampilan Balasan Komentar Menjorok ke Kanan Seperti di Media Sosial ([`resources/views/student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php))**:
+  - Posisi balasan diletakkan tepat di bawah komentar induk dan menjorok ke kanan (`ms-4 ms-md-5 ps-3 border-start border-2 border-primary-subtle`) menyerupai thread di media sosial (Reddit/Instagram/Twitter).
+  - Avatar balasan berukuran proporsional (32px), dilengkapi bubble komentar tersendiri, badge role pengguna (Guru/Siswa), dan tombol aksi **Balas**.
+  - **Inline Reply Form**: Setiap thread komentar memiliki form inline mandiri yang dapat dibuka melalui tombol "Balas", lengkap dengan badge `Membalas @NamaUser`, tombol batal (`x`), input text field, dan tombol submit.
+- **Keterangan Waktu Bahasa Indonesia**:
+  - Konfigurasi `\Carbon\Carbon::setLocale('id')` di [`app/Providers/AppServiceProvider.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Providers/AppServiceProvider.php) dan `config/app.php` serta `.env`.
+  - Tampilan waktu pada setiap komentar dan balasan menggunakan format relatif bahasa Indonesia (e.g. *"5 menit yang lalu"*, *"2 jam yang lalu"*, *"1 hari yang lalu"*), dilengkapi tooltip hover format tanggal lengkap bahasa Indonesia (*"Senin, 14 September 2026 09:30 WIB"*).
+- **Target Notifikasi Balasan Terfokus ([`app/Http/Controllers/Student/MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/MaterialController.php))**:
+  - Ketika sebuah komentar dibalas, sistem langsung mengirim notifikasi khusus kepada pembuat komentar yang dibalas: *"X membalas komentar Anda di materi [Judul]"*.
+  - Tautan notifikasi mengarah tepat ke elemen balasan (`#discussion-item-{id}`) dengan smooth scrolling.
+- **Automated Testing & Regresi ([`tests/Feature/Student/StudentMaterialTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentMaterialTest.php))**:
+  - Menambahkan test case pengiriman balasan dengan `parent_id`, tampilan balasan menjorok di halaman detail materi, dan verifikasi keterangan waktu bahasa Indonesia (*"menit yang lalu"*).
+  - Seluruh test suite lengkap (**141 passed, 478 assertions**) lulus 100%.
+
+## [Fase 39] Complete Database Synchronization for Notifications (Material, Assignment, Quiz & Discussion Replies) — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Sinkronisasi Data Riil Notifikasi Sesuai Database ([`database/seeders/NotificationSeeder.php`](file:///c:/laragon/www/KELAS/lms_dani/database/seeders/NotificationSeeder.php))**:
+  - Mengganti seluruh data statis/dummy notifikasi lama dengan data faktual yang ada di database kelas siswa:
+    - **Materi**: Menampilkan judul riil materi (misal: *"Konspirasi"*) dan nama mata pelajaran, dengan tautan langsung ke modul detail (`student/materials/{id}`).
+    - **Tugas**: Menampilkan judul riil tugas (misal: *"Tugas Mandiri"*) dan mata pelajaran, dengan tautan langsung ke detail tugas (`student/assignments/{id}`).
+    - **Kuis**: Menampilkan judul riil kuis (misal: *"Kuis minggu ke-2"* / *"cek"*), dengan tautan langsung ke petunjuk kuis (`student/quizzes/{id}`).
+    - **Ruang Diskusi (Balasan Komentar)**: Mengirimkan notifikasi riil saat ada guru atau teman sekelas yang menanggapi diskusi pada materi terkait, dengan tautan langsung ke anchor forum diskusi (`student/materials/{id}#discussion-list`).
+- **Otomasi Penerbitan Notifikasi di Controller**:
+  - **Materi Baru ([`app/Http/Controllers/Admin/MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/MaterialController.php))**: Saat guru mempublikasikan materi baru, sistem otomatis membuat notifikasi untuk seluruh siswa di kelas terkait dengan judul riil materi.
+  - **Kuis Baru ([`app/Http/Controllers/Admin/QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php))**: Saat guru membuat kuis baru, notifikasi otomatis terbit untuk seluruh siswa di kelas tersebut.
+  - **Tanggapan Ruang Diskusi ([`app/Http/Controllers/Student/MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/MaterialController.php))**: Saat komentar baru diposting, notifikasi dikirimkan ke guru pengampu materi serta seluruh siswa yang pernah berpartisipasi dalam diskusi materi tersebut.
+  - **Pengumpulan & Penilaian Tugas ([`app/Http/Controllers/Student/AssignmentController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/AssignmentController.php), [`app/Http/Controllers/Admin/AssignmentSubmissionController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/AssignmentSubmissionController.php))**: Guru diberi tahu saat tugas dikumpulkan oleh siswa, dan siswa diberi tahu saat nilai tugas telah dimasukkan oleh guru.
+- **Pembaruan Model & Resolver URL ([`app/Models/Notification.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Notification.php), [`app/Models/Material.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Material.php), [`app/Models/Quiz.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Quiz.php))**:
+  - Menambahkan dukungan resolving tautan notifikasi diskusi tipe `comment` langsung menuju `#discussion-list`.
+  - Memperbarui `$fillable` pada model `Material` dan `Quiz` untuk mendukung atribut `class_id`, `subject_id`, dan `instructor_id`.
+- **Automated Testing & Regresi ([`tests/Feature/NotificationTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/NotificationTest.php))**:
+  - Menambahkan test case untuk redirection notifikasi materi, kuis, dan diskusi serta pengujian otomatis penerbitan notifikasi saat guru menambah materi/kuis dan saat komentar diskusi dibalas.
+  - Seluruh rangkaian test suite lengkap (**139 tests, 469 assertions**) di PHPUnit lulus 100%.
+
+## [Fase 38] Assignment Evaluation Layout Refinement & One-Time Submission Enforcement — 2026-09-14
+
+### Ditambahkan & Diperbarui
+- **Perapian & Perampingan Tampilan "Hasil Penilaian & Koreksi Guru" ([`resources/views/student/assignments/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/assignments/show.blade.php))**:
+  - **Dimensi Compact & Proporsional**: Mengganti tampilan tipografi raksasa `display-5` dan padding tebal `p-4 p-md-5` menjadi kartu evaluasi yang ringkas, rapi, dan seimbang (`p-3 p-md-3.5`).
+  - **Metric Strip Nilai Akhir**: Menampilkan perolehan nilai dalam rounded box terstruktur (`1.65rem`) dengan badge tuntas dinilai, informasi waktu penilaian (`graded_at`), serta nama guru pengampu yang menilai.
+  - **Catatan & Umpan Balik Guru**: Kotak catatan guru dikemas dalam callout berlatar lembut dengan border hijau elegan, teks terstruktur yang mudah dibaca, dan tidak lagi memakan ruang vertikal secara berlebihan.
+  - **Harmonisasi Lembar Tugas**: Menyesuaikan padding kartu petunjuk soal agar seragam dan rapi di seluruh layar.
+- **Kebijakan Pengumpulan Tugas Hanya 1 (Satu) Kali**:
+  - **Validasi Backend ([`app/Http/Controllers/Student/AssignmentController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/AssignmentController.php))**:
+    - Menambahkan pengecekan database pada method `submit()`. Jika siswa telah memiliki riwayat submission pada tugas tersebut, request pengumpulan kedua langsung diblokir dan dialihkan dengan pesan peringatan bahwa tugas hanya dapat dikumpulkan 1 kali.
+  - **Penguncian Formulir Frontend ([`resources/views/student/assignments/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/assignments/show.blade.php))**:
+    - Ketika tugas telah dikumpulkan, badge header berganti menjadi `Sudah Dikumpulkan (Terkunci)`.
+    - Alert pesan revisi diganti dengan konfirmasi pengumpulan terkunci.
+    - Textarea jawaban otomatis berstatus `disabled readonly` dengan border hijau lembut.
+    - Tombol kirim/perbarui digantikan oleh tombol disabled `Telah Dikumpulkan (Pengumpulan 1x)` dengan icon gembok terkunci.
+- **Automated Testing & Regresi ([`tests/Feature/Student/StudentAssignmentTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentAssignmentTest.php))**:
+  - Menambahkan test case `test_siswa_cannot_submit_assignment_more_than_once` untuk memverifikasi bahwa pengumpulan berulang ditolak dan jawaban awal siswa tetap terjaga utuh.
+  - Seluruh rangkaian test suite lengkap (**133 tests, 456 assertions**) di PHPUnit lulus 100%.
+
+## [Fase 37] Footer Styling Enhancement, Brand Icon & Typography Standardization — 2026-09-13
+
+### Ditambahkan & Diperbarui
+- **Penyelarasan Identitas Brand di Footer ([`resources/views/layouts/app.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/layouts/app.blade.php))**:
+  - **Penyesuaian Icon Resmi**: Mengganti icon lingkaran generik `ti-school` dengan icon brand resmi RuangTerra (`asset('images/icon.png')`) berdimensi presisi, filter drop-shadow cyan bercahaya, serta efek hover transform interaktif (zoom & tilt).
+  - **Standarisasi Tipografi Brand**: Mengadopsi font `Jost` dengan bobot ultra-bold (900), teks **Ruang** putih bersih, **Terra** berwarna cyan neon (`#38bdf8`) dengan glow text-shadow, dan subjudul `Learning Platform` berhuruf kapital dengan tracking elegan (1.8px) yang identik dengan logo navbar header.
+- **Redesain Modern High-End Footer ([`public/css/theme-custom.css`](file:///c:/laragon/www/KELAS/lms_dani/public/css/theme-custom.css))**:
+  - **Modern Dark Gradient Background**: Mengganti warna flat kaku `#0b1727` dengan gradasi midnight navy mewah (`linear-gradient(180deg, #091424 0%, #040912 100%)`).
+  - **Aksen Border & Cahaya Atas**: Mengganti border atas solid tebal dengan border tipis elegan `1px solid rgba(56, 189, 248, 0.22)` disertai garis berkas cahaya gradien cyan di bagian atas (`.arsha-footer::before`) dan bayangan elevasi yang dalam (`box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.45)`).
+  - **Interactive Navigation Links**: Tautan navigasi (`.footer-nav-link`) kini memiliki transisi hover geser kanan halus dengan indikator panah cyan interaktif.
+  - **Glassmorphic Contact Badges**: Informasi kontak (kampus, email, telepon) dilengkapi icon dalam rounded container glassmorphic dengan warna aksen cyan RuangTerra.
+  - **PWA Mobile Safe Padding**: Penyesuaian padding bawah footer (`padding-bottom: calc(2rem + 65px)`) pada perangkat mobile agar tidak terhalang oleh *Mobile Bottom Nav Bar*.
+  - **Pill Back-to-Top Button**: Tombol "Kembali ke Atas" diperbarui menjadi pill glassmorphic modern dengan micro-interaction hover glow.
+- **Automated Testing & Regresi**:
+  - Seluruh rangkaian test suite lengkap (**132 tests, 448 assertions**) di PHPUnit tetap lulus 100%.
+
 ## [Fase 36] Notification Direct Redirection, Dynamic Host Resolution & 404 Prevention — 2026-09-13
 
 ### Ditambahkan & Diperbarui

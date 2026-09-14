@@ -16,8 +16,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
+        // Jika siswa / non-guru, tampilkan halaman profil mandiri khusus siswa
+        if (! $user->isGuru()) {
+            return view('student.profile.edit', [
+                'user' => $user,
+            ]);
+        }
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 

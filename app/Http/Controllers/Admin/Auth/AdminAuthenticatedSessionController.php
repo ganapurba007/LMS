@@ -25,10 +25,8 @@ class AdminAuthenticatedSessionController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
-            // Jika yang sedang login adalah siswa, logout agar formulir login guru dapat diisi
-            Auth::logout();
-            request()->session()->invalidate();
-            request()->session()->regenerateToken();
+            // Siswa dilarang masuk ke portal admin
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak. Anda login sebagai Siswa dan tidak diizinkan masuk ke portal admin.');
         }
 
         return view('admin.auth.login');
@@ -41,6 +39,10 @@ class AdminAuthenticatedSessionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (Auth::check() && ! Auth::user()->isGuru()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak. Anda login sebagai Siswa dan tidak diizinkan masuk ke portal admin.');
+        }
+
         $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],

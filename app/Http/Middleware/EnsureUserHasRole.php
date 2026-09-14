@@ -22,7 +22,7 @@ class EnsureUserHasRole
         }
 
         if ($role === 'guru' && ! $user->isGuru()) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak. Anda tidak memiliki akses ke portal admin.');
         }
 
         if ($role === 'siswa' && ! $user->isSiswa()) {

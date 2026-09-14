@@ -95,6 +95,31 @@ class Notification extends Model
             return route('student.quizzes.index');
         }
 
+        // 4. Tangani notifikasi diskusi / komentar materi
+        if ($this->type === 'comment') {
+            $fragment = '#discussion-list';
+            if ($this->related_url && preg_match('/(#discussion-[a-zA-Z0-9_-]+)/', $this->related_url, $fragMatches)) {
+                $fragment = $fragMatches[1];
+            }
+
+            if ($this->related_url && preg_match('#/materials/(\d+)#', $this->related_url, $matches)) {
+                $material = Material::where('id', $matches[1])->first();
+                if ($material) {
+                    return route('student.materials.show', $material) . $fragment;
+                }
+            }
+
+            $latestMaterial = ($user && $user->isSiswa())
+                ? Material::where('class_id', $user->class_id)->latest()->first()
+                : Material::latest()->first();
+
+            if ($latestMaterial) {
+                return route('student.materials.show', $latestMaterial) . $fragment;
+            }
+
+            return route('student.materials.index');
+        }
+
         // 4. Tangani URL umum dengan menyesuaikan host aplikasi saat ini
         if ($this->related_url) {
             $parsed = parse_url($this->related_url);

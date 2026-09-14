@@ -23,9 +23,7 @@ class AdminPasswordResetLinkController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
-            Auth::logout();
-            request()->session()->invalidate();
-            request()->session()->regenerateToken();
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak. Anda login sebagai Siswa dan tidak diizinkan masuk ke portal admin.');
         }
 
         return view('admin.auth.forgot-password');
@@ -38,6 +36,10 @@ class AdminPasswordResetLinkController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (Auth::check() && ! Auth::user()->isGuru()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak. Anda login sebagai Siswa dan tidak diizinkan masuk ke portal admin.');
+        }
+
         $request->validate([
             'email' => ['required', 'email'],
         ]);

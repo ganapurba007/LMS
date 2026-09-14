@@ -168,43 +168,64 @@
             <!-- Left Main Column (Instructions, Grade & Feedback, Submission Form) -->
             <div class="col-lg-8">
                 
-                <!-- 2.1 Hasil Penilaian & Umpan Balik Guru (If Graded) -->
+                <!-- 2.1 Hasil Penilaian & Koreksi Guru (If Graded) -->
                 @if($isGraded)
-                    <div class="content-card-modern border-success" style="border-width: 2px;">
-                        <div class="content-card-header" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%); color: #ffffff;">
+                    <div class="content-card-modern border-success-subtle shadow-sm" style="border-left: 4px solid #059669 !important;">
+                        <div class="content-card-header py-2.5 px-3 px-md-4" style="background: rgba(16, 185, 129, 0.08); border-bottom: 1px solid rgba(16, 185, 129, 0.15);">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle bg-white text-success d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
-                                    <i class="ti ti-trophy fs-5"></i>
+                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #059669, #10b981); width: 28px; height: 28px;">
+                                    <i class="ti ti-trophy fs-6"></i>
                                 </div>
-                                <h5 class="fw-bold mb-0 text-white" style="font-family: 'Jost', sans-serif; font-size: 1.15rem;">
+                                <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.98rem; letter-spacing: 0.2px;">
                                     Hasil Penilaian & Koreksi Guru
-                                </h5>
+                                </h6>
                             </div>
-                            <span class="badge bg-white text-success rounded-pill px-3 py-1 font-bold">
-                                Nilai Terverifikasi
+                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill px-2.5 py-1 font-semibold small d-inline-flex align-items-center gap-1">
+                                <i class="ti ti-circle-check-filled fs-6"></i> Tuntas Dinilai
                             </span>
                         </div>
-                        <div class="p-4 p-md-5 bg-white">
-                            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 p-4 rounded-4 mb-3" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
-                                <div>
-                                    <div class="text-muted small fw-bold text-uppercase">Perolehan Nilai Akhir</div>
-                                    <div class="display-5 fw-extrabold text-success" style="font-family: 'Jost', sans-serif;">
-                                        {{ number_format($submission->grade, 1) }} <span class="fs-4 text-muted font-normal">/ 100</span>
+                        <div class="p-3 p-md-3.5 bg-white">
+                            <!-- Compact Grade Metric Strip -->
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 rounded-3" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="px-3 py-1.5 rounded-2 text-center" style="background: #ffffff; border: 1.5px solid #86efac; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);">
+                                        <div class="text-muted" style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Nilai Akhir</div>
+                                        <div class="fw-extrabold text-success" style="font-family: 'Jost', sans-serif; font-size: 1.65rem; line-height: 1.1;">
+                                            {{ number_format($submission->grade, 1) }}
+                                            <span class="text-muted fw-normal" style="font-size: 0.85rem;">/ 100</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark small mb-0.5">Status Evaluasi Selesai</div>
+                                        <div class="text-muted small" style="font-size: 0.8rem;">
+                                            Tugas telah diperiksa dan dinilai oleh guru pengampu.
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="text-sm-end">
-                                    <span class="badge bg-success px-3 py-1.5 rounded-pill font-bold">
-                                        <i class="ti ti-check me-1"></i> Tuntas Dinilai
-                                    </span>
+
+                                <div class="text-sm-end small text-muted" style="font-size: 0.8rem;">
+                                    @if($submission->graded_at)
+                                        <div class="d-flex align-items-center gap-1 justify-content-sm-end">
+                                            <i class="ti ti-calendar-check text-success"></i>
+                                            <span>Dinilai: <strong>{{ $submission->graded_at->format('d M Y - H:i') }} WIB</strong></span>
+                                        </div>
+                                    @endif
+                                    <div class="d-flex align-items-center gap-1 justify-content-sm-end mt-0.5">
+                                        <i class="ti ti-user-check text-success"></i>
+                                        <span>Penilai: <strong>{{ $assignment->instructor->name ?? 'Guru Pengampu' }}</strong></span>
+                                    </div>
                                 </div>
                             </div>
 
                             @if($submission->feedback)
-                                <div class="p-3.5 rounded-3" style="background: #F8FAFC; border-left: 4px solid #059669;">
-                                    <div class="small fw-bold text-dark mb-1 d-flex align-items-center gap-1">
-                                        <i class="ti ti-message-dots text-success"></i> Catatan & Feedback Guru:
+                                <div class="mt-2.5 p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 3.5px solid #10b981;">
+                                    <div class="small fw-bold text-dark mb-1 d-flex align-items-center gap-1.5">
+                                        <i class="ti ti-message-dots text-success fs-6"></i>
+                                        <span>Catatan & Masukan Guru:</span>
                                     </div>
-                                    <p class="mb-0 text-secondary small" style="line-height: 1.6;">{{ $submission->feedback }}</p>
+                                    <p class="mb-0 text-slate-700 small" style="line-height: 1.6; font-size: 0.865rem;">
+                                        {{ $submission->feedback }}
+                                    </p>
                                 </div>
                             @endif
                         </div>
@@ -213,44 +234,44 @@
 
                 <!-- 2.2 Petunjuk & Deskripsi Tugas Card -->
                 <div class="content-card-modern">
-                    <div class="content-card-header">
+                    <div class="content-card-header py-2.5 px-3 px-md-4">
                         <div class="d-flex align-items-center gap-2">
-                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #3368A0, #66A3BF); width: 32px; height: 32px;">
-                                <i class="ti ti-file-description fs-5"></i>
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #3368A0, #66A3BF); width: 28px; height: 28px;">
+                                <i class="ti ti-file-description fs-6"></i>
                             </div>
-                            <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 1.1rem;">
+                            <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.98rem;">
                                 Petunjuk & Lembar Soal Tugas
-                            </h5>
+                            </h6>
                         </div>
-                        <span class="badge rounded-pill px-3 py-1 font-bold small" style="background: rgba(51, 104, 160, 0.1); color: #3368A0;">
-                            <i class="ti ti-writing me-1"></i> Tugas Essay / Mandiri
+                        <span class="badge rounded-pill px-2.5 py-1 font-semibold small" style="background: rgba(51, 104, 160, 0.1); color: #3368A0;">
+                            <i class="ti ti-writing me-1"></i> Tugas Mandiri
                         </span>
                     </div>
-                    <div class="p-4 p-md-5">
-                        <div class="p-4 rounded-4 text-dark fs-6" style="background: #F8FAFC; border: 1px solid rgba(51, 104, 160, 0.12); line-height: 1.8;">
+                    <div class="p-3.5 p-md-4">
+                        <div class="p-3.5 rounded-3 text-dark fs-6" style="background: #F8FAFC; border: 1px solid rgba(51, 104, 160, 0.12); line-height: 1.7; font-size: 0.925rem;">
                             {!! nl2br(e($assignment->description ?? 'Tidak ada petunjuk khusus untuk tugas ini.')) !!}
                         </div>
                     </div>
                 </div>
 
-                <!-- 2.3 Formulir Pengumpulan Jawaban -->
+                <!-- 2.3 Formulir Pengumpulan Jawaban (Hanya 1 Kali Pengumpulan) -->
                 <div class="content-card-modern">
-                    <div class="content-card-header">
+                    <div class="content-card-header py-2.5 px-3 px-md-4">
                         <div class="d-flex align-items-center gap-2">
-                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #0284c7, #38bdf8); width: 32px; height: 32px;">
-                                <i class="ti ti-send fs-5"></i>
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: {{ $isSubmitted ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #0284c7, #38bdf8)' }}; width: 28px; height: 28px;">
+                                <i class="ti {{ $isSubmitted ? 'ti-circle-check' : 'ti-send' }} fs-6"></i>
                             </div>
-                            <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 1.1rem;">
+                            <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.98rem;">
                                 Formulir Pengumpulan Jawaban
-                            </h5>
+                            </h6>
                         </div>
-                        @if($isOverdue)
+                        @if($isSubmitted)
+                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill px-3 py-1 font-bold small">
+                                <i class="ti ti-lock me-1"></i> Sudah Dikumpulkan (Terkunci)
+                            </span>
+                        @elseif($isOverdue)
                             <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill px-3 py-1 font-bold small">
                                 <i class="ti ti-lock me-1"></i> Pengumpulan Ditutup
-                            </span>
-                        @elseif($isSubmitted)
-                            <span class="badge bg-info-subtle text-info-emphasis rounded-pill px-3 py-1 font-bold small">
-                                <i class="ti ti-history me-1"></i> Revisi Jawaban Aktif
                             </span>
                         @else
                             <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-3 py-1 font-bold small">
@@ -259,25 +280,30 @@
                         @endif
                     </div>
 
-                    <div class="p-4 p-md-5">
+                    <div class="p-3.5 p-md-4">
                         
-                        @if($isOverdue)
-                            <div class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-3 p-3 p-md-4" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca !important;">
-                                <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shrink-0" style="width: 40px; height: 40px;">
-                                    <i class="ti ti-lock fs-4"></i>
+                        @if($isSubmitted)
+                            <div class="alert alert-success border-0 rounded-3 shadow-sm mb-3 d-flex align-items-center gap-3 p-3" style="background-color: #ecfdf5; border: 1px solid #a7f3d0 !important; color: #065f46;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center shrink-0" style="width: 36px; height: 36px; background: #d1fae5; color: #059669;">
+                                    <i class="ti ti-circle-check fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-6 mb-0.5">Jawaban Tugas Telah Berhasil Dikumpulkan</div>
+                                    <div class="small opacity-90">
+                                        Dikirim pada <strong>{{ $submission->submitted_at ? $submission->submitted_at->format('d F Y - H:i') . ' WIB' : '-' }}</strong>. Sesuai aturan sistem, pengumpulan tugas hanya dapat dilakukan <strong>1 (satu) kali</strong> dan jawaban Anda telah dikunci.
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($isOverdue)
+                            <div class="alert alert-danger border-0 rounded-3 shadow-sm mb-3 d-flex align-items-center gap-3 p-3" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca !important;">
+                                <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shrink-0" style="width: 36px; height: 36px;">
+                                    <i class="ti ti-lock fs-5"></i>
                                 </div>
                                 <div>
                                     <div class="fw-bold fs-6 mb-0.5">Batas Waktu Pengumpulan Telah Berakhir</div>
                                     <div class="small opacity-90">
-                                        Tenggat waktu pengerjaan tugas ini telah lewat pada <strong>{{ $assignment->due_date ? $assignment->due_date->format('d F Y - H:i') . ' WIB' : '-' }}</strong>. Pengumpulan jawaban baru maupun pembaruan telah dinonaktifkan.
+                                        Tenggat waktu pengerjaan tugas ini telah lewat pada <strong>{{ $assignment->due_date ? $assignment->due_date->format('d F Y - H:i') . ' WIB' : '-' }}</strong>. Pengumpulan jawaban telah dinonaktifkan.
                                     </div>
-                                </div>
-                            </div>
-                        @elseif($isSubmitted)
-                            <div class="alert alert-info border-0 rounded-4 shadow-sm mb-4 d-flex align-items-center gap-2 p-3" style="background-color: #e0f2fe; color: #0369a1;">
-                                <i class="ti ti-info-circle fs-4"></i>
-                                <div class="small">
-                                    <strong>Status:</strong> Anda telah mengirimkan jawaban tugas ini pada <strong>{{ $submission->submitted_at ? $submission->submitted_at->format('d M Y H:i:s') : '-' }}</strong>. Anda masih dapat memperbarui jawaban sebelum dinilai oleh guru.
                                 </div>
                             </div>
                         @endif
@@ -285,43 +311,53 @@
                         <form action="{{ route('student.assignments.submit', $assignment) }}" method="POST">
                             @csrf
 
-                            <div class="mb-4">
-                                <label for="answer_text" class="form-label fw-bold text-dark mb-2">
+                            <div class="mb-3.5">
+                                <label for="answer_text" class="form-label fw-bold text-dark mb-1.5 small">
                                     Teks Jawaban / Catatan Pengerjaan Tugas <span class="text-danger">*</span>
                                 </label>
                                 <textarea name="answer_text" 
                                           id="answer_text" 
-                                          rows="8" 
+                                          rows="7" 
                                           class="form-control rounded-3 p-3 shadow-none @error('answer_text') is-invalid @enderror" 
-                                          style="border: 1.5px solid {{ $isOverdue ? 'rgba(220, 53, 69, 0.3)' : 'rgba(51, 104, 160, 0.2)' }}; font-size: 0.95rem; line-height: 1.7; {{ $isOverdue ? 'background-color: #f8fafc; cursor: not-allowed;' : '' }}" 
-                                          {{ $isOverdue ? 'disabled' : 'required' }}
-                                          placeholder="{{ $isOverdue ? 'Batas waktu pengerjaan telah berakhir. Pengumpulan tugas telah dinonaktifkan.' : 'Ketik jawaban tugas essay, uraian, atau tautan berkas pengerjaan Anda di sini...' }}">{{ old('answer_text', $submission?->answer_text) }}</textarea>
+                                          style="border: 1.5px solid {{ $isSubmitted ? 'rgba(16, 185, 129, 0.35)' : ($isOverdue ? 'rgba(220, 53, 69, 0.3)' : 'rgba(51, 104, 160, 0.2)') }}; font-size: 0.925rem; line-height: 1.7; {{ ($isSubmitted || $isOverdue) ? 'background-color: #f8fafc; cursor: default;' : '' }}" 
+                                          {{ ($isSubmitted || $isOverdue) ? 'disabled readonly' : 'required' }}
+                                          placeholder="{{ $isSubmitted ? 'Jawaban tugas Anda telah tersimpan dan dikunci.' : ($isOverdue ? 'Batas waktu pengerjaan telah berakhir. Pengumpulan tugas telah dinonaktifkan.' : 'Ketik jawaban tugas essay, uraian, atau tautan berkas pengerjaan Anda di sini...') }}">{{ old('answer_text', $submission?->answer_text) }}</textarea>
                                 @error('answer_text')
                                     <div class="invalid-feedback fw-semibold">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text text-muted small mt-1.5">
-                                    @if($isOverdue)
+                                    @if($isSubmitted)
+                                        <span class="text-success fw-semibold"><i class="ti ti-lock me-1"></i> Jawaban Anda telah tersimpan dan dikunci permanen (Hanya dapat dikirim 1 kali).</span>
+                                    @elseif($isOverdue)
                                         <span class="text-danger fw-semibold"><i class="ti ti-lock me-1"></i> Form telah dikunci karena melewati batas waktu pengerjaan.</span>
                                     @else
-                                        <i class="ti ti-info-circle me-1"></i> Tuliskan jawaban secara lengkap dan jelas sesuai instruksi soal di atas.
+                                        <i class="ti ti-info-circle text-primary me-1"></i> Pengumpulan hanya dapat dilakukan 1 kali. Pastikan jawaban Anda sudah lengkap sebelum menekan tombol kirim.
                                     @endif
                                 </div>
                             </div>
 
                             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pt-3 border-top" style="border-color: rgba(51, 104, 160, 0.12) !important;">
                                 <div class="text-muted small">
-                                    @if($submission)
-                                        <i class="ti ti-history me-1"></i> Terakhir disimpan: {{ $submission->submitted_at ? $submission->submitted_at->diffForHumans() : '-' }}
+                                    @if($isSubmitted)
+                                        <i class="ti ti-circle-check text-success me-1"></i> Terkirim: {{ $submission->submitted_at ? $submission->submitted_at->diffForHumans() : '-' }}
                                     @elseif($isOverdue)
                                         <span class="text-danger fw-semibold"><i class="ti ti-alert-triangle me-1"></i> Pengumpulan ditutup</span>
                                     @else
-                                        <i class="ti ti-pencil me-1"></i> Pastikan jawaban sudah lengkap sebelum dikirim
+                                        <i class="ti ti-pencil me-1"></i> Form siap diisi
                                     @endif
                                 </div>
 
-                                @if($isOverdue)
+                                @if($isSubmitted)
                                     <button type="button" 
-                                            class="btn btn-secondary rounded-pill px-4 py-2.5 font-bold shadow-none d-inline-flex align-items-center gap-2" 
+                                            class="btn rounded-pill px-4 py-2 font-bold shadow-none d-inline-flex align-items-center gap-2" 
+                                            disabled 
+                                            style="cursor: not-allowed; opacity: 0.85; background-color: #e2e8f0; color: #475569; border: 1px solid #cbd5e1;">
+                                        <i class="ti ti-lock fs-5 text-secondary"></i>
+                                        Telah Dikumpulkan (Pengumpulan 1x)
+                                    </button>
+                                @elseif($isOverdue)
+                                    <button type="button" 
+                                            class="btn btn-secondary rounded-pill px-4 py-2 font-bold shadow-none d-inline-flex align-items-center gap-2" 
                                             disabled 
                                             style="cursor: not-allowed; opacity: 0.65; background-color: #94a3b8; border-color: #94a3b8;">
                                         <i class="ti ti-lock fs-5"></i>
@@ -330,9 +366,9 @@
                                 @else
                                     <button type="submit" 
                                             class="btn text-white rounded-pill px-4 py-2.5 font-bold shadow-sm d-inline-flex align-items-center gap-2 hover-lift" 
-                                            style="background: {{ $isSubmitted ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)' : 'linear-gradient(135deg, #3368A0 0%, #66A3BF 100%)' }};">
-                                        <i class="ti ti-device-floppy fs-5"></i>
-                                        {{ $isSubmitted ? 'Perbarui Pengumpulan' : 'Kirim Jawaban Tugas' }}
+                                            style="background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%);">
+                                        <i class="ti ti-send fs-5"></i>
+                                        Kirim Jawaban Tugas
                                     </button>
                                 @endif
                             </div>

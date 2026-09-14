@@ -4,6 +4,7 @@ namespace Tests\Feature\Student;
 
 use App\Events\DiscussionCommentSent;
 use App\Models\Material;
+use App\Models\MaterialDiscussion;
 use App\Models\Role;
 use App\Models\SchoolClass;
 use App\Models\Subject;
@@ -107,6 +108,60 @@ class StudentMaterialTest extends TestCase
         ]);
 
         Event::assertDispatched(DiscussionCommentSent::class);
+    }
+
+    public function test_user_can_reply_to_existing_discussion_comment_and_creates_nested_thread(): void
+    {
+        $parent = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Pertanyaan awal tentang rumus Newton.',
+        ]);
+
+        $response = $this->actingAs($this->guru)->post(route('student.materials.discussions', $this->materialClassA), [
+            'parent_id' => $parent->id,
+            'comment' => 'Penjelasan balasan: Gunakan rumus F = m * a.',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('material_discussions', [
+            'material_id' => $this->materialClassA->id,
+            'parent_id' => $parent->id,
+            'user_id' => $this->guru->id,
+            'comment' => 'Penjelasan balasan: Gunakan rumus F = m * a.',
+        ]);
+
+        // Verifikasi notifikasi terkirim kepada pembuat komentar induk
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->siswa->id,
+            'type' => 'comment',
+        ]);
+    }
+
+    public function test_material_detail_displays_nested_reply_indented_with_indonesian_relative_time(): void
+    {
+        $parent = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Apakah ada tugas praktikum?',
+        ]);
+        $parent->forceFill(['created_at' => now()->subMinutes(15)])->save();
+
+        $reply = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'parent_id' => $parent->id,
+            'user_id' => $this->guru->id,
+            'comment' => 'Tidak ada praktikum, cukup kerjakan kuis.',
+        ]);
+        $reply->forceFill(['created_at' => now()->subMinutes(5)])->save();
+
+        $response = $this->actingAs($this->siswa)->get(route('student.materials.show', $this->materialClassA));
+        $response->assertStatus(200);
+        $response->assertSee('Apakah ada tugas praktikum?');
+        $response->assertSee('Tidak ada praktikum, cukup kerjakan kuis.');
+        $response->assertSee('discussion-replies');
+        $response->assertSee('menit yang lalu');
+        $response->assertSee('Balas');
     }
 
     public function test_siswa_cannot_access_material_from_another_class(): void

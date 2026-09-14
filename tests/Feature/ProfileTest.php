@@ -21,6 +21,38 @@ class ProfileTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_student_sees_dedicated_student_profile_without_admin_layout(): void
+    {
+        $role = \App\Models\Role::firstOrCreate(['name' => 'siswa']);
+        $user = User::factory()->create(['role_id' => $role->id]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get('/profile');
+
+        $response->assertOk();
+        $response->assertSee('Profil Saya');
+        $response->assertSee('Informasi Pribadi');
+        $response->assertSee('Ubah Kata Sandi');
+        // Pastikan TIDAK ADA sidebar menu admin
+        $response->assertDontSee('sidebar-menu');
+        $response->assertDontSee('Master Role');
+        $response->assertDontSee('Master Mapel');
+    }
+
+    public function test_guru_sees_admin_profile_view(): void
+    {
+        $role = \App\Models\Role::firstOrCreate(['name' => 'guru']);
+        $user = User::factory()->create(['role_id' => $role->id]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get('/profile');
+
+        $response->assertOk();
+        $response->assertSee('Pengaturan Profil');
+    }
+
     public function test_profile_information_can_be_updated(): void
     {
         $user = User::factory()->create();

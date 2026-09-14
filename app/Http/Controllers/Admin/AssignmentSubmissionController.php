@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,6 +48,16 @@ class AssignmentSubmissionController extends Controller
         $submission->feedback = $request->feedback;
         $submission->graded_at = now();
         $submission->save();
+
+        // Buat notifikasi untuk siswa bahwa tugasnya telah dinilai
+        Notification::create([
+            'user_id' => $submission->student_id,
+            'type' => 'new_assignment',
+            'title' => 'Nilai Tugas: ' . $submission->assignment->title,
+            'message' => 'Tugas "' . $submission->assignment->title . '" telah dinilai oleh guru dengan perolehan nilai ' . number_format($submission->grade, 1) . '.',
+            'related_url' => route('student.assignments.show', $submission->assignment),
+            'is_read' => false,
+        ]);
 
         return redirect()->route('admin.submissions.index')
             ->with('success', 'Nilai dan umpan balik tugas berhasil disimpan.');

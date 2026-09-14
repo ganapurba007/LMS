@@ -6,19 +6,19 @@
    Warm Light   : #F2EFE7
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 
 :root {
-    --color-primary-main: #66A3BF;
-    --color-primary-dark: #3368A0;
-    --color-soft-mint: #C8DFDB;
-    --color-warm-light: #F2EFE7;
+    --color-primary-main: #66a3bf;
+    --color-primary-dark: #3368a0;
+    --color-soft-mint: #c8dfdb;
+    --color-warm-light: #f2efe7;
 
-    --tblr-primary: #66A3BF;
+    --tblr-primary: #66a3bf;
     --tblr-primary-rgb: 102, 163, 191;
-    --tblr-primary-darken: #3368A0;
-    --tblr-link-color: #3368A0;
-    --tblr-body-bg: #F2EFE7;
+    --tblr-primary-darken: #3368a0;
+    --tblr-link-color: #3368a0;
+    --tblr-body-bg: #f2efe7;
 }
 
 [data-bs-theme="dark"],
@@ -30,18 +30,49 @@ body.theme-dark {
 }
 
 body {
-    background-color: #F5F3EC;
-    background-image: 
-        radial-gradient(circle at 12% 18%, rgba(102, 163, 191, 0.16) 0%, transparent 45%),
-        radial-gradient(circle at 88% 32%, rgba(51, 104, 160, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 15% 68%, rgba(200, 223, 219, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 85% 82%, rgba(102, 163, 191, 0.14) 0%, transparent 48%),
+    background-color: #f5f3ec;
+    background-image:
+        radial-gradient(
+            circle at 12% 18%,
+            rgba(102, 163, 191, 0.16) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 88% 32%,
+            rgba(51, 104, 160, 0.12) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 15% 68%,
+            rgba(200, 223, 219, 0.35) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 82%,
+            rgba(102, 163, 191, 0.14) 0%,
+            transparent 48%
+        ),
         radial-gradient(rgba(51, 104, 160, 0.14) 1.2px, transparent 1.2px),
-        linear-gradient(to right, rgba(51, 104, 160, 0.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(51, 104, 160, 0.035) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px, 36px 36px;
+        linear-gradient(
+            to right,
+            rgba(51, 104, 160, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(51, 104, 160, 0.035) 1px,
+            transparent 1px
+        );
+    background-size:
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        36px 36px,
+        36px 36px,
+        36px 36px;
     background-attachment: fixed;
-    font-family: 'Open Sans', 'Poppins', 'Plus Jakarta Sans', sans-serif;
+    font-family: "Open Sans", "Poppins", "Plus Jakarta Sans", sans-serif;
     color: #374151;
     -webkit-font-smoothing: antialiased;
 }
@@ -50,16 +81,47 @@ body {
 .bg-geometric-canvas,
 main {
     position: relative;
-    background-color: #F5F3EC;
-    background-image: 
-        radial-gradient(circle at 12% 18%, rgba(102, 163, 191, 0.16) 0%, transparent 45%),
-        radial-gradient(circle at 88% 32%, rgba(51, 104, 160, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 15% 68%, rgba(200, 223, 219, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 85% 82%, rgba(102, 163, 191, 0.14) 0%, transparent 48%),
+    background-color: #f5f3ec;
+    background-image:
+        radial-gradient(
+            circle at 12% 18%,
+            rgba(102, 163, 191, 0.16) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 88% 32%,
+            rgba(51, 104, 160, 0.12) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 15% 68%,
+            rgba(200, 223, 219, 0.35) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 82%,
+            rgba(102, 163, 191, 0.14) 0%,
+            transparent 48%
+        ),
         radial-gradient(rgba(51, 104, 160, 0.14) 1.2px, transparent 1.2px),
-        linear-gradient(to right, rgba(51, 104, 160, 0.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(51, 104, 160, 0.035) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px, 36px 36px;
+        linear-gradient(
+            to right,
+            rgba(51, 104, 160, 0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(51, 104, 160, 0.035) 1px,
+            transparent 1px
+        );
+    background-size:
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        36px 36px,
+        36px 36px,
+        36px 36px;
     background-attachment: fixed;
 }
 
@@ -70,7 +132,7 @@ h4,
 h5,
 h6,
 .sitename {
-    font-family: 'Jost', 'Poppins', sans-serif;
+    font-family: "Jost", "Poppins", sans-serif;
 }
 
 /* Dedicated Desktop Navigation Rules (GUARENTEED NO HAMBURGER ON LAPTOP) */
@@ -157,7 +219,9 @@ h6,
         box-shadow: 0 15px 30px -8px rgba(15, 23, 42, 0.25);
     }
     50% {
-        box-shadow: 0 26px 45px -8px rgba(15, 23, 42, 0.36), 0 0 25px rgba(102, 163, 191, 0.28);
+        box-shadow:
+            0 26px 45px -8px rgba(15, 23, 42, 0.36),
+            0 0 25px rgba(102, 163, 191, 0.28);
     }
     100% {
         box-shadow: 0 15px 30px -8px rgba(15, 23, 42, 0.25);
@@ -181,7 +245,9 @@ h6,
 
 /* Hover Lift Effect */
 .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-lift:hover {
@@ -194,11 +260,17 @@ h6,
    ========================================================================== */
 .stat-card-modern {
     position: relative;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(255, 255, 255, 0.88) 100%
+    ) !important;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 10px 25px -5px rgba(51, 104, 160, 0.08), 0 0 0 1px rgba(51, 104, 160, 0.06);
+    box-shadow:
+        0 10px 25px -5px rgba(51, 104, 160, 0.08),
+        0 0 0 1px rgba(51, 104, 160, 0.06);
     border-radius: 1.25rem !important;
     overflow: hidden;
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -209,7 +281,9 @@ h6,
 
 .stat-card-modern:hover {
     transform: translateY(-8px) scale(1.015);
-    box-shadow: 0 22px 35px -8px rgba(51, 104, 160, 0.16), 0 0 0 1px rgba(51, 104, 160, 0.14) !important;
+    box-shadow:
+        0 22px 35px -8px rgba(51, 104, 160, 0.16),
+        0 0 0 1px rgba(51, 104, 160, 0.14) !important;
 }
 
 .stat-card-modern .stat-icon-wrapper {
@@ -236,8 +310,10 @@ h6,
     font-size: 6.8rem;
     opacity: 0.06;
     pointer-events: none;
-    transition: transform 0.4s ease, opacity 0.3s ease;
-    color: var(--stat-color, #3368A0);
+    transition:
+        transform 0.4s ease,
+        opacity 0.3s ease;
+    color: var(--stat-color, #3368a0);
 }
 
 .stat-card-modern:hover .stat-watermark {
@@ -251,7 +327,11 @@ h6,
     right: 0;
     width: 140px;
     height: 140px;
-    background: radial-gradient(circle at 100% 0%, var(--stat-glow-bg, rgba(51, 104, 160, 0.12)) 0%, transparent 70%);
+    background: radial-gradient(
+        circle at 100% 0%,
+        var(--stat-glow-bg, rgba(51, 104, 160, 0.12)) 0%,
+        transparent 70%
+    );
     pointer-events: none;
     border-radius: 0 1.25rem 0 100%;
 }
@@ -268,11 +348,13 @@ h6,
 .stat-card-modern .stat-footer-link {
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--stat-color, #3368A0);
+    color: var(--stat-color, #3368a0);
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    transition: gap 0.25s ease, opacity 0.25s ease;
+    transition:
+        gap 0.25s ease,
+        opacity 0.25s ease;
     opacity: 0.85;
 }
 
@@ -308,7 +390,12 @@ h6,
 
 /* Elegant Clean Abstract Backgrounds (Harmonious & Non-Cluttered) */
 .bg-abstract-catalog {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(200, 223, 219, 0.2) 50%, rgba(255, 255, 255, 0.85) 100%) !important;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(200, 223, 219, 0.2) 50%,
+        rgba(255, 255, 255, 0.85) 100%
+    ) !important;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(102, 163, 191, 0.22) !important;
@@ -318,11 +405,17 @@ h6,
 .bg-abstract-quizzes,
 .bg-abstract-assignments,
 .bg-card-clean {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.86) 100%) !important;
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.94) 0%,
+        rgba(255, 255, 255, 0.86) 100%
+    ) !important;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 10px 25px -5px rgba(51, 104, 160, 0.08), 0 0 0 1px rgba(51, 104, 160, 0.05);
+    box-shadow:
+        0 10px 25px -5px rgba(51, 104, 160, 0.08),
+        0 0 0 1px rgba(51, 104, 160, 0.05);
     border-radius: 1.25rem !important;
 }
 
@@ -330,11 +423,17 @@ h6,
    Modern Feature Cards (Fitur & Fasilitas Pembelajaran)
    ========================================================================== */
 .feature-card-modern {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(255, 255, 255, 0.88) 100%
+    ) !important;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 10px 25px -5px rgba(51, 104, 160, 0.08), 0 0 0 1px rgba(51, 104, 160, 0.06);
+    box-shadow:
+        0 10px 25px -5px rgba(51, 104, 160, 0.08),
+        0 0 0 1px rgba(51, 104, 160, 0.06);
     border-radius: 1.25rem !important;
     overflow: hidden;
     position: relative;
@@ -346,7 +445,9 @@ h6,
 
 .feature-card-modern:hover {
     transform: translateY(-8px) scale(1.015);
-    box-shadow: 0 22px 35px -8px rgba(51, 104, 160, 0.16), 0 0 0 1px rgba(51, 104, 160, 0.14) !important;
+    box-shadow:
+        0 22px 35px -8px rgba(51, 104, 160, 0.16),
+        0 0 0 1px rgba(51, 104, 160, 0.14) !important;
 }
 
 .feature-card-modern .feature-icon-wrapper {
@@ -373,7 +474,7 @@ h6,
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--feat-gradient, linear-gradient(90deg, #3368A0, #66A3BF));
+    background: var(--feat-gradient, linear-gradient(90deg, #3368a0, #66a3bf));
 }
 
 .feature-card-modern .feature-watermark {
@@ -383,8 +484,10 @@ h6,
     font-size: 6rem;
     opacity: 0.05;
     pointer-events: none;
-    transition: transform 0.4s ease, opacity 0.3s ease;
-    color: var(--feat-color, #3368A0);
+    transition:
+        transform 0.4s ease,
+        opacity 0.3s ease;
+    color: var(--feat-color, #3368a0);
 }
 
 .feature-card-modern:hover .feature-watermark {
@@ -431,12 +534,16 @@ h6,
 
 /* Arsha Header & Sticky Translucent Navbar */
 .arsha-header {
-    transition: background-color 0.35s ease, backdrop-filter 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    transition:
+        background-color 0.35s ease,
+        backdrop-filter 0.35s ease,
+        border-color 0.35s ease,
+        box-shadow 0.35s ease;
     z-index: 1040;
 }
 
 .arsha-nav-top {
-    background: linear-gradient(135deg, #3368A0 0%, #20456E 100%) !important;
+    background: linear-gradient(135deg, #3368a0 0%, #20456e 100%) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
     box-shadow: none !important;
 }
@@ -450,7 +557,7 @@ h6,
 }
 
 .arsha-sitename {
-    font-family: 'Jost', sans-serif;
+    font-family: "Jost", sans-serif;
     font-size: 1.75rem;
     font-weight: 800;
     letter-spacing: 1px;
@@ -505,9 +612,15 @@ h6,
     font-weight: 800;
     border-radius: 50px;
     padding: 0.45rem 1.05rem;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.18) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.32) 0%,
+        rgba(255, 255, 255, 0.18) 100%
+    );
     border: 1.5px solid rgba(255, 255, 255, 0.55);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     text-shadow: none;
@@ -543,14 +656,18 @@ h6,
     color: #ffffff;
     font-weight: 800;
     border-radius: 0.6rem;
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(
+        90deg,
+        rgba(56, 189, 248, 0.22) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
     border-left: 4px solid #38bdf8;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Arsha Hero Section */
 .arsha-hero {
-    background: linear-gradient(135deg, #1e3a8a 0%, #3368A0 60%, #66A3BF 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #3368a0 60%, #66a3bf 100%);
     color: #ffffff;
     padding: 5rem 0 6rem 0;
     position: relative;
@@ -575,7 +692,7 @@ h6,
 
 /* Arsha Hero Buttons */
 .arsha-btn-get-started {
-    font-family: 'Jost', sans-serif;
+    font-family: "Jost", sans-serif;
     font-weight: 600;
     font-size: 1rem;
     letter-spacing: 1px;
@@ -584,20 +701,20 @@ h6,
     border-radius: 50px;
     transition: 0.4s;
     color: #ffffff !important;
-    background: #66A3BF;
+    background: #66a3bf;
     box-shadow: 0 8px 20px rgba(102, 163, 191, 0.4);
     text-decoration: none;
 }
 
 .arsha-btn-get-started:hover {
-    background: #F2EFE7;
-    color: #3368A0 !important;
+    background: #f2efe7;
+    color: #3368a0 !important;
     transform: translateY(-3px);
     box-shadow: 0 12px 25px rgba(242, 239, 231, 0.4);
 }
 
 .arsha-btn-watch-video {
-    font-family: 'Jost', sans-serif;
+    font-family: "Jost", sans-serif;
     font-weight: 600;
     font-size: 1rem;
     display: inline-flex;
@@ -610,7 +727,7 @@ h6,
 
 .arsha-btn-watch-video i {
     font-size: 2rem;
-    color: #C8DFDB;
+    color: #c8dfdb;
     margin-right: 0.5rem;
     transition: 0.3s;
 }
@@ -631,7 +748,7 @@ h6,
     font-size: 2rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: #3368A0;
+    color: #3368a0;
     position: relative;
     padding-bottom: 12px;
 }
@@ -653,7 +770,7 @@ h6,
     display: block;
     width: 40px;
     height: 3px;
-    background: #66A3BF;
+    background: #66a3bf;
     bottom: 0;
     left: calc(50% - 20px);
 }
@@ -664,7 +781,7 @@ h6,
     padding: 2.25rem;
     transition: all 0.3s ease-in-out;
     border-radius: 1.25rem;
-    background: #F2EFE7;
+    background: #f2efe7;
     border: 1px solid rgba(102, 163, 191, 0.25);
     height: 100%;
 }
@@ -672,7 +789,7 @@ h6,
 .arsha-icon-box:hover {
     transform: translateY(-8px);
     box-shadow: 0 20px 40px 0 rgba(51, 104, 160, 0.18);
-    border-color: #66A3BF;
+    border-color: #66a3bf;
 }
 
 .arsha-icon-box .icon {
@@ -681,18 +798,18 @@ h6,
 
 .arsha-icon-box .icon i {
     font-size: 2.5rem;
-    color: #3368A0;
+    color: #3368a0;
     transition: 0.3s;
 }
 
 .arsha-icon-box:hover .icon i {
-    color: #66A3BF;
+    color: #66a3bf;
     transform: scale(1.1);
 }
 
 /* Arsha Course / Portfolio Card */
 .arsha-course-card {
-    background: #F2EFE7;
+    background: #f2efe7;
     border-radius: 1.25rem;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(51, 104, 160, 0.08);
@@ -707,7 +824,7 @@ h6,
 
 .arsha-course-banner {
     height: 150px;
-    background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%);
+    background: linear-gradient(135deg, #3368a0 0%, #66a3bf 100%);
     position: relative;
     padding: 1.25rem;
     display: flex;
@@ -715,7 +832,7 @@ h6,
 }
 
 .arsha-badge-pill {
-    background-color: #C8DFDB;
+    background-color: #c8dfdb;
     color: #1e3a8a;
     font-weight: 700;
     font-size: 0.8rem;
@@ -726,7 +843,7 @@ h6,
 
 /* Arsha Counter Section */
 .arsha-counter-section {
-    background: linear-gradient(135deg, #1e3a8a 0%, #3368A0 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #3368a0 100%);
     color: #ffffff;
     padding: 4rem 0;
     margin: 4rem 0;
@@ -734,7 +851,7 @@ h6,
 }
 
 .arsha-counter-num {
-    font-family: 'Jost', sans-serif;
+    font-family: "Jost", sans-serif;
     font-size: 3rem;
     font-weight: 800;
     color: #ffffff;
@@ -744,7 +861,7 @@ h6,
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #C8DFDB;
+    color: #c8dfdb;
     font-weight: 700;
 }
 
@@ -765,7 +882,14 @@ h6,
 }
 
 .social-icon-btn.instagram:hover {
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    background: linear-gradient(
+        45deg,
+        #f09433 0%,
+        #e6683c 25%,
+        #dc2743 50%,
+        #cc2366 75%,
+        #bc1888 100%
+    );
     border-color: transparent;
     transform: translateY(-4px) scale(1.1);
     box-shadow: 0 8px 20px rgba(220, 39, 67, 0.4);
@@ -773,42 +897,206 @@ h6,
 }
 
 .social-icon-btn.youtube:hover {
-    background: #FF0000;
-    border-color: #FF0000;
+    background: #ff0000;
+    border-color: #ff0000;
     transform: translateY(-4px) scale(1.1);
     box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4);
     color: #ffffff !important;
 }
 
 .social-icon-btn.discord:hover {
-    background: #5865F2;
-    border-color: #5865F2;
+    background: #5865f2;
+    border-color: #5865f2;
     transform: translateY(-4px) scale(1.1);
     box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4);
     color: #ffffff !important;
 }
 
 .social-icon-btn.whatsapp:hover {
-    background: #25D366;
-    border-color: #25D366;
+    background: #25d366;
+    border-color: #25d366;
     transform: translateY(-4px) scale(1.1);
     box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
     color: #ffffff !important;
 }
 
-/* Arsha Footer */
+/* ==========================================================================
+   RuangTerra Modern High-End Footer Bar
+   ========================================================================== */
 .arsha-footer {
-    background-color: #0b1727;
+    background: linear-gradient(180deg, #091424 0%, #040912 100%);
     color: #94a3b8;
-    padding: 4rem 0 2rem 0;
-    border-top: 4px solid #66A3BF;
+    padding: 4.5rem 0 calc(2rem + 65px) 0;
+    border-top: 1px solid rgba(56, 189, 248, 0.22);
+    box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.45);
+    position: relative;
+    overflow: hidden;
 }
 
-.arsha-footer h4 {
+@media (min-width: 768px) {
+    .arsha-footer {
+        padding-bottom: 2.25rem;
+    }
+}
+
+/* Subtle top glow line across the footer */
+.arsha-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(56, 189, 248, 0.75),
+        transparent
+    );
+}
+
+.arsha-footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: transform 0.25s ease;
+}
+
+.arsha-footer-brand:hover .footer-brand-icon {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.arsha-footer-brand:hover .footer-brand-title {
+    color: #bae6fd;
+}
+
+.footer-brand-icon {
+    width: 54px;
+    height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 12px rgba(56, 189, 248, 0.55));
+    transition: transform 0.25s ease;
+}
+
+.footer-brand-title {
+    font-family: "Jost", sans-serif;
+    font-size: 1.55rem;
+    font-weight: 900;
     color: #ffffff;
-    font-family: 'Jost', sans-serif;
+    letter-spacing: 0.5px;
+    transition: color 0.2s ease;
+    line-height: 1.1;
+}
+
+.footer-brand-title span {
+    color: #38bdf8;
+    text-shadow: 0 0 16px rgba(56, 189, 248, 0.65);
+}
+
+.footer-brand-subtitle {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: rgba(148, 197, 253, 0.8);
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.footer-widget-title {
+    color: #ffffff;
+    font-family: "Jost", sans-serif;
     font-weight: 700;
+    font-size: 1.05rem;
     margin-bottom: 1.25rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-nav-link {
+    color: #94a3b8;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.885rem;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer-nav-link i {
+    color: #38bdf8;
+    font-size: 0.85rem;
+    opacity: 0.75;
+    transition:
+        transform 0.22s ease,
+        opacity 0.22s ease;
+}
+
+.footer-nav-link:hover {
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+.footer-nav-link:hover i {
+    opacity: 1;
+    transform: translateX(2px);
+    color: #38bdf8;
+}
+
+.footer-contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.885rem;
+    color: #94a3b8;
+}
+
+.footer-contact-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+}
+
+.footer-contact-item:hover .footer-contact-icon {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: rgba(56, 189, 248, 0.4);
+    transform: scale(1.08);
+    color: #ffffff;
+}
+
+.footer-back-to-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #e2e8f0;
+    font-size: 0.825rem;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.footer-back-to-top:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(56, 189, 248, 0.25);
 }
 
 /* Mobile-First PWA Bottom Nav Bar */
@@ -819,7 +1107,7 @@ h6,
     left: 0;
     right: 0;
     height: 60px;
-    background-color: #F2EFE7;
+    background-color: #f2efe7;
     border-top: 1px solid rgba(102, 163, 191, 0.25);
     z-index: 1050;
     justify-content: space-around;
@@ -847,7 +1135,7 @@ body.theme-dark .mobile-bottom-nav {
 
 .mobile-bottom-nav a.active,
 .mobile-bottom-nav a:hover {
-    color: #3368A0;
+    color: #3368a0;
     font-weight: 700;
 }
 
@@ -856,7 +1144,6 @@ body.theme-dark .mobile-bottom-nav {
         display: none !important;
     }
 }
-
 
 [data-bs-theme="dark"] .mobile-bottom-nav,
 body.theme-dark .mobile-bottom-nav {
@@ -878,7 +1165,7 @@ body.theme-dark .mobile-bottom-nav {
 
 .mobile-bottom-nav a.active,
 .mobile-bottom-nav a:hover {
-    color: #3368A0;
+    color: #3368a0;
     font-weight: 700;
 }
 
