@@ -51,12 +51,12 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="small fw-semibold"><i class="ti ti-clock me-1"></i> {{ $quiz->duration_minutes }} Menit</div>
+                                <div class="small fw-semibold"><i class="ti ti-clock me-1"></i> {{ $quiz->formatted_duration }}</div>
                                 <div class="small text-muted">{{ $quiz->points_per_question }} Poin/Soal</div>
                             </td>
                             <td>
                                 <span class="badge badge-soft-success">
-                                    {{ $quiz->questions_count }} Soal
+                                    {{ $quiz->questions_count === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions_count . ' Nomor (' . $quiz->total_questions_count . ' Butir)' }}
                                 </span>
                             </td>
                             <td>

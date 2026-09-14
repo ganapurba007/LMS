@@ -52,7 +52,7 @@
             </div>
             <div class="col-md-3">
                 <span class="text-muted small text-uppercase fw-bold">Durasi Pengerjaan</span>
-                <div class="fw-bold fs-5 text-dark"><i class="ti ti-clock me-1"></i>{{ $quiz->duration_minutes }} Menit</div>
+                <div class="fw-bold fs-5 text-dark"><i class="ti ti-clock me-1"></i>{{ $quiz->formatted_duration }}</div>
             </div>
             <div class="col-md-3">
                 <span class="text-muted small text-uppercase fw-bold">Poin per Soal</span>
@@ -67,7 +67,7 @@
     <div class="col-lg-7">
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="card-title fw-bold mb-0 text-dark">Daftar Soal Kuis ({{ $quiz->questions->count() }} Soal)</h5>
+                <h5 class="card-title fw-bold mb-0 text-dark">Daftar Soal Kuis ({{ $quiz->questions->count() === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions->count() . ' Nomor • ' . $quiz->total_questions_count . ' Butir Soal' }})</h5>
             </div>
             <div class="card-body p-0">
                 @forelse($quiz->questions as $index => $q)

@@ -31,34 +31,36 @@
             @include('layouts.navigation')
 
             <!-- Global Flash Messages (Error / Success) -->
-            @if(session('error'))
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" data-aos="fade-down">
-                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm rounded-4 py-3 px-4 mb-0 border-0" role="alert" style="background: #fef2f2; border-left: 5px solid #ef4444 !important; color: #991b1b;">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px; background: rgba(239, 68, 68, 0.15);">
-                            <i class="ti ti-alert-triangle fs-4 text-danger"></i>
+            @if(!($suppressGlobalAlerts ?? false))
+                @if(session('error'))
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" data-aos="fade-down">
+                        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm rounded-4 py-3 px-4 mb-0 border-0" role="alert" style="background: #fef2f2; border-left: 5px solid #ef4444 !important; color: #991b1b;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px; background: rgba(239, 68, 68, 0.15);">
+                                <i class="ti ti-alert-triangle fs-4 text-danger"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong class="d-block fw-bold" style="font-size: 0.95rem;">Perhatian</strong>
+                                <span style="font-size: 0.88rem;">{{ session('error') }}</span>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                        <div class="flex-grow-1">
-                            <strong class="d-block fw-bold" style="font-size: 0.95rem;">Perhatian</strong>
-                            <span style="font-size: 0.88rem;">{{ session('error') }}</span>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
-            @endif
+                @endif
 
-            @if(session('success'))
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" data-aos="fade-down">
-                    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm rounded-4 py-3 px-4 mb-0 border-0" role="alert" style="background: #ecfdf5; border-left: 5px solid #10b981 !important; color: #065f46;">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px; background: rgba(16, 185, 129, 0.15);">
-                            <i class="ti ti-circle-check fs-4 text-success"></i>
+                @if(session('success'))
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" data-aos="fade-down">
+                        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm rounded-4 py-3 px-4 mb-0 border-0" role="alert" style="background: #ecfdf5; border-left: 5px solid #10b981 !important; color: #065f46;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px; background: rgba(16, 185, 129, 0.15);">
+                                <i class="ti ti-circle-check fs-4 text-success"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong class="d-block fw-bold" style="font-size: 0.95rem;">Berhasil</strong>
+                                <span style="font-size: 0.88rem;">{{ session('success') }}</span>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                        <div class="flex-grow-1">
-                            <strong class="d-block fw-bold" style="font-size: 0.95rem;">Berhasil</strong>
-                            <span style="font-size: 0.88rem;">{{ session('success') }}</span>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
+                @endif
             @endif
 
             <!-- Page Heading -->
@@ -197,9 +199,7 @@
         <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                    console.log('PWA ServiceWorker registered');
-                });
+                navigator.serviceWorker.register('/sw.js').catch(function() {});
             });
         }
         </script>

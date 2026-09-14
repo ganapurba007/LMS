@@ -11,11 +11,11 @@
             border-bottom: 3px solid #66A3BF;
             color: #ffffff;
             position: sticky;
-            top: 4.1rem;
+            top: 0;
             z-index: 1020;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-            padding-top: 2.25rem !important;
-            padding-bottom: 2.25rem !important;
+            padding-top: 1.15rem !important;
+            padding-bottom: 1.15rem !important;
         }
         
         /* Single Question Card Stepper */
@@ -38,16 +38,17 @@
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             overflow: hidden;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
             transition: border-color 0.2s ease;
         }
         .question-card-header {
-            padding: 0.8rem 1.4rem;
+            padding: 0.85rem 1.35rem;
             background: #F2EFE7;
             border-bottom: 1px solid rgba(51, 104, 160, 0.12);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.5rem;
         }
 
         /* Review Option Tiles (Sama Bentuk & Spacing Dengan Pilihan Saat Kuis) */
@@ -55,11 +56,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.8rem 1.15rem;
-            border-radius: 11px;
+            gap: 0.75rem;
+            padding: 0.85rem 1.15rem;
+            border-radius: 12px;
             border: 1.5px solid rgba(51, 104, 160, 0.15);
             background: #ffffff;
-            margin-bottom: 0.65rem;
+            margin-bottom: 0.75rem;
             transition: all 0.15s ease-in-out;
         }
         .review-option-tile.tile-correct-selected {
@@ -87,7 +89,7 @@
             justify-content: center;
             font-weight: 700;
             font-size: 0.88rem;
-            margin-right: 0.95rem;
+            margin-right: 0.75rem;
             flex-shrink: 0;
             transition: all 0.15s ease;
         }
@@ -98,19 +100,19 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 50rem;
-            padding: 10px 24px;
+            padding: 7px 18px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
 
         /* Navigasi Nomor Soal (Palette) Sticky Sidebar */
         .palette-sticky-card {
             position: sticky;
-            top: 10.25rem;
+            top: 5.5rem;
             background: #ffffff;
             border-radius: 18px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem 1.65rem !important;
+            padding: 1.35rem 1.45rem !important;
             overflow: hidden;
         }
         .palette-grid {
@@ -212,10 +214,59 @@
             background-color: #F1F5F9;
             border: 1.5px solid #CBD5E1;
         }
+
+        /* Mobile & Responsive Screen Adjustments (< 768px) */
+        @media (max-width: 767.98px) {
+            .quiz-attempt-hero {
+                position: static !important;
+                padding-top: 0.85rem !important;
+                padding-bottom: 0.85rem !important;
+            }
+            .quiz-attempt-hero h1 {
+                font-size: 1rem !important;
+                line-height: 1.35 !important;
+            }
+            .duration-badge-box {
+                padding: 5px 12px !important;
+                font-size: 0.8rem !important;
+            }
+            .question-card-modern {
+                border-radius: 14px !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .question-card-header {
+                padding: 0.75rem 1rem !important;
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.5rem;
+            }
+            .review-option-tile {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.6rem !important;
+                padding: 0.85rem 1rem !important;
+                border-radius: 12px !important;
+            }
+            .palette-sticky-card {
+                position: static !important;
+                padding: 1.25rem 1rem !important;
+                border-radius: 16px !important;
+                margin-top: 1.25rem !important;
+            }
+            .palette-grid {
+                grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .nav-question-btn {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+            }
+        }
     </style>
 
     @php
         $totalQuestions = $quiz->questions->count();
+        $totalScorableItems = 0;
         $correctCount = 0;
         $wrongCount = 0;
         $unansweredCount = 0;
@@ -228,28 +279,37 @@
             if ($q->isMatching()) {
                 $pairsAnswer = ($userAnswer && is_array($userAnswer->answer_data)) ? $userAnswer->answer_data : [];
                 $totalPairs = $q->options->count();
+                $totalScorableItems += $totalPairs;
                 $matchedCount = 0;
+                $answeredPairsCount = 0;
+
                 if ($totalPairs > 0 && !empty($pairsAnswer)) {
                     foreach ($q->options as $opt) {
-                        if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
+                        $hasChosen = isset($pairsAnswer[$opt->id]) && !empty($pairsAnswer[$opt->id]);
+                        if ($hasChosen) {
+                            $answeredPairsCount++;
+                        }
+                        if ($hasChosen && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
                             $matchedCount++;
                         }
                     }
-                    if ($matchedCount === $totalPairs) {
-                        $correctCount++;
-                        $questionStatuses[$step] = 'correct';
-                    } elseif ($matchedCount > 0) {
-                        $correctCount += ($matchedCount / $totalPairs);
-                        $questionStatuses[$step] = 'correct';
-                    } else {
-                        $wrongCount++;
-                        $questionStatuses[$step] = 'wrong';
-                    }
+                }
+
+                $correctCount += $matchedCount;
+                $wrongCount += ($answeredPairsCount - $matchedCount);
+                $unansweredCount += ($totalPairs - $answeredPairsCount);
+
+                if ($matchedCount === $totalPairs && $totalPairs > 0) {
+                    $questionStatuses[$step] = 'correct';
+                } elseif ($matchedCount > 0) {
+                    $questionStatuses[$step] = 'correct';
+                } elseif ($answeredPairsCount > 0) {
+                    $questionStatuses[$step] = 'wrong';
                 } else {
-                    $unansweredCount++;
                     $questionStatuses[$step] = 'unanswered';
                 }
             } else {
+                $totalScorableItems += 1;
                 $selectedOptionId = $userAnswer ? $userAnswer->selected_option_id : null;
                 $correctOption = $q->options->firstWhere('is_correct', true);
 
@@ -266,77 +326,63 @@
             }
         }
 
-        $accuracyPercent = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100) : 0;
+        $accuracyPercent = $totalScorableItems > 0 ? round(($correctCount / $totalScorableItems) * 100) : 0;
 
-        // Hitung Waktu Pengerjaan (Durasi Aktual Pengerjaan)
-        $durationFormatted = '-';
-        if ($attempt->started_at && $attempt->submitted_at) {
-            $durationSeconds = max(0, $attempt->submitted_at->getTimestamp() - $attempt->started_at->getTimestamp());
-            $durHours = floor($durationSeconds / 3600);
-            $durMinutes = floor(($durationSeconds % 3600) / 60);
-            $durSeconds = $durationSeconds % 60;
-
-            $parts = [];
-            if ($durHours > 0) {
-                $parts[] = $durHours . ' Jam';
-            }
-            if ($durMinutes > 0) {
-                $parts[] = $durMinutes . ' Menit';
-            }
-            if ($durSeconds > 0 || empty($parts)) {
-                $parts[] = $durSeconds . ' Detik';
-            }
-            $durationFormatted = implode(' ', $parts);
-        }
+        // Hitung Waktu Pengerjaan (Durasi Aktual Pengerjaan Jam - Menit - Detik)
+        $durationFormatted = $attempt->duration_formatted;
     @endphp
 
     <!-- Sticky Top Bar: Info Kuis, Waktu Pengerjaan, & Skor Akhir -->
     <header class="quiz-attempt-hero">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-4">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 gap-md-4">
                 
                 <!-- Left: Quiz Info -->
-                <div class="d-flex align-items-center gap-4">
-                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm" style="background: rgba(255, 255, 255, 0.2); width: 54px; height: 54px;">
-                        <i class="ti ti-award fs-1"></i>
+                <div class="d-flex align-items-center gap-2.5 gap-sm-3">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm hero-icon-box" style="background: rgba(255, 255, 255, 0.2); width: 44px; height: 44px;">
+                        <i class="ti ti-award fs-3"></i>
                     </div>
                     <div>
-                        <h1 class="fs-5 fw-bold mb-2 text-white" style="font-family: 'Jost', sans-serif;">
+                        <h1 class="fs-6 fs-md-5 fw-bold mb-1 text-white" style="font-family: 'Jost', sans-serif;">
                             Hasil &amp; Preview Kuis: {{ $quiz->title }}
                         </h1>
-                        <div class="text-white-50 small d-flex align-items-center gap-3" style="font-size: 0.85rem;">
-                            <span>{{ $quiz->subject->name ?? 'Mata Pelajaran' }}</span>
-                            <span>•</span>
-                            <span>Kelas {{ $quiz->schoolClass->name ?? 'Siswa' }}</span>
-                            <span>•</span>
-                            <span>Total {{ $totalQuestions }} Butir Soal</span>
+                        <div class="d-flex flex-wrap align-items-center gap-1.5 small" style="font-size: 0.78rem;">
+                            <span class="badge rounded-pill px-2.5 py-1" style="background: rgba(255, 255, 255, 0.18);">
+                                {{ $quiz->subject->name ?? 'Mata Pelajaran' }}
+                            </span>
+                            <span class="badge rounded-pill px-2.5 py-1" style="background: rgba(255, 255, 255, 0.18);">
+                                Kelas {{ $quiz->schoolClass->name ?? 'Siswa' }}
+                            </span>
+                            <span class="badge rounded-pill px-2.5 py-1" style="background: rgba(255, 255, 255, 0.18);">
+                                {{ $totalQuestions === $totalScorableItems ? $totalScorableItems . ' Butir Soal' : $totalQuestions . ' Nomor (' . $totalScorableItems . ' Butir)' }}
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right: Waktu Pengerjaan, Skor Akhir, & Navigasi -->
-                <div class="d-flex flex-wrap align-items-center gap-3 gap-sm-4">
+                <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3 ms-auto ms-lg-0">
                     
                     <!-- Waktu Pengerjaan Badge -->
-                    <div class="duration-badge-box d-flex align-items-center gap-3 text-white">
-                        <i class="ti ti-clock-check fs-4 text-warning"></i>
-                        <div class="d-flex align-items-center gap-2.5">
-                            <span class="text-uppercase fw-semibold d-none d-sm-inline" style="font-size: 0.74rem; letter-spacing: 0.6px; opacity: 0.95;">WAKTU PENGERJAAN:</span>
-                            <span class="fw-extrabold text-white" style="font-size: 0.95rem; line-height: 1;">{{ $durationFormatted }}</span>
+                    <div class="duration-badge-box d-flex align-items-center gap-2 text-white">
+                        <i class="ti ti-clock-check fs-5 text-warning"></i>
+                        <div class="d-flex align-items-center gap-1.5">
+                            <span class="text-uppercase fw-semibold d-none d-sm-inline" style="font-size: 0.72rem; letter-spacing: 0.5px; opacity: 0.95;">WAKTU:</span>
+                            <span class="fw-extrabold text-white" style="font-size: 0.9rem; line-height: 1;">{{ $durationFormatted }}</span>
                         </div>
                     </div>
 
                     <!-- Skor Akhir Pill -->
-                    <div class="d-inline-flex align-items-center gap-2.5 px-4 py-2.5 rounded-pill text-white shadow-sm"
+                    <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill text-white shadow-sm"
                          style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); border: 1px solid rgba(255, 255, 255, 0.4);">
                         <i class="ti ti-trophy fs-5 text-warning"></i>
-                        <span class="fw-extrabold" style="font-size: 0.95rem; line-height: 1;">Skor: {{ $attempt->score }} / 100</span>
+                        <span class="fw-extrabold" style="font-size: 0.9rem; line-height: 1;">Skor: {{ $attempt->score }} / 100</span>
                     </div>
 
                     <!-- Kembali ke Daftar Kuis -->
                     <a href="{{ route('student.quizzes.index') }}" 
-                       class="btn btn-sm rounded-pill px-4 py-2.5 font-bold d-inline-flex align-items-center gap-2 text-white text-decoration-none shadow-sm" 
-                       style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(6px); font-size: 0.85rem;">
+                       class="btn btn-sm rounded-pill px-3.5 py-2 font-bold d-inline-flex align-items-center gap-1.5 text-white text-decoration-none shadow-sm" 
+                       style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(6px); font-size: 0.82rem;">
                         <i class="ti ti-arrow-left"></i> <span class="d-none d-md-inline">Daftar Kuis</span>
                     </a>
 
@@ -446,15 +492,15 @@
                                     @if($isMatching)
                                         @if($isFullCorrect)
                                             <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #dcfce7; color: #15803d; font-size: 0.78rem;">
-                                                <i class="ti ti-circle-check fs-6"></i> Benar Sempurna ({{ $correctPairs }}/{{ $totalPairs }} Pasangan)
+                                                <i class="ti ti-circle-check fs-6"></i> Benar Sempurna (+{{ $correctPairs }} Poin / {{ $totalPairs }} Soal)
                                             </span>
                                         @elseif($isPartialCorrect)
                                             <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fef3c7; color: #b45309; font-size: 0.78rem;">
-                                                <i class="ti ti-alert-triangle fs-6"></i> Benar Sebagian ({{ $correctPairs }}/{{ $totalPairs }} Pasangan)
+                                                <i class="ti ti-alert-triangle fs-6"></i> Benar Sebagian (+{{ $correctPairs }} Poin dari {{ $totalPairs }} Soal)
                                             </span>
                                         @elseif($isAnswered)
                                             <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fee2e2; color: #b91c1c; font-size: 0.78rem;">
-                                                <i class="ti ti-circle-x fs-6"></i> Salah (0/{{ $totalPairs }} Pasangan)
+                                                <i class="ti ti-circle-x fs-6"></i> Salah (0 Poin dari {{ $totalPairs }} Soal)
                                             </span>
                                         @else
                                             <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #f1f5f9; color: #475569; font-size: 0.78rem;">
@@ -464,7 +510,7 @@
                                     @else
                                         @if($isCorrect)
                                             <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #dcfce7; color: #15803d; font-size: 0.78rem;">
-                                                <i class="ti ti-circle-check fs-6"></i> Benar (+{{ $quiz->points_per_question ?? 100 }} Poin)
+                                                <i class="ti ti-circle-check fs-6"></i> Benar (+1 Poin)
                                             </span>
                                         @elseif($isAnswered)
                                             <span class="badge rounded-pill px-2.5 py-1 font-bold shadow-2xs d-inline-flex align-items-center gap-1" style="background: #fee2e2; color: #b91c1c; font-size: 0.78rem;">
@@ -493,9 +539,10 @@
                                         <table class="table table-hover align-middle mb-0">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th class="ps-3" style="width: 38%; font-size: 0.85rem;">Premis / Pertanyaan</th>
-                                                    <th style="width: 34%; font-size: 0.85rem;">Pasangan Jawaban Anda</th>
-                                                    <th class="pe-3" style="width: 28%; font-size: 0.85rem;">Kunci Pasangan Benar</th>
+                                                    <th class="ps-3" style="width: 32%; font-size: 0.85rem;">Premis / Soal</th>
+                                                    <th style="width: 30%; font-size: 0.85rem;">Pasangan Jawaban Anda</th>
+                                                    <th style="width: 24%; font-size: 0.85rem;">Kunci Pasangan Benar</th>
+                                                    <th class="pe-3 text-end" style="width: 14%; font-size: 0.85rem;">Skor</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -522,10 +569,19 @@
                                                                 <span class="badge bg-secondary-subtle text-muted" style="font-size: 0.78rem;">Tidak Dipilih</span>
                                                             @endif
                                                         </td>
-                                                        <td class="pe-3">
+                                                        <td>
                                                             <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle fw-semibold px-2.5 py-1" style="font-size: 0.88rem;">
                                                                 <i class="ti ti-check me-1"></i> {{ $opt->match_text }}
                                                             </span>
+                                                        </td>
+                                                        <td class="pe-3 text-end">
+                                                            @if($studentMatch && $isPairCorrect)
+                                                                <span class="badge bg-success text-white px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">+1 Poin</span>
+                                                            @elseif($studentMatch)
+                                                                <span class="badge bg-danger text-white px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">0 Poin</span>
+                                                            @else
+                                                                <span class="badge bg-secondary text-white px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.75rem;">0 Poin</span>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -693,7 +749,7 @@
                             <i class="ti ti-layout-grid text-primary fs-5"></i> Navigasi Soal
                         </h6>
                         <span class="badge bg-light text-primary border rounded-pill px-2.5 py-1 font-bold small">
-                            {{ $totalQuestions }} Soal
+                            {{ $totalQuestions === $totalScorableItems ? $totalScorableItems . ' Soal' : $totalQuestions . ' Nomor (' . $totalScorableItems . ' Butir)' }}
                         </span>
                     </div>
 
@@ -716,8 +772,8 @@
                     <!-- Progress Bar Tingkat Akurasi (Berjarak Lega ke Kotak Nomor Soal) -->
                     <div class="mb-4 pb-2">
                         <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.78rem;">
-                            <span class="text-muted fw-semibold">Akurasi Jawaban</span>
-                            <span class="fw-bold text-success">{{ $correctCount }} / {{ $totalQuestions }} Soal ({{ $accuracyPercent }}%)</span>
+                            <span class="text-muted fw-semibold">Akurasi Butir Soal</span>
+                            <span class="fw-bold text-success">{{ $correctCount }} / {{ $totalScorableItems }} Butir ({{ $accuracyPercent }}%)</span>
                         </div>
                         <div class="progress" style="height: 7px; border-radius: 10px; background-color: #E2E8F0;">
                             <div class="progress-bar rounded-pill" 
@@ -781,7 +837,7 @@
                                 <div class="small fw-semibold text-dark">Jawaban Benar</div>
                             </div>
                             <span class="badge rounded-pill px-2.5 py-1 text-white font-bold" style="background-color: #10B981; font-size: 0.75rem;">
-                                {{ $correctCount }} Soal
+                                {{ $correctCount }} Butir
                             </span>
                         </div>
 
@@ -792,7 +848,7 @@
                                 <div class="small fw-semibold text-dark">Jawaban Salah</div>
                             </div>
                             <span class="badge rounded-pill px-2.5 py-1 text-white font-bold" style="background-color: #EF4444; font-size: 0.75rem;">
-                                {{ $wrongCount }} Soal
+                                {{ $wrongCount }} Butir
                             </span>
                         </div>
 
@@ -804,7 +860,7 @@
                                     <div class="small fw-semibold text-dark">Tidak Dijawab</div>
                                 </div>
                                 <span class="badge rounded-pill px-2.5 py-1 text-secondary font-bold" style="background-color: #E2E8F0; color: #475569 !important; font-size: 0.75rem;">
-                                    {{ $unansweredCount }} Soal
+                                    {{ $unansweredCount }} Butir
                                 </span>
                             </div>
                         @endif

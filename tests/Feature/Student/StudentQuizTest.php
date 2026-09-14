@@ -425,6 +425,203 @@ class StudentQuizTest extends TestCase
         // 2 benar dari 4 pasangan = 50%
         $this->assertEquals(50, $attempt->score);
     }
+
+    public function test_matching_questions_scored_per_item_in_mixed_quiz(): void
+    {
+        // Kuis campuran: 1 Pilihan Ganda (1 item) + 1 Menjodohkan (4 pasangan = 4 item). Total = 5 butir soal.
+        $mixedQuiz = Quiz::create([
+            'title' => 'Kuis Campuran PG & Menjodohkan',
+            'duration_minutes' => 30,
+            'points_per_question' => 100,
+            'deadline' => now()->addDays(2),
+            'class_id' => $this->class->id,
+            'subject_id' => $this->quiz->subject_id,
+            'instructor_id' => $this->quiz->instructor_id,
+        ]);
+
+        $mcQuestion = QuizQuestion::create([
+            'quiz_id' => $mixedQuiz->id,
+            'question_type' => 'multiple_choice',
+            'question_text' => 'Berapa 10 / 2?',
+        ]);
+        $mcCorrect = QuizQuestionOption::create([
+            'quiz_question_id' => $mcQuestion->id,
+            'option_text' => '5',
+            'is_correct' => true,
+        ]);
+        QuizQuestionOption::create([
+            'quiz_question_id' => $mcQuestion->id,
+            'option_text' => '2',
+            'is_correct' => false,
+        ]);
+
+        $matchQuestion = QuizQuestion::create([
+            'quiz_id' => $mixedQuiz->id,
+            'question_type' => 'matching',
+            'question_text' => 'Jodohkan istilah.',
+        ]);
+        $p1 = QuizQuestionOption::create(['quiz_question_id' => $matchQuestion->id, 'option_text' => 'P1', 'match_text' => 'M1']);
+        $p2 = QuizQuestionOption::create(['quiz_question_id' => $matchQuestion->id, 'option_text' => 'P2', 'match_text' => 'M2']);
+        $p3 = QuizQuestionOption::create(['quiz_question_id' => $matchQuestion->id, 'option_text' => 'P3', 'match_text' => 'M3']);
+        $p4 = QuizQuestionOption::create(['quiz_question_id' => $matchQuestion->id, 'option_text' => 'P4', 'match_text' => 'M4']);
+
+        // Siswa mulai kuis
+        $this->actingAs($this->student)->post(route('student.quizzes.start', $mixedQuiz));
+
+        // Siswa menjawab:
+        // - PG Benar (1 item benar)
+        // - Menjodohkan: 3 Benar (P1, P2, P3), 1 Salah (P4) (3 item benar)
+        // Total benar: 1 + 3 = 4 dari 5 item => Skor = (4 / 5) * 100 = 80
+        $submitResponse = $this->actingAs($this->student)->post(route('student.quizzes.submit', $mixedQuiz), [
+            'answers' => [
+                $mcQuestion->id => $mcCorrect->id,
+            ],
+            'matching_answers' => [
+                $matchQuestion->id => [
+                    $p1->id => 'M1', // Benar
+                    $p2->id => 'M2', // Benar
+                    $p3->id => 'M3', // Benar
+                    $p4->id => 'Salah', // Salah
+                ],
+            ],
+        ]);
+
+        $submitResponse->assertRedirect(route('student.quizzes.result', $mixedQuiz));
+
+        $attempt = QuizAttempt::where('quiz_id', $mixedQuiz->id)
+            ->where('student_id', $this->student->id)
+            ->first();
+
+        $this->assertEquals(80, $attempt->score);
+    }
+
+    public function test_total_questions_count_and_types_summary_for_mixed_quizzes(): void
+    {
+        $quiz = Quiz::create([
+            'title' => 'Kuis Variatif',
+            'duration_minutes' => 45,
+            'points_per_question' => 100,
+            'deadline' => now()->addDays(3),
+            'class_id' => $this->class->id,
+            'subject_id' => $this->quiz->subject_id,
+            'instructor_id' => $this->quiz->instructor_id,
+        ]);
+
+        // 1 MC (1 item)
+        $mc = QuizQuestion::create([
+            'quiz_id' => $quiz->id,
+            'question_type' => 'multiple_choice',
+            'question_text' => 'Soal 1',
+        ]);
+        QuizQuestionOption::create(['quiz_question_id' => $mc->id, 'option_text' => 'A', 'is_correct' => true]);
+        QuizQuestionOption::create(['quiz_question_id' => $mc->id, 'option_text' => 'B', 'is_correct' => false]);
+
+        // 1 TF (1 item)
+        $tf = QuizQuestion::create([
+            'quiz_id' => $quiz->id,
+            'question_type' => 'true_false',
+            'question_text' => 'Soal 2',
+        ]);
+        QuizQuestionOption::create(['quiz_question_id' => $tf->id, 'option_text' => 'Benar', 'is_correct' => true]);
+        QuizQuestionOption::create(['quiz_question_id' => $tf->id, 'option_text' => 'Salah', 'is_correct' => false]);
+
+        // 1 Matching with 4 pairs (4 items)
+        $match = QuizQuestion::create([
+            'quiz_id' => $quiz->id,
+            'question_type' => 'matching',
+            'question_text' => 'Soal 3',
+        ]);
+        QuizQuestionOption::create(['quiz_question_id' => $match->id, 'option_text' => 'P1', 'match_text' => 'M1']);
+        QuizQuestionOption::create(['quiz_question_id' => $match->id, 'option_text' => 'P2', 'match_text' => 'M2']);
+        QuizQuestionOption::create(['quiz_question_id' => $match->id, 'option_text' => 'P3', 'match_text' => 'M3']);
+        QuizQuestionOption::create(['quiz_question_id' => $match->id, 'option_text' => 'P4', 'match_text' => 'M4']);
+
+        // Quiz has 3 question rows, but 1 + 1 + 4 = 6 total scorable question items!
+        $this->assertEquals(3, $quiz->questions()->count());
+        $this->assertEquals(6, $quiz->total_questions_count);
+        $this->assertEquals(6, $quiz->total_scorable_items);
+        $this->assertStringContainsString('Campuran', $quiz->question_types_summary);
+
+        $this->assertEquals('45 Menit 0 Detik', $quiz->formatted_duration);
+        $this->assertEquals('00:45:00', $quiz->duration_hms);
+
+        // Test student index view shows total_questions_count
+        $response = $this->actingAs($this->student)->get(route('student.quizzes.index'));
+        $response->assertStatus(200);
+        $response->assertSee('6 Butir');
+
+        // Test student show view shows total_questions_count and formatted duration
+        $responseShow = $this->actingAs($this->student)->get(route('student.quizzes.show', $quiz));
+        $responseShow->assertStatus(200);
+        $responseShow->assertSee('6 Butir Soal');
+        $responseShow->assertSee('45 Menit 0 Detik');
+        $responseShow->assertDontSee('Soal & Opsi Jawaban Diacak Otomatis');
+    }
+
+    public function test_questions_and_options_are_randomized_per_student_attempt(): void
+    {
+        $studentRole = Role::firstOrCreate(['name' => 'siswa'], ['display_name' => 'Siswa']);
+        $student2 = User::factory()->create([
+            'role_id' => $studentRole->id,
+            'class_id' => $this->class->id,
+        ]);
+
+        $quiz = Quiz::create([
+            'title' => 'Kuis Randomisasi Anti Curang',
+            'duration_minutes' => 45,
+            'points_per_question' => 100,
+            'deadline' => now()->addDays(3),
+            'class_id' => $this->class->id,
+            'subject_id' => $this->quiz->subject_id,
+            'instructor_id' => $this->quiz->instructor_id,
+        ]);
+
+        // Create 10 distinct MC questions with 4 options each
+        for ($i = 1; $i <= 10; $i++) {
+            $q = QuizQuestion::create([
+                'quiz_id' => $quiz->id,
+                'question_type' => 'multiple_choice',
+                'question_text' => "Pertanyaan Nomor {$i}",
+            ]);
+            for ($optIdx = 1; $optIdx <= 4; $optIdx++) {
+                QuizQuestionOption::create([
+                    'quiz_question_id' => $q->id,
+                    'option_text' => "Pilihan {$optIdx} untuk Soal {$i}",
+                    'is_correct' => ($optIdx === 1),
+                ]);
+            }
+        }
+
+        // Student 1 starts quiz
+        $this->actingAs($this->student)->post(route('student.quizzes.start', $quiz));
+        $attempt1 = QuizAttempt::where('student_id', $this->student->id)->where('quiz_id', $quiz->id)->first();
+        $orderedQuestions1 = $attempt1->getOrderedQuestions();
+
+        // Student 2 starts quiz
+        $this->actingAs($student2)->post(route('student.quizzes.start', $quiz));
+        $attempt2 = QuizAttempt::where('student_id', $student2->id)->where('quiz_id', $quiz->id)->first();
+        $orderedQuestions2 = $attempt2->getOrderedQuestions();
+
+        // Both attempts have all 10 questions
+        $this->assertCount(10, $orderedQuestions1);
+        $this->assertCount(10, $orderedQuestions2);
+
+        // Check that question order is not identical (with 10 items, chance of identical random order is 1/3,628,800)
+        $qIds1 = $orderedQuestions1->pluck('id')->toArray();
+        $qIds2 = $orderedQuestions2->pluck('id')->toArray();
+        $this->assertNotEquals($qIds1, $qIds2, 'Question order should be different between two student attempts.');
+
+        // Check consistency on reload for student 1
+        $reloadOrderedQuestions1 = $attempt1->getOrderedQuestions();
+        $this->assertEquals($qIds1, $reloadOrderedQuestions1->pluck('id')->toArray(), 'Question order should remain consistent on reload for the same student attempt.');
+
+        // Student 1 renders attempt page
+        $res = $this->actingAs($this->student)->get(route('student.quizzes.attempt', $quiz));
+        $res->assertStatus(200);
+        $res->assertSee('Kuis Randomisasi Anti Curang');
+    }
 }
+
+
 
 

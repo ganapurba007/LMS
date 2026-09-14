@@ -16,7 +16,7 @@ class QuizController extends Controller
         $user = Auth::user();
         $classId = $user->class_id;
 
-        $query = Quiz::with(['subject', 'instructor', 'questions', 'attempts' => function ($q) use ($user) {
+        $query = Quiz::with(['subject', 'instructor', 'questions.options', 'attempts' => function ($q) use ($user) {
             $q->where('student_id', $user->id);
         }])
         ->where('class_id', $classId);
@@ -106,7 +106,7 @@ class QuizController extends Controller
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
-        $quiz->load(['subject', 'instructor', 'questions']);
+        $quiz->load(['subject', 'instructor', 'questions.options']);
         $attempt = QuizAttempt::where('quiz_id', $quiz->id)
             ->where('student_id', $user->id)
             ->first();
@@ -181,7 +181,8 @@ class QuizController extends Controller
             $attempt->refresh();
         }
 
-        $quiz->load(['questions.options']);
+        $orderedQuestions = $attempt->getOrderedQuestions();
+        $quiz->setRelation('questions', $orderedQuestions);
 
         // Calculate remaining seconds based on fixed started_at timestamp in database
         $durationSeconds = ($quiz->duration_minutes ?? 30) * 60;
@@ -195,28 +196,26 @@ class QuizController extends Controller
             $questions = $quiz->questions()->with('options')->get();
             $existingAnswers = $attempt->answers()->get();
             $earnedPoints = 0.0;
-            $totalQuestions = $questions->count();
+            $totalScorableItems = 0;
 
             foreach ($questions as $question) {
                 $ans = $existingAnswers->firstWhere('quiz_question_id', $question->id);
-                if (!$ans) {
-                    continue;
-                }
 
                 if ($question->isMatching()) {
-                    $pairsAnswer = is_array($ans->answer_data) ? $ans->answer_data : [];
                     $totalPairs = $question->options->count();
-                    $correctPairs = 0;
+                    $totalScorableItems += $totalPairs;
+
+                    $pairsAnswer = ($ans && is_array($ans->answer_data)) ? $ans->answer_data : [];
                     if ($totalPairs > 0 && !empty($pairsAnswer)) {
                         foreach ($question->options as $opt) {
                             if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
-                                $correctPairs++;
+                                $earnedPoints += 1.0;
                             }
                         }
-                        $earnedPoints += ($correctPairs / $totalPairs);
                     }
                 } else {
-                    if ($ans->selected_option_id) {
+                    $totalScorableItems += 1;
+                    if ($ans && $ans->selected_option_id) {
                         $cOpt = $question->options->firstWhere('is_correct', true);
                         if ($cOpt && $cOpt->id === $ans->selected_option_id) {
                             $earnedPoints += 1.0;
@@ -225,7 +224,7 @@ class QuizController extends Controller
                 }
             }
 
-            $score = $totalQuestions > 0 ? round(($earnedPoints / $totalQuestions) * 100, 2) : 0;
+            $score = $totalScorableItems > 0 ? round(($earnedPoints / $totalScorableItems) * 100, 2) : 0;
             $attempt->update([
                 'score' => $score,
                 'submitted_at' => now(),
@@ -313,11 +312,9 @@ class QuizController extends Controller
         $existingAnswers = $attempt->answers()->get()->keyBy('quiz_question_id');
 
         $earnedPoints = 0.0;
-        $totalQuestions = $questions->count();
+        $totalScorableItems = 0;
 
         foreach ($questions as $question) {
-            $questionCredit = 0.0;
-
             if ($question->isMatching()) {
                 // Matching Question Answer
                 $pairsAnswer = $matchingAnswers[$question->id] ?? ($existingAnswers->has($question->id) ? $existingAnswers->get($question->id)->answer_data : []);
@@ -337,14 +334,14 @@ class QuizController extends Controller
                 );
 
                 $totalPairs = $question->options->count();
-                $correctPairs = 0;
+                $totalScorableItems += $totalPairs;
+
                 if ($totalPairs > 0 && !empty($pairsAnswer)) {
                     foreach ($question->options as $opt) {
                         if (isset($pairsAnswer[$opt->id]) && trim($pairsAnswer[$opt->id]) === trim($opt->match_text)) {
-                            $correctPairs++;
+                            $earnedPoints += 1.0;
                         }
                     }
-                    $questionCredit = $correctPairs / $totalPairs;
                 }
             } else {
                 // Multiple Choice or True/False Question Answer
@@ -367,18 +364,18 @@ class QuizController extends Controller
                     ]
                 );
 
+                $totalScorableItems += 1;
+
                 if ($selectedOptionId) {
                     $correctOption = $question->options->firstWhere('is_correct', true);
                     if ($correctOption && $correctOption->id === $selectedOptionId) {
-                        $questionCredit = 1.0;
+                        $earnedPoints += 1.0;
                     }
                 }
             }
-
-            $earnedPoints += $questionCredit;
         }
 
-        $score = $totalQuestions > 0 ? round(($earnedPoints / $totalQuestions) * 100, 2) : 0;
+        $score = $totalScorableItems > 0 ? round(($earnedPoints / $totalScorableItems) * 100, 2) : 0;
 
         $attempt->update([
             'score' => $score,
@@ -404,7 +401,8 @@ class QuizController extends Controller
             return redirect()->route('student.quizzes.attempt', $quiz);
         }
 
-        $quiz->load(['questions.options']);
+        $orderedQuestions = $attempt->getOrderedQuestions();
+        $quiz->setRelation('questions', $orderedQuestions);
         $answersMap = $attempt->answers->keyBy('quiz_question_id');
 
         return view('student.quizzes.result', compact('quiz', 'attempt', 'answersMap'));

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :suppressGlobalAlerts="true">
     <!-- Include Bootstrap, Tabler Icons & Custom CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
@@ -17,8 +17,8 @@
             position: absolute;
             top: -50px;
             right: -50px;
-            width: 300px;
-            height: 300px;
+            width: 350px;
+            height: 350px;
             background: radial-gradient(circle, rgba(102, 163, 191, 0.25) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
@@ -26,7 +26,7 @@
         .quiz-card {
             background: #ffffff;
             border-radius: 18px;
-            border: 1px solid rgba(51, 104, 160, 0.12);
+            border: 1px solid rgba(51, 104, 160, 0.14);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
             transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
@@ -34,12 +34,12 @@
             flex-direction: column;
         }
         .quiz-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-5px);
             box-shadow: 0 14px 28px rgba(32, 69, 110, 0.12);
             border-color: rgba(102, 163, 191, 0.45);
         }
         .quiz-card-header {
-            padding: 1.5rem 1.5rem 1.25rem;
+            padding: 1.35rem 1.4rem 1.15rem;
             position: relative;
             overflow: hidden;
         }
@@ -54,7 +54,7 @@
         }
         .filter-pill-btn {
             border-radius: 50rem;
-            padding: 0.5rem 1.25rem;
+            padding: 0.5rem 1.15rem;
             font-size: 0.82rem;
             font-weight: 600;
             transition: all 0.2s ease;
@@ -73,8 +73,8 @@
             box-shadow: 0 2px 8px rgba(32, 69, 110, 0.25);
         }
         .view-btn {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -115,6 +115,38 @@
         }
         .table-custom-quizzes tbody tr:hover {
             background-color: rgba(200, 223, 219, 0.22);
+        }
+
+        /* Responsive Mobile Adjustments (< 768px) */
+        @media (max-width: 767.98px) {
+            .quizzes-hero {
+                padding-top: 1.5rem !important;
+                padding-bottom: 1.75rem !important;
+            }
+            .quizzes-hero h1 {
+                font-size: 1.45rem !important;
+                line-height: 1.3 !important;
+            }
+            .quizzes-hero p.lead {
+                font-size: 0.88rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .filter-pill-btn {
+                padding: 0.4rem 0.9rem !important;
+                font-size: 0.76rem !important;
+            }
+            .quiz-card {
+                border-radius: 16px !important;
+            }
+            .quiz-card-header {
+                padding: 1.15rem 1.15rem 1rem !important;
+            }
+            .quiz-card-header h5 {
+                font-size: 1.1rem !important;
+            }
+            .quiz-card .p-4 {
+                padding: 1.15rem !important;
+            }
         }
     </style>
 
@@ -452,13 +484,13 @@
                                         <div class="col-6">
                                             <div class="p-2.5 rounded-3 bg-light text-center border">
                                                 <div class="text-muted small" style="font-size: 0.72rem;"><i class="ti ti-clock me-1 text-primary"></i> Durasi</div>
-                                                <div class="fw-bold text-dark fs-6">{{ $quiz->duration_minutes }} Menit</div>
+                                                <div class="fw-bold text-dark fs-6">{{ $quiz->formatted_duration }}</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="p-2.5 rounded-3 bg-light text-center border">
                                                 <div class="text-muted small" style="font-size: 0.72rem;"><i class="ti ti-list-check me-1 text-success"></i> Soal</div>
-                                                <div class="fw-bold text-dark fs-6">{{ $quiz->questions->count() }} Butir</div>
+                                                <div class="fw-bold text-dark fs-6">{{ $quiz->total_questions_count }} Butir</div>
                                             </div>
                                         </div>
                                     </div>
@@ -563,7 +595,7 @@
                                                 {{ $quiz->title }}
                                             </a>
                                             <div class="text-muted small" style="font-size: 0.72rem;">
-                                                Kelas {{ Auth::user()->schoolClass->name ?? 'Saya' }} • {{ $quiz->questions->count() }} Soal
+                                                Kelas {{ Auth::user()->schoolClass->name ?? 'Saya' }} • {{ $quiz->total_questions_count }} Butir Soal
                                             </div>
                                         </div>
                                     </div>
@@ -583,9 +615,9 @@
                                 </td>
                                 <td>
                                     <div class="small fw-semibold text-dark">
-                                        <i class="ti ti-clock text-primary me-1"></i> {{ $quiz->duration_minutes }} Menit
+                                        <i class="ti ti-clock text-primary me-1"></i> {{ $quiz->formatted_duration }}
                                     </div>
-                                    <div class="text-muted" style="font-size: 0.72rem;">{{ $quiz->questions->count() }} Butir Soal</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">{{ $quiz->total_questions_count }} Butir Soal</div>
                                 </td>
                                 <td>
                                     <div class="small fw-semibold {{ $isOverdue ? 'text-danger' : 'text-dark' }}">

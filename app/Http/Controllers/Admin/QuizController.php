@@ -20,7 +20,7 @@ class QuizController extends Controller
 {
     public function index()
     {
-        $quizzes = Quiz::with(['subject', 'schoolClass', 'instructor'])
+        $quizzes = Quiz::with(['subject', 'schoolClass', 'instructor', 'questions.options'])
             ->withCount('questions')
             ->latest()
             ->paginate(10);
@@ -405,7 +405,7 @@ class QuizController extends Controller
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
-        $quiz->load(['subject', 'schoolClass', 'instructor', 'questions']);
+        $quiz->load(['subject', 'schoolClass', 'instructor', 'questions.options']);
 
         $students = User::where('class_id', $quiz->class_id)
             ->whereHas('role', function ($q) {

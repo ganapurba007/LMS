@@ -7,6 +7,13 @@ use Illuminate\View\View;
 
 class AppLayout extends Component
 {
+    public bool $suppressGlobalAlerts;
+
+    public function __construct(bool $suppressGlobalAlerts = false)
+    {
+        $this->suppressGlobalAlerts = $suppressGlobalAlerts;
+    }
+
     /**
      * Get the view / contents that represents the component.
      */

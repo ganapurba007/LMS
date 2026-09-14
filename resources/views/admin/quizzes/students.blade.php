@@ -55,7 +55,6 @@
         $inProgressCount = $attempts->filter(fn($a) => is_null($a->submitted_at))->count();
         $notStartedCount = $totalStudents - $attempts->count();
         $avgScore = $submittedCount > 0 ? round($attempts->filter(fn($a) => !is_null($a->submitted_at))->avg('score'), 1) : 0;
-        $maxPossibleScore = $quiz->questions->count() * $quiz->points_per_question;
         $isDeadlinePast = $quiz->deadline && now()->greaterThan($quiz->deadline);
     @endphp
 
@@ -109,7 +108,7 @@
                 </div>
                 <div class="min-w-0">
                     <div class="text-muted fw-semibold" style="font-size: 0.7rem; line-height: 1.1;">Rata-rata Nilai</div>
-                    <div class="fw-bold text-info mb-0" style="font-size: 0.95rem; line-height: 1.2;">{{ $avgScore }} <span class="text-muted fw-normal" style="font-size: 0.7rem;">/ {{ $maxPossibleScore > 0 ? $maxPossibleScore : 100 }}</span></div>
+                    <div class="fw-bold text-info mb-0" style="font-size: 0.95rem; line-height: 1.2;">{{ $avgScore }} <span class="text-muted fw-normal" style="font-size: 0.7rem;">/ 100</span></div>
                 </div>
             </div>
         </div>
@@ -190,7 +189,7 @@
                             <td>
                                 @if($attempt && $attempt->submitted_at && $attempt->started_at)
                                     <span class="text-dark fw-semibold" style="font-size: 0.78rem;">
-                                        {{ $attempt->started_at->diffInMinutes($attempt->submitted_at) }} Menit
+                                        {{ $attempt->duration_formatted }}
                                     </span>
                                 @elseif($attempt && $attempt->started_at)
                                     <span class="text-warning fw-semibold" style="font-size: 0.78rem;">
@@ -203,7 +202,7 @@
                             <td class="text-center">
                                 @if($attempt && !is_null($attempt->submitted_at))
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.8rem;">
-                                        {{ $attempt->score }} <span class="fw-normal text-muted" style="font-size: 0.7rem;">/ {{ $maxPossibleScore > 0 ? $maxPossibleScore : 100 }}</span>
+                                        {{ $attempt->score }} <span class="fw-normal text-muted" style="font-size: 0.7rem;">/ 100</span>
                                     </span>
                                 @elseif($attempt)
                                     <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">

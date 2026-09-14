@@ -54,4 +54,91 @@ class Quiz extends Model
     {
         return $this->hasMany(QuizAttempt::class);
     }
+
+    /**
+     * Total scorable items / question units.
+     * Multiple Choice & True/False count as 1 item.
+     * Matching (Menjodohkan) counts as 1 item per option/pair.
+     */
+    public function getTotalQuestionsCountAttribute(): int
+    {
+        $this->loadMissing('questions.options');
+        $count = 0;
+        foreach ($this->questions as $q) {
+            if ($q->isMatching()) {
+                $count += $q->options->count();
+            } else {
+                $count += 1;
+            }
+        }
+        return $count;
+    }
+
+    /**
+     * Alias for total scorable items
+     */
+    public function getTotalScorableItemsAttribute(): int
+    {
+        return $this->total_questions_count;
+    }
+
+    /**
+     * Get summary text of question types present in the quiz
+     */
+    public function getQuestionTypesSummaryAttribute(): string
+    {
+        $this->loadMissing('questions');
+        if ($this->questions->isEmpty()) {
+            return 'Pilihan Ganda';
+        }
+
+        $types = $this->questions->map(function ($q) {
+            if ($q->isMatching()) return 'Menjodohkan';
+            if ($q->isTrueFalse()) return 'Benar / Salah';
+            return 'Pilihan Ganda';
+        })->unique();
+
+        if ($types->count() > 1) {
+            return 'Campuran (' . $types->implode(', ') . ')';
+        }
+
+        return $types->first() ?? 'Pilihan Ganda';
+    }
+
+    /**
+     * Format duration into "X Jam Y Menit Z Detik"
+     */
+    public function getFormattedDurationAttribute(): string
+    {
+        $totalMinutes = (int)($this->duration_minutes ?? 0);
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+        $seconds = 0;
+
+        $parts = [];
+        if ($hours > 0) {
+            $parts[] = "{$hours} Jam";
+        }
+        if ($minutes > 0 || $hours > 0) {
+            $parts[] = "{$minutes} Menit";
+        }
+        $parts[] = "{$seconds} Detik";
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Format duration into "HH:MM:SS" (e.g. 00:30:00 or 01:30:00)
+     */
+    public function getDurationHmsAttribute(): string
+    {
+        $totalMinutes = (int)($this->duration_minutes ?? 0);
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+        $seconds = 0;
+
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+    }
 }
+
+

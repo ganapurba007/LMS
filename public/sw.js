@@ -1,6 +1,5 @@
-const CACHE_NAME = 'lms-dani-v1';
+const CACHE_NAME = 'lms-dani-v2';
 const ASSETS_TO_CACHE = [
-  '/',
   '/css/theme-custom.css',
   '/manifest.json'
 ];
@@ -32,8 +31,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first strategy with fallback to cache for PWA
+  // Only cache static GET requests, NEVER HTML pages
   if (event.request.method === 'GET') {
+    const url = new URL(event.request.url);
+    const acceptHeader = event.request.headers.get('accept') || '';
+    if (acceptHeader.includes('text/html') || url.pathname.startsWith('/student/') || url.pathname.startsWith('/admin/')) {
+      return; // Network direct for HTML and dynamic app routes
+    }
     event.respondWith(
       fetch(event.request).catch(() => {
         return caches.match(event.request);

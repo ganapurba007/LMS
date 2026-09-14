@@ -14,8 +14,8 @@
             top: 0 !important;
             z-index: 1020;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-            padding-top: 1.25rem !important;
-            padding-bottom: 1.25rem !important;
+            padding-top: 1.15rem !important;
+            padding-bottom: 1.15rem !important;
         }
         
         /* Single Question Card Stepper */
@@ -31,7 +31,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Compact & Balanced Question Card (Tidak Perlu Scroll) */
+        /* Compact & Balanced Question Card */
         .question-card-modern {
             background: #ffffff;
             border-radius: 16px;
@@ -42,36 +42,70 @@
             transition: border-color 0.2s ease;
         }
         .question-card-header {
-            padding: 0.8rem 1.4rem;
+            padding: 0.8rem 1.25rem;
             background: #F2EFE7;
             border-bottom: 1px solid rgba(51, 104, 160, 0.12);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.5rem;
         }
 
-        /* Compact & Comfortable Option Tiles (Sedikit Diperkecil Agar Pas Viewport) */
+        /* Question Text Content Typography & Media Constraints */
+        .question-text-wrapper {
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: #1e293b;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        .question-text-wrapper img {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: 10px;
+            margin: 0.6rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            object-fit: contain;
+        }
+        .question-text-wrapper table {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            display: block;
+            margin: 0.5rem 0;
+            border-collapse: collapse;
+        }
+        .question-text-wrapper p {
+            margin-bottom: 0.65rem;
+        }
+        .question-text-wrapper p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Compact & Comfortable Option Tiles */
         .quiz-option-tile {
             display: flex;
-            align-items: center;
-            padding: 0.75rem 1.15rem;
-            border-radius: 10px;
-            border: 1.5px solid rgba(51, 104, 160, 0.15);
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.85rem 1.15rem;
+            border-radius: 12px;
+            border: 1.5px solid rgba(51, 104, 160, 0.16);
             background: #ffffff;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.65rem;
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
+            touch-action: manipulation;
         }
         .quiz-option-tile:hover {
             background: #f8fafc;
             border-color: #3368A0;
-            transform: translateX(3px);
+            transform: translateX(2px);
         }
         .quiz-option-tile.selected {
-            background: rgba(37, 99, 235, 0.08);
-            border-color: #2563EB;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(59, 130, 246, 0.12) 100%) !important;
+            border-color: #2563EB !important;
+            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.12) !important;
         }
         .option-badge-letter {
             width: 32px;
@@ -84,13 +118,56 @@
             font-size: 0.88rem;
             background: #e2e8f0;
             color: #334155;
-            margin-right: 0.95rem;
             flex-shrink: 0;
-            transition: all 0.15s ease;
+            margin-top: 1px;
+            transition: all 0.18s ease;
         }
         .quiz-option-tile.selected .option-badge-letter {
-            background: #2563EB;
-            color: #ffffff;
+            background: #2563EB !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+        }
+        .option-text-wrapper {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #1e293b;
+            word-break: break-word;
+            padding-top: 4px;
+        }
+
+        /* True/False Option Tiles */
+        .quiz-option-tf {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 0.75rem;
+            border-radius: 14px;
+            border: 1.5px solid rgba(51, 104, 160, 0.16);
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            height: 100%;
+            text-align: center;
+            min-height: 85px;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .quiz-option-tf:hover {
+            border-color: #3368A0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .quiz-option-tf.selected.tf-true {
+            background: rgba(16, 185, 129, 0.08) !important;
+            border-color: #10B981 !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15) !important;
+        }
+        .quiz-option-tf.selected.tf-false {
+            background: rgba(239, 68, 68, 0.08) !important;
+            border-color: #EF4444 !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.15) !important;
         }
 
         /* Timer Badge */
@@ -99,7 +176,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 50rem;
-            padding: 8px 22px;
+            padding: 7px 18px;
             box-shadow: 0 4px 16px rgba(220, 53, 69, 0.35);
         }
         .timer-warning {
@@ -110,15 +187,305 @@
             50% { transform: scale(1.04); }
         }
 
+        /* Ultra-Modern Interactive Matching Question UI Styles */
+        .matching-guide-banner {
+            background: linear-gradient(135deg, #20456E 0%, #3368A0 60%, #2b5788 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 4px 18px rgba(32, 69, 110, 0.16) !important;
+            color: #ffffff !important;
+        }
+
+        .matching-premise-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 14px !important;
+            border: 1.5px solid rgba(51, 104, 160, 0.14) !important;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .matching-premise-card:hover {
+            border-color: #3368A0 !important;
+            box-shadow: 0 6px 18px rgba(51, 104, 160, 0.08) !important;
+        }
+
+        .matching-target-slot {
+            border: 2px dashed #94A3B8;
+            background: #F8FAFC;
+            border-radius: 12px !important;
+            transition: all 0.2s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .matching-target-slot.is-empty:hover {
+            border-color: #38BDF8 !important;
+            background: #F0F9FF !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+        .matching-target-slot.active-slot {
+            border: 2px solid #0284C7 !important;
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%) !important;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25) !important;
+            animation: slotPulse 1.8s infinite ease-in-out;
+        }
+        @keyframes slotPulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25); }
+            50% { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.4); }
+        }
+
+        .matching-target-slot.has-match {
+            border: 1.5px solid #10B981 !important;
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%) !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12) !important;
+        }
+
+        .btn-match-chip {
+            background: #ffffff;
+            border: 1.5px solid #CBD5E1;
+            color: #1E293B;
+            border-radius: 50rem !important;
+            padding: 0.55rem 1.15rem !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: manipulation;
+        }
+        .btn-match-chip.is-available:hover {
+            border-color: #3368A0 !important;
+            background: #F0F9FF !important;
+            color: #20456E !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(51, 104, 160, 0.16) !important;
+        }
+        .btn-match-chip.is-used {
+            background: #F1F5F9 !important;
+            border: 1.5px dashed #94A3B8 !important;
+            color: #64748B !important;
+            opacity: 0.85;
+        }
+
+        /* Stepper Navigation Buttons */
+        .quiz-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-weight: 700;
+            font-size: 0.86rem;
+            padding: 0.65rem 1.15rem;
+            border-radius: 50rem;
+            white-space: nowrap;
+            transition: all 0.18s ease;
+        }
+        .quiz-nav-btn-next-wrap {
+            flex: 1;
+            display: flex;
+        }
+        .quiz-step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 50rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Mobile Floating Palette Trigger */
+        .btn-floating-palette {
+            background: linear-gradient(135deg, #20456E 0%, #3368A0 100%);
+            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 8px 24px rgba(32, 69, 110, 0.35);
+            backdrop-filter: blur(8px);
+            font-weight: 700;
+            font-size: 0.84rem;
+            transition: all 0.2s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .btn-floating-palette:hover, .btn-floating-palette:active {
+            transform: scale(1.04);
+            color: #ffffff;
+        }
+
+        /* Mobile & Responsive Screen Adjustments (< 768px) */
+        @media (max-width: 767.98px) {
+            .quiz-attempt-hero {
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+
+            .quiz-attempt-hero h1 {
+                font-size: 0.95rem !important;
+                line-height: 1.35 !important;
+                max-width: none !important;
+            }
+
+            .quiz-attempt-hero .text-white-50 {
+                font-size: 0.74rem !important;
+            }
+
+            .quiz-attempt-hero .hero-icon-box {
+                width: 38px !important;
+                height: 38px !important;
+            }
+            .quiz-attempt-hero .hero-icon-box i {
+                font-size: 1.1rem !important;
+            }
+
+            .timer-badge-box {
+                padding: 6px 12px !important;
+                border-radius: 50rem !important;
+                gap: 5px !important;
+            }
+
+            .timer-badge-box #quizTimer {
+                font-size: 1rem !important;
+            }
+
+            .question-card-header {
+                padding: 0.85rem 1rem !important;
+            }
+
+            .question-card-modern {
+                border-radius: 16px !important;
+                margin-bottom: 1.35rem !important;
+            }
+
+            .question-card-modern .card-body-wrapper {
+                padding: 1.15rem 1rem !important;
+            }
+
+            .question-text-wrapper {
+                font-size: 1rem !important;
+                line-height: 1.6 !important;
+                margin-bottom: 1.25rem !important;
+            }
+
+            /* Responsive Matching Question Layout */
+            .matching-guide-banner {
+                padding: 0.85rem 1rem !important;
+                gap: 0.75rem !important;
+                border-radius: 14px !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .matching-guide-banner .rounded-circle {
+                width: 34px !important;
+                height: 34px !important;
+            }
+            .matching-guide-banner .rounded-circle i {
+                font-size: 1rem !important;
+            }
+            .matching-guide-banner .fw-extrabold {
+                font-size: 0.88rem !important;
+            }
+            .matching-guide-banner .text-white-50 {
+                font-size: 0.78rem !important;
+            }
+
+            .matching-premise-card {
+                padding: 0.9rem 1rem !important;
+                border-radius: 14px !important;
+                margin-bottom: 0.85rem !important;
+            }
+
+            .matching-target-slot {
+                min-height: 44px !important;
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.86rem !important;
+                word-break: break-word !important;
+            }
+
+            .btn-match-chip {
+                padding: 0.55rem 1rem !important;
+                font-size: 0.84rem !important;
+                max-width: 100% !important;
+                word-break: break-word !important;
+                white-space: normal !important;
+            }
+
+            .matching-choices-pool {
+                padding: 1rem !important;
+                border-radius: 14px !important;
+                margin-top: 1.25rem !important;
+            }
+
+            .quiz-option-tile {
+                padding: 0.85rem 1rem !important;
+                border-radius: 12px !important;
+                margin-bottom: 0.75rem !important;
+                gap: 0.8rem !important;
+            }
+
+            .option-badge-letter {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 0.88rem !important;
+                border-radius: 8px !important;
+                margin-top: 1px !important;
+            }
+
+            .option-text-wrapper {
+                font-size: 0.92rem !important;
+                line-height: 1.5 !important;
+                padding-top: 3px !important;
+            }
+
+            /* Stepper Navigation Responsive */
+            .quiz-nav-btn {
+                flex: 1 !important;
+                padding: 0.65rem 0.85rem !important;
+                font-size: 0.84rem !important;
+                justify-content: center !important;
+                gap: 0.5rem !important;
+            }
+            .quiz-nav-btn-next-wrap {
+                flex: 1 !important;
+                display: flex !important;
+            }
+            .quiz-step-badge {
+                font-size: 0.78rem !important;
+                padding: 5px 10px !important;
+            }
+
+            /* Responsive Palette */
+            .palette-sticky-card {
+                position: static !important;
+                padding: 1.25rem 1.25rem !important;
+                border-radius: 16px !important;
+                margin-top: 1.5rem !important;
+            }
+            .palette-grid {
+                grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .nav-question-btn {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            /* Exam Modal Cards on Mobile */
+            .exam-modal-card {
+                max-width: 95vw !important;
+                margin: 0.85rem auto !important;
+                border-radius: 18px !important;
+            }
+            .exam-modal-body {
+                padding: 1.15rem 1.25rem !important;
+            }
+        }
+
         /* Navigasi Nomor Soal (Palette) Lega, Luas & Rapi */
         .palette-sticky-card {
             position: sticky;
-            top: 6.5rem !important;
+            top: 5.25rem !important;
             background: #ffffff;
             border-radius: 18px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem 1.65rem !important;
+            padding: 1.35rem 1.45rem !important;
             overflow: hidden;
         }
         .palette-grid {
@@ -245,13 +612,26 @@
             pointer-events: none !important;
         }
 
+        html, body {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-y !important;
+            height: auto !important;
+            min-height: 100% !important;
+        }
+
         body {
             user-select: none !important;
             -webkit-user-select: none !important;
             -moz-user-select: none !important;
             -ms-user-select: none !important;
             background-color: #F8FAFC !important;
-            overflow-x: hidden !important;
+        }
+
+        /* Mobile Touch Scroll & Tap Fix */
+        button, input, select, textarea, .matching-target-slot, .btn-match-chip, .quiz-option-tile {
+            touch-action: manipulation !important;
         }
 
         .min-h-screen {
@@ -265,7 +645,7 @@
             z-index: 1020 !important;
         }
 
-        /* Overlay & Modal Proteksi Ujian */
+        /* Overlay & Modal Proteksi Ujian (Scrollable & Responsive di Mobile) */
         .exam-overlay-backdrop {
             position: fixed;
             top: 0;
@@ -278,7 +658,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.25rem;
+            padding: 1rem !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-y !important;
             animation: fadeInExamModal 0.2s ease-in-out;
         }
         @keyframes fadeInExamModal {
@@ -291,10 +674,16 @@
             border-radius: 20px;
             max-width: 540px;
             width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-            overflow: hidden;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-y !important;
             border: 1px solid rgba(226, 232, 240, 0.8);
             animation: popExamModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin: auto;
         }
         @keyframes popExamModal {
             from { transform: scale(0.92); opacity: 0; }
@@ -366,41 +755,41 @@
 
     <!-- Sticky Top Bar: Info Kuis, Auto-Save Status, & Countdown Timer -->
     <header class="quiz-attempt-hero">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-4">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="d-flex align-items-center justify-content-between gap-2">
                 
-                <!-- Left: Quiz Info -->
-                <div class="d-flex align-items-center gap-3.5">
-                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm" style="background: rgba(255, 255, 255, 0.2); width: 48px; height: 48px;">
-                        <i class="ti ti-checklist fs-3"></i>
+                <!-- Left: Quiz Info (Compact & Truncated on Mobile) -->
+                <div class="d-flex align-items-center gap-2.5 overflow-hidden">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm hero-icon-box" style="background: rgba(255, 255, 255, 0.2); width: 42px; height: 42px;">
+                        <i class="ti ti-checklist fs-4"></i>
                     </div>
-                    <div>
-                        <h1 class="fs-5 fw-bold mb-1 text-white" style="font-family: 'Jost', sans-serif;">
+                    <div class="overflow-hidden">
+                        <h1 class="fs-6 fs-sm-5 fw-bold mb-0 text-white text-truncate" style="font-family: 'Jost', sans-serif;">
                             {{ $quiz->title }}
                         </h1>
-                        <div class="text-white-50 small d-flex align-items-center gap-2" style="font-size: 0.82rem;">
-                            <span>{{ $quiz->subject->name ?? 'Mata Pelajaran' }}</span>
+                        <div class="text-white-50 small d-flex flex-wrap align-items-center gap-1.5" style="font-size: 0.78rem;">
+                            <span class="text-truncate">{{ $quiz->subject->name ?? 'Mata Pelajaran' }}</span>
                             <span>•</span>
-                            <span>Total {{ $quiz->questions->count() }} Butir Soal</span>
+                            <span>{{ $quiz->questions->count() === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions->count() . ' Nomor (' . $quiz->total_questions_count . ' Butir Soal)' }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right: Auto-Save Status & Countdown Timer -->
-                <div class="d-flex flex-wrap align-items-center gap-3.5">
+                <div class="d-flex align-items-center gap-2 gap-sm-3 shrink-0">
                     
                     <!-- Auto-Save Status Indicator -->
-                    <div id="saveStatusBadge" class="sync-badge d-none d-md-inline-flex align-items-center gap-2">
+                    <div id="saveStatusBadge" class="sync-badge d-none d-lg-inline-flex align-items-center gap-1.5">
                         <i class="ti ti-cloud-check text-warning fs-5" id="saveStatusIcon"></i>
-                        <span id="saveStatusText" class="fw-medium">Jawaban Tersimpan Otomatis</span>
+                        <span id="saveStatusText" class="fw-medium">Tersimpan Otomatis</span>
                     </div>
 
                     <!-- Countdown Timer -->
-                    <div class="timer-badge-box d-flex align-items-center gap-2.5 text-white" id="timerContainer">
-                        <i class="ti ti-clock-hour-4 fs-4 text-warning"></i>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="text-uppercase fw-semibold d-none d-sm-inline" style="font-size: 0.72rem; letter-spacing: 0.5px; opacity: 0.9;">Sisa Waktu:</span>
-                            <span id="quizTimer" class="fs-4 fw-extrabold font-monospace text-white" style="line-height: 1;">--:--</span>
+                    <div class="timer-badge-box d-flex align-items-center gap-2 text-white" id="timerContainer">
+                        <i class="ti ti-clock-hour-4 fs-5 text-warning"></i>
+                        <div class="d-flex align-items-center gap-1.5">
+                            <span class="text-uppercase fw-semibold d-none d-sm-inline" style="font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.9;">Sisa Waktu:</span>
+                            <span id="quizTimer" class="fs-5 fs-sm-4 fw-extrabold font-monospace text-white" style="line-height: 1;">--:--:--</span>
                         </div>
                     </div>
 
@@ -418,15 +807,15 @@
     @endphp
 
     <!-- Main Content Area: 2 Kolom Rapi, Lega & Nyaman -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style="padding-top: 2.75rem !important; padding-bottom: 3.5rem !important;">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 py-md-4">
         
         <form id="quizForm" action="{{ route('student.quizzes.submit', $quiz) }}" method="POST">
             @csrf
 
-            <div class="row g-4 align-items-start">
+            <div class="row g-3 g-md-4 align-items-start">
                 
                 <!-- 1. Left Column: Lembar Soal (Satu Halaman Satu Soal, Ukuran Proporsional) -->
-                <div class="col-lg-7 col-xl-8">
+                <div class="col-lg-8 col-xl-8">
                     
                     @forelse($quiz->questions as $index => $question)
                         @php
@@ -448,60 +837,157 @@
                                         <span class="badge px-2.5 py-1 rounded-pill font-bold d-inline-flex align-items-center gap-1" style="background: #2563EB; color: #ffffff; font-size: 0.8rem;">
                                             <i class="ti ti-edit fs-6"></i> Soal No. {{ $stepNumber }}
                                         </span>
-                                        <span class="text-muted small fw-semibold">dari {{ $totalQuestions }} Soal</span>
+                                        <span class="text-muted small fw-semibold">dari {{ $totalQuestions }} Nomor</span>
                                     </div>
                                     
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.76rem;">
-                                            <i class="ti ti-award me-1"></i> {{ $quiz->points_per_question ?? 100 }} Poin
-                                        </span>
+                                        @if($question->isMatching())
+                                            <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.76rem;">
+                                                <i class="ti ti-award me-1"></i> {{ $question->options->count() }} Poin (1 Poin / Pasangan)
+                                            </span>
+                                        @else
+                                            <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.76rem;">
+                                                <i class="ti ti-award me-1"></i> 1 Poin
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
 
-                                <!-- Question Body (Proporsional, Nyaman Dibaca, Tidak Perlu Scroll) -->
-                                <div class="p-3.5 p-md-4 bg-white">
+                                <!-- Question Body (Proporsional, Nyaman Dibaca, Responsif di Mobile) -->
+                                <div class="p-3 p-sm-3.5 p-md-4 bg-white">
                                     
                                     <!-- Teks Pertanyaan Soal -->
-                                    <div class="fw-bold text-dark mb-3" style="font-size: 1.05rem; line-height: 1.6; font-family: 'Jost', sans-serif;">
+                                    <div class="question-text-wrapper fw-bold text-dark mb-3" style="font-family: 'Jost', sans-serif;">
                                         {!! nl2br(e($question->question_text)) !!}
                                     </div>
 
                                     <!-- Options Container (Adaptive based on Question Type) -->
-                                    <div class="mb-3">
+                                    <div class="mb-4">
                                         @if($question->isMatching())
-                                            <!-- MATCHING QUESTION INTERFACE -->
+                                            <!-- MATCHING QUESTION INTERFACE (Interactive Target Cards & Choice Pool) -->
                                             @php
-                                                $shuffledMatches = $question->options->pluck('match_text')->filter()->unique()->shuffle();
+                                                $shuffledMatches = $question->options->pluck('match_text')->filter()->unique()->sortBy(fn($m) => md5($attempt->id . '_m_' . $m))->values();
                                                 $userMatchingData = $savedMatchingAnswers[$question->id] ?? [];
                                             @endphp
-                                            <div class="alert alert-info py-2 px-3 mb-3 small d-flex align-items-center gap-2" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.3); color: #0284c7;">
-                                                <i class="ti ti-arrows-left-right fs-5"></i>
-                                                <span>Pasangkan setiap pernyataan di kolom kiri dengan jawaban yang sesuai di kolom kanan:</span>
+                                            
+                                            <!-- Interactive Guide Banner -->
+                                            <div class="matching-guide-banner p-3 rounded-4 mb-4 d-flex align-items-center gap-3">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff;">
+                                                    <i class="ti ti-arrows-left-right fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-extrabold text-white" style="font-size: 0.92rem; letter-spacing: 0.3px;">Panduan Soal Menjodohkan</div>
+                                                    <div class="text-white-50 small" style="font-size: 0.8rem;">Sentuh / klik <strong>Slot Target</strong> pada pernyataan, lalu pilih opsi <strong>Jawaban</strong> di bawah. Setiap pasangan dinilai 1 poin secara mandiri.</div>
+                                                </div>
                                             </div>
-                                            <div class="vstack gap-2.5">
-                                                @foreach($question->options as $pairIndex => $opt)
-                                                    <div class="p-3 rounded-3 border bg-light d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                                                        <div class="fw-semibold text-dark small" style="max-width: 50%;">
-                                                            <span class="badge bg-primary rounded-circle me-1.5" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">{{ $pairIndex + 1 }}</span>
-                                                            {{ $opt->option_text }}
-                                                        </div>
-                                                        <div class="flex-grow-1" style="max-width: 48%;">
-                                                            <select name="matching_answers[{{ $question->id }}][{{ $opt->id }}]" 
-                                                                    class="form-select form-select-sm matching-select" 
-                                                                    data-question-id="{{ $question->id }}"
-                                                                    data-option-id="{{ $opt->id }}"
-                                                                    data-question-index="{{ $stepNumber }}"
-                                                                    style="border-radius: 8px; border-color: #cbd5e1; font-size: 0.88rem;">
-                                                                <option value="">-- Pilih Pasangan --</option>
-                                                                @foreach($shuffledMatches as $match)
-                                                                    <option value="{{ $match }}" {{ ($userMatchingData[$opt->id] ?? '') === $match ? 'selected' : '' }}>
-                                                                        {{ $match }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+
+                                            <!-- Matching Interactive Container -->
+                                            <div class="matching-container" data-question-id="{{ $question->id }}" data-question-index="{{ $stepNumber }}">
+                                                
+                                                <!-- 1. Left Premises List (Target Slots) -->
+                                                <div class="mb-4">
+                                                    <h6 class="fw-bold text-uppercase text-secondary mb-3 d-flex align-items-center gap-2" style="font-size: 0.78rem; letter-spacing: 0.8px;">
+                                                        <i class="ti ti-list-check text-primary"></i> Pernyataan / Pertanyaan
+                                                    </h6>
+                                                    
+                                                    <div class="vstack gap-3">
+                                                        @foreach($question->options as $pairIndex => $opt)
+                                                            @php
+                                                                $currentMatch = $userMatchingData[$opt->id] ?? '';
+                                                            @endphp
+                                                            <div class="matching-premise-card p-3 rounded-4 border bg-white shadow-xs" id="premise-card-{{ $question->id }}-{{ $opt->id }}" data-option-id="{{ $opt->id }}">
+                                                                <!-- Hidden Input for Form Submission & Auto-Save -->
+                                                                <input type="hidden" 
+                                                                       name="matching_answers[{{ $question->id }}][{{ $opt->id }}]" 
+                                                                       class="matching-input"
+                                                                       data-question-id="{{ $question->id }}"
+                                                                       data-option-id="{{ $opt->id }}"
+                                                                       data-question-index="{{ $stepNumber }}"
+                                                                       value="{{ $currentMatch }}">
+
+                                                                <div class="row align-items-center g-3">
+                                                                    <!-- Premise Text & Number Badge -->
+                                                                    <div class="col-12 col-md-6 d-flex align-items-start gap-2.5">
+                                                                        <span class="badge rounded-circle flex-shrink-0 d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 28px; height: 28px; background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); color: #ffffff; font-weight: 700; font-size: 0.82rem;">
+                                                                            {{ $pairIndex + 1 }}
+                                                                        </span>
+                                                                        <div class="fw-semibold text-dark pt-0.5" style="font-size: 0.92rem; line-height: 1.45;">
+                                                                            {{ $opt->option_text }}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Target Slot Display -->
+                                                                    <div class="col-12 col-md-6">
+                                                                        <div class="matching-target-slot rounded-3 p-2.5 d-flex align-items-center justify-content-between transition-all {{ $currentMatch ? 'has-match' : 'is-empty' }}"
+                                                                             onclick="activatePremiseSlot({{ $question->id }}, {{ $opt->id }})"
+                                                                             id="slot-{{ $question->id }}-{{ $opt->id }}"
+                                                                             style="min-height: 44px; cursor: pointer;">
+                                                                            @if($currentMatch)
+                                                                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                                                                                    <i class="ti ti-circle-check-filled fs-5 text-success"></i>
+                                                                                    <span class="fw-bold text-truncate" style="font-size: 0.88rem; color: #065F46;">
+                                                                                        {{ $currentMatch }}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <button type="button" 
+                                                                                        class="btn btn-sm btn-light border-0 rounded-circle d-flex align-items-center justify-content-center text-danger p-0 shadow-2xs" 
+                                                                                        style="width: 26px; height: 26px;"
+                                                                                        onclick="clearMatchingPair(event, {{ $question->id }}, {{ $opt->id }})"
+                                                                                        title="Hapus Pasangan">
+                                                                                    <i class="ti ti-x fs-6"></i>
+                                                                                </button>
+                                                                            @else
+                                                                                <div class="d-flex align-items-center gap-2.5 text-muted" style="font-size: 0.84rem;">
+                                                                                    <i class="ti ti-plus-circle fs-5 text-primary opacity-75"></i>
+                                                                                    <span class="fw-medium text-slate-500">Pilih pasangan jawaban...</span>
+                                                                                </div>
+                                                                                <span class="badge bg-white text-secondary border px-2 py-1 shadow-2xs" style="font-size: 0.72rem;">Pilih</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
-                                                @endforeach
+                                                </div>
+
+                                                <!-- 2. Right Choice Palette (Matches Pool) -->
+                                                <div class="matching-choices-pool p-3 p-sm-3.5 rounded-4 bg-slate-50 border" style="background-color: #F8FAFC; border-color: rgba(51, 104, 160, 0.15) !important;">
+                                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                                        <h6 class="fw-bold text-uppercase text-secondary mb-0 d-flex align-items-center gap-2" style="font-size: 0.78rem; letter-spacing: 0.8px;">
+                                                            <i class="ti ti-category text-primary"></i> Pilihan Jawaban
+                                                        </h6>
+                                                        <span class="badge bg-primary-subtle text-primary fw-semibold px-2.5 py-1" style="font-size: 0.72rem;">
+                                                            {{ count($shuffledMatches) }} Pilihan
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="d-flex flex-wrap gap-2.5" id="choice-pool-{{ $question->id }}">
+                                                        @foreach($shuffledMatches as $match)
+                                                            @php
+                                                                $usedByOptId = null;
+                                                                foreach($userMatchingData as $oId => $val) {
+                                                                    if (trim($val) === trim($match)) {
+                                                                        $usedByOptId = $oId;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            @endphp
+                                                            <button type="button" 
+                                                                    class="btn-match-chip btn rounded-3 px-3 py-2 text-start transition-all d-inline-flex align-items-center gap-2 {{ $usedByOptId ? 'is-used' : 'is-available' }}"
+                                                                    data-match-value="{{ $match }}"
+                                                                    data-question-id="{{ $question->id }}"
+                                                                    onclick="selectMatchChip({{ $question->id }}, {{ json_encode($match) }})">
+                                                                <i class="ti {{ $usedByOptId ? 'ti-check text-success' : 'ti-point text-primary' }} fs-5"></i>
+                                                                <span class="fw-semibold" style="font-size: 0.88rem;">{{ $match }}</span>
+                                                                @if($usedByOptId)
+                                                                    <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.68rem;">Terpasang</span>
+                                                                @endif
+                                                            </button>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         @elseif($question->isTrueFalse())
                                             <!-- TRUE / FALSE QUESTION INTERFACE -->
@@ -512,7 +998,7 @@
                                                         $isSelected = ($currentSavedOptionId == $option->id);
                                                     @endphp
                                                     <div class="col-6">
-                                                        <label class="quiz-option-tile d-flex flex-column align-items-center justify-content-center p-3 text-center h-100 {{ $isSelected ? 'selected' : '' }}" for="opt-{{ $option->id }}" style="cursor: pointer; min-height: 90px;">
+                                                        <label class="quiz-option-tf {{ $isSelected ? 'selected ' . ($isTrue ? 'tf-true' : 'tf-false') : '' }}" for="opt-{{ $option->id }}">
                                                             <input type="radio" 
                                                                    name="answers[{{ $question->id }}]" 
                                                                    id="opt-{{ $option->id }}" 
@@ -520,9 +1006,10 @@
                                                                    data-question-id="{{ $question->id }}"
                                                                    data-question-index="{{ $stepNumber }}"
                                                                    data-option-id="{{ $option->id }}"
+                                                                   data-is-true="{{ $isTrue ? 'true' : 'false' }}"
                                                                    {{ $isSelected ? 'checked' : '' }}
                                                                    class="form-check-input option-radio d-none">
-                                                            <div class="rounded-circle p-2 mb-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: {{ $isTrue ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; color: {{ $isTrue ? '#059669' : '#dc2626' }};">
+                                                            <div class="rounded-circle p-2 mb-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: {{ $isTrue ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; color: {{ $isTrue ? '#059669' : '#dc2626' }};">
                                                                 <i class="ti {{ $isTrue ? 'ti-check' : 'ti-x' }} fs-4"></i>
                                                             </div>
                                                             <span class="fw-bold fs-6 {{ $isTrue ? 'text-success' : 'text-danger' }}">{{ $option->option_text }}</span>
@@ -531,8 +1018,8 @@
                                                 @endforeach
                                             </div>
                                         @else
-                                            <!-- MULTIPLE CHOICE OPTIONS LIST -->
-                                            <div class="d-flex flex-column">
+                                            <!-- MULTIPLE CHOICE OPTIONS LIST (Sleek Modern Tiles, No Duplicate Radio Circle) -->
+                                            <div class="d-flex flex-column gap-2.5">
                                                 @foreach($question->options as $optIndex => $option)
                                                     @php
                                                         $letter = $letters[$optIndex % count($letters)];
@@ -548,59 +1035,58 @@
                                                                data-question-index="{{ $stepNumber }}"
                                                                data-option-id="{{ $option->id }}"
                                                                {{ $isSelected ? 'checked' : '' }}
-                                                               class="form-check-input option-radio" 
-                                                               style="width: 1.18rem; height: 1.18rem; margin-right: 1.15rem !important; cursor: pointer;">
+                                                               class="form-check-input option-radio d-none">
                                                         <span class="option-badge-letter">{{ $letter }}</span>
-                                                        <span class="text-dark fw-medium" style="font-size: 0.92rem; line-height: 1.45;">{{ $option->option_text }}</span>
+                                                        <span class="option-text-wrapper">{{ $option->option_text }}</span>
                                                     </label>
                                                 @endforeach
                                             </div>
                                         @endif
                                     </div>
 
-                                    <!-- Bottom Action & Navigation Bar (Langsung Terlihat Tanpa Scroll) -->
-                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-3 border-top" style="border-color: #f1f5f9 !important;">
-                                        
-                                        <!-- Tombol Sebelumnya -->
-                                        @if($index > 0)
-                                            <button type="button" 
-                                                    onclick="goToQuestion({{ $index }})" 
-                                                    class="btn btn-outline-secondary rounded-pill px-3.5 py-2 font-bold d-inline-flex align-items-center gap-1.5 hover-lift"
-                                                    style="font-size: 0.88rem;">
-                                                <i class="ti ti-arrow-left"></i> Soal Sebelumnya
-                                            </button>
-                                        @else
-                                            <button type="button" class="btn btn-light rounded-pill px-3.5 py-2 text-muted fw-semibold" disabled style="opacity: 0.5; cursor: not-allowed; font-size: 0.88rem;">
-                                                <i class="ti ti-arrow-left"></i> Soal Sebelumnya
-                                            </button>
-                                        @endif
-
-                                        <div class="text-muted small fw-medium" style="font-size: 0.82rem;">
-                                            Nomor <strong>{{ $stepNumber }}</strong> dari <strong>{{ $totalQuestions }}</strong>
-                                        </div>
-
-                                        <!-- Tombol Selanjutnya & Tombol Selesai -->
-                                        <div class="d-flex align-items-center gap-2">
-                                            @if($index < $totalQuestions - 1)
+                                    <!-- Bottom Action & Navigation Bar (Rapi & Sejajar di Semua Ukuran Layar) -->
+                                    <div class="pt-3.5 mt-4 border-top" style="border-color: #f1f5f9 !important;">
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            
+                                            <!-- Tombol Sebelumnya -->
+                                            @if($index > 0)
                                                 <button type="button" 
-                                                        onclick="goToQuestion({{ $stepNumber + 1 }})" 
-                                                        class="btn text-white rounded-pill px-4 py-2 font-bold d-inline-flex align-items-center gap-1.5 hover-lift"
-                                                        style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.88rem;">
-                                                    Soal Selanjutnya <i class="ti ti-arrow-right"></i>
+                                                        onclick="goToQuestion({{ $index }})" 
+                                                        class="btn btn-outline-secondary rounded-pill px-3 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift quiz-nav-btn"
+                                                        style="font-size: 0.86rem;">
+                                                    <i class="ti ti-arrow-left"></i> <span>Sebelumnya</span>
+                                                </button>
+                                            @else
+                                                <button type="button" class="btn btn-light rounded-pill px-3 py-2 text-muted fw-semibold quiz-nav-btn" disabled style="opacity: 0.5; cursor: not-allowed; font-size: 0.86rem;">
+                                                    <i class="ti ti-arrow-left"></i> <span>Sebelumnya</span>
                                                 </button>
                                             @endif
 
-                                            <!-- Tombol Selesai & Kumpulkan pada Soal Terakhir -->
-                                            @if($index === $totalQuestions - 1)
-                                                <button type="button" 
-                                                        onclick="openSubmitConfirmationModal();" 
-                                                        class="btn text-white rounded-pill px-4 py-2 font-bold d-inline-flex align-items-center gap-1.5 hover-lift shadow-sm"
-                                                        style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.88rem;">
-                                                    <i class="ti ti-circle-check"></i> Selesai & Kumpulkan
-                                                </button>
-                                            @endif
-                                        </div>
+                                            <!-- Question Step Badge -->
+                                            <div class="badge rounded-pill px-2.5 py-1.5 font-bold text-secondary d-inline-flex align-items-center gap-1 quiz-step-badge" style="background: #F1F5F9; font-size: 0.78rem;">
+                                                <i class="ti ti-file-text text-primary"></i> <span>{{ $stepNumber }} / {{ $totalQuestions }}</span>
+                                            </div>
 
+                                            <!-- Tombol Selanjutnya & Tombol Selesai -->
+                                            <div class="quiz-nav-btn-next-wrap">
+                                                @if($index < $totalQuestions - 1)
+                                                    <button type="button" 
+                                                            onclick="goToQuestion({{ $stepNumber + 1 }})" 
+                                                            class="btn text-white rounded-pill px-3.5 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift quiz-nav-btn w-100"
+                                                            style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.86rem;">
+                                                        <span>Selanjutnya</span> <i class="ti ti-arrow-right"></i>
+                                                    </button>
+                                                @else
+                                                    <button type="button" 
+                                                            onclick="openSubmitConfirmationModal();" 
+                                                            class="btn text-white rounded-pill px-3.5 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift shadow-sm quiz-nav-btn w-100"
+                                                            style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.86rem;">
+                                                        <i class="ti ti-circle-check"></i> <span>Kumpulkan</span>
+                                                    </button>
+                                                @endif
+                                            </div>
+
+                                        </div>
                                     </div>
 
                                 </div>
@@ -635,8 +1121,8 @@
                 </div>
 
                 <!-- 2. Right Column: Navigasi Soal (Question Palette) & Keterangan Warna (Legend) Lega & Luas -->
-                <div class="col-lg-5 col-xl-4">
-                    <aside class="palette-sticky-card">
+                <div class="col-lg-4 col-xl-4">
+                    <aside class="palette-sticky-card" id="paletteCardSection">
                         
                         <!-- Palette Header -->
                         <div class="d-flex align-items-center justify-content-between mb-3 pb-2.5 border-bottom" style="border-color: rgba(51, 104, 160, 0.12) !important;">
@@ -736,16 +1222,19 @@
                                     </span>
                                 </div>
 
-                        <!-- Divider Antara Legenda & Tombol Kumpulkan -->
-                        <hr class="my-4" style="border-color: rgba(51, 104, 160, 0.12);">
+                            </div>
+                        </div>
 
-                        <!-- Sidebar Quick Submit Button (Berjarak Lega & Nyaman) -->
+                        <!-- Divider Antara Legenda & Tombol Kumpulkan -->
+                        <hr class="my-3.5" style="border-color: rgba(51, 104, 160, 0.12);">
+
+                        <!-- Sidebar Quick Submit Button -->
                         <div class="pt-1">
                             <button type="button" 
                                     onclick="openSubmitConfirmationModal();" 
-                                    class="btn btn-outline-success w-100 rounded-pill py-2.5 font-bold shadow-2xs d-flex align-items-center justify-content-center gap-2 hover-lift"
-                                    style="font-size: 0.9rem;">
-                                <i class="ti ti-check"></i> Kumpulkan Kuis
+                                    class="btn text-white w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2 hover-lift"
+                                    style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.92rem;">
+                                <i class="ti ti-circle-check fs-5"></i> Selesai & Kumpulkan
                             </button>
                         </div>
 
@@ -756,6 +1245,18 @@
 
         </form>
 
+    </div>
+
+    <!-- Floating Mobile Question Palette Shortcut (Quick Navigation on Mobile) -->
+    <div class="d-md-none position-fixed" style="bottom: 1.25rem; right: 1rem; z-index: 1015;">
+        <button type="button" 
+                onclick="scrollToPalette()" 
+                class="btn btn-floating-palette rounded-pill py-2 px-3.5 d-flex align-items-center gap-1.5 shadow-lg"
+                title="Buka Navigasi Soal">
+            <i class="ti ti-layout-grid fs-5"></i>
+            <span>Soal No.</span>
+            <span class="badge bg-white text-primary rounded-pill px-2 py-0.5 font-bold" id="mobileCurrentNumBadge">1</span>
+        </button>
     </div>
 
     <!-- =========================================================================
@@ -792,7 +1293,7 @@
                             onclick="startFullscreenExam()" 
                             class="btn text-white w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2 hover-lift"
                             style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.95rem;">
-                        <i class="ti ti-maximize fs-5"></i> Saya Mengerti, Mulai Kuis & Masuk Layar Penuh
+                        <i class="ti ti-maximize fs-5"></i> Saya Mengerti, Mulai Kuis
                     </button>
                 </div>
             </div>
@@ -960,6 +1461,19 @@
             if (legendCurrentBadge) {
                 legendCurrentBadge.innerText = 'No. ' + currentQuestion;
             }
+
+            // Perbarui badge nomor aktif di floating mobile button
+            const mobileBadge = document.getElementById('mobileCurrentNumBadge');
+            if (mobileBadge) {
+                mobileBadge.innerText = currentQuestion;
+            }
+        }
+
+        function scrollToPalette() {
+            const paletteEl = document.getElementById('paletteCardSection');
+            if (paletteEl) {
+                paletteEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function updateLegendAndProgress() {
@@ -1053,12 +1567,12 @@
         }
 
         function startFullscreenExam() {
+            const startModal = document.getElementById('examStartModal');
+            if (startModal) startModal.style.display = 'none';
+            isExamActive = true;
+
             requestFullscreenSafe().catch(err => {
-                console.warn('Fullscreen request rejected or not supported:', err);
-            }).finally(() => {
-                const startModal = document.getElementById('examStartModal');
-                if (startModal) startModal.style.display = 'none';
-                isExamActive = true;
+                console.warn('Fullscreen request rejected or not supported on this device:', err);
             });
         }
 
@@ -1246,12 +1760,18 @@
                 radio.addEventListener('change', function () {
                     const questionCard = this.closest('.question-step-card');
                     if (questionCard) {
-                        const tiles = questionCard.querySelectorAll('.quiz-option-tile');
-                        tiles.forEach(t => t.classList.remove('selected'));
+                        const tiles = questionCard.querySelectorAll('.quiz-option-tile, .quiz-option-tf');
+                        tiles.forEach(t => t.classList.remove('selected', 'tf-true', 'tf-false'));
                     }
-                    const parentTile = this.closest('.quiz-option-tile');
+                    const parentTile = this.closest('.quiz-option-tile, .quiz-option-tf');
                     if (parentTile) {
                         parentTile.classList.add('selected');
+                        const isTrue = this.getAttribute('data-is-true');
+                        if (isTrue === 'true') {
+                            parentTile.classList.add('tf-true');
+                        } else if (isTrue === 'false') {
+                            parentTile.classList.add('tf-false');
+                        }
                     }
 
                     const qIndex = parseInt(this.getAttribute('data-question-index'));
@@ -1292,60 +1812,197 @@
                 });
             });
 
-            // 6b. Matching Select Change Listener & AJAX Auto-Save
-            const matchingSelects = document.querySelectorAll('.matching-select');
-            matchingSelects.forEach(select => {
-                select.addEventListener('change', function () {
-                    const qId = this.getAttribute('data-question-id');
-                    const qIndex = parseInt(this.getAttribute('data-question-index'));
-                    const card = this.closest('.question-step-card');
+            // 6b. Interactive Matching Question Helper Functions & Auto-Save
+            window.activeMatchingTarget = null;
 
-                    const pairsData = {};
-                    let hasSelection = false;
-                    if (card) {
-                        card.querySelectorAll('.matching-select').forEach(sel => {
-                            const optId = sel.getAttribute('data-option-id');
-                            if (sel.value) {
-                                pairsData[optId] = sel.value;
-                                hasSelection = true;
-                            }
-                        });
-                    }
-
-                    if (hasSelection) {
-                        answeredSet.add(qIndex);
-                    }
-                    updateLegendAndProgress();
-
-                    setSyncStatus('saving');
-                    fetch(saveAnswerUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            question_id: qId,
-                            answer_data: pairsData
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'expired') {
-                            isSubmitting = true;
-                            alert('Batas waktu kuis telah berakhir. Lembar kuis akan otomatis dikumpulkan.');
-                            document.getElementById('quizForm').submit();
-                        } else {
-                            setSyncStatus('saved');
-                        }
-                    })
-                    .catch(err => {
-                        console.warn('Auto-save error:', err);
-                        setSyncStatus('error');
+            window.activatePremiseSlot = function(questionId, optionId) {
+                const card = document.getElementById('premise-card-' + questionId + '-' + optionId);
+                if (!card) return;
+                
+                const container = card.closest('.matching-container');
+                if (container) {
+                    container.querySelectorAll('.matching-target-slot').forEach(slot => {
+                        slot.classList.remove('active-slot');
                     });
+                }
+
+                const slot = document.getElementById('slot-' + questionId + '-' + optionId);
+                if (slot) {
+                    slot.classList.add('active-slot');
+                    window.activeMatchingTarget = { questionId: questionId, optionId: optionId };
+                }
+            };
+
+            window.selectMatchChip = function(questionId, matchValue) {
+                const container = document.querySelector(`.matching-container[data-question-id="${questionId}"]`);
+                if (!container) return;
+
+                let targetOptionId = null;
+
+                if (window.activeMatchingTarget && window.activeMatchingTarget.questionId === questionId) {
+                    targetOptionId = window.activeMatchingTarget.optionId;
+                } else {
+                    const emptyInput = container.querySelector('.matching-input[value=""]');
+                    if (emptyInput) {
+                        targetOptionId = emptyInput.getAttribute('data-option-id');
+                    } else {
+                        const firstInput = container.querySelector('.matching-input');
+                        if (firstInput) targetOptionId = firstInput.getAttribute('data-option-id');
+                    }
+                }
+
+                if (!targetOptionId) return;
+
+                const input = container.querySelector(`.matching-input[data-option-id="${targetOptionId}"]`);
+                if (input) {
+                    input.value = matchValue;
+                }
+
+                window.activeMatchingTarget = null;
+                container.querySelectorAll('.matching-target-slot').forEach(slot => slot.classList.remove('active-slot'));
+
+                updateMatchingQuestionState(questionId);
+                saveMatchingQuestionAnswer(questionId, input ? parseInt(input.getAttribute('data-question-index')) : 1);
+            };
+
+            window.clearMatchingPair = function(event, questionId, optionId) {
+                if (event) event.stopPropagation();
+
+                const container = document.querySelector(`.matching-container[data-question-id="${questionId}"]`);
+                if (!container) return;
+
+                const input = container.querySelector(`.matching-input[data-option-id="${optionId}"]`);
+                if (input) {
+                    input.value = '';
+                }
+
+                updateMatchingQuestionState(questionId);
+                saveMatchingQuestionAnswer(questionId, input ? parseInt(input.getAttribute('data-question-index')) : 1);
+            };
+
+            function updateMatchingQuestionState(questionId) {
+                const container = document.querySelector(`.matching-container[data-question-id="${questionId}"]`);
+                if (!container) return;
+
+                const inputs = container.querySelectorAll('.matching-input');
+                const usedMatches = new Set();
+
+                inputs.forEach(input => {
+                    const optionId = input.getAttribute('data-option-id');
+                    const val = input.value.trim();
+                    const slot = document.getElementById(`slot-${questionId}-${optionId}`);
+                    
+                    if (val !== '') {
+                        usedMatches.add(val);
+                        if (slot) {
+                            slot.className = 'matching-target-slot rounded-3 p-2.5 d-flex align-items-center justify-content-between transition-all has-match';
+                            slot.style.cursor = 'pointer';
+                            slot.innerHTML = `
+                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                                    <i class="ti ti-circle-check-filled fs-5 text-success"></i>
+                                    <span class="fw-bold text-truncate" style="font-size: 0.9rem; color: #065F46;">${escapeHtml(val)}</span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-light border-0 rounded-circle d-flex align-items-center justify-content-center text-danger p-0 shadow-2xs" style="width: 28px; height: 28px;" onclick="clearMatchingPair(event, ${questionId}, ${optionId})" title="Hapus Pasangan">
+                                    <i class="ti ti-x fs-6"></i>
+                                </button>
+                            `;
+                        }
+                    } else {
+                        if (slot) {
+                            slot.className = 'matching-target-slot rounded-3 p-2.5 d-flex align-items-center justify-content-between transition-all is-empty';
+                            slot.style.cursor = 'pointer';
+                            slot.innerHTML = `
+                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.88rem;">
+                                    <i class="ti ti-plus-circle fs-5 text-primary opacity-75"></i>
+                                    <span class="fw-medium text-slate-500">Pilih pasangan jawaban...</span>
+                                </div>
+                                <span class="badge bg-white text-secondary border px-2 py-1 shadow-2xs" style="font-size: 0.72rem;">Klik Opsi</span>
+                            `;
+                        }
+                    }
                 });
-            });
+
+                const chips = container.querySelectorAll('.btn-match-chip');
+                chips.forEach(chip => {
+                    const val = chip.getAttribute('data-match-value').trim();
+                    if (usedMatches.has(val)) {
+                        chip.className = 'btn-match-chip btn rounded-3 px-3 py-2 text-start transition-all d-inline-flex align-items-center gap-2 is-used';
+                        chip.innerHTML = `
+                            <i class="ti ti-check text-success fs-5"></i>
+                            <span class="fw-semibold" style="font-size: 0.9rem;">${escapeHtml(val)}</span>
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.7rem;">Terpasang</span>
+                        `;
+                    } else {
+                        chip.className = 'btn-match-chip btn rounded-3 px-3 py-2 text-start transition-all d-inline-flex align-items-center gap-2 is-available';
+                        chip.innerHTML = `
+                            <i class="ti ti-point text-primary fs-5"></i>
+                            <span class="fw-semibold" style="font-size: 0.9rem;">${escapeHtml(val)}</span>
+                        `;
+                    }
+                });
+            }
+
+            function saveMatchingQuestionAnswer(questionId, qIndex) {
+                const card = document.getElementById('question-step-' + qIndex);
+                const pairsData = {};
+                let hasSelection = false;
+
+                if (card) {
+                    card.querySelectorAll('.matching-input').forEach(input => {
+                        const optId = input.getAttribute('data-option-id');
+                        if (input.value.trim() !== '') {
+                            pairsData[optId] = input.value.trim();
+                            hasSelection = true;
+                        }
+                    });
+                }
+
+                if (hasSelection) {
+                    answeredSet.add(qIndex);
+                } else {
+                    answeredSet.delete(qIndex);
+                }
+                updateLegendAndProgress();
+
+                setSyncStatus('saving');
+                fetch(saveAnswerUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question_id: questionId,
+                        answer_data: pairsData
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'expired') {
+                        isSubmitting = true;
+                        alert('Batas waktu kuis telah berakhir. Lembar kuis akan otomatis dikumpulkan.');
+                        document.getElementById('quizForm').submit();
+                    } else {
+                        setSyncStatus('saved');
+                    }
+                })
+                .catch(err => {
+                    console.warn('Auto-save error:', err);
+                    setSyncStatus('error');
+                });
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
 
             // 7. Real-Time Countdown Timer (Persistent server countdown & browser state)
             const serverRemainingSeconds = {{ (int)$remainingSeconds }};
@@ -1371,7 +2028,7 @@
                 const remaining = Math.max(0, Math.floor((targetEndTime - now) / 1000));
 
                 if (remaining <= 0) {
-                    timerElement.innerText = "00:00";
+                    timerElement.innerText = "00:00:00";
                     localStorage.removeItem(storageKey);
                     localStorage.removeItem(violationStorageKey);
                     if (!autoSubmitted) {
@@ -1391,16 +2048,10 @@
                 const minutes = Math.floor((remaining % 3600) / 60);
                 const seconds = remaining % 60;
 
-                if (hours > 0) {
-                    timerElement.innerText = 
-                        String(hours).padStart(2, '0') + ':' +
-                        String(minutes).padStart(2, '0') + ':' + 
-                        String(seconds).padStart(2, '0');
-                } else {
-                    timerElement.innerText = 
-                        String(minutes).padStart(2, '0') + ':' + 
-                        String(seconds).padStart(2, '0');
-                }
+                timerElement.innerText = 
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' + 
+                    String(seconds).padStart(2, '0');
             }
 
             // Bersihkan storage ketika form dikumpulkan

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :suppressGlobalAlerts="true">
     <!-- Include Bootstrap, Tabler Icons & Custom CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
@@ -17,9 +17,9 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 400px;
+            width: 450px;
             height: 100%;
-            background: radial-gradient(circle, rgba(102, 163, 191, 0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(102, 163, 191, 0.22) 0%, transparent 70%);
             pointer-events: none;
         }
         .content-card-modern {
@@ -28,23 +28,24 @@
             border: 1px solid rgba(51, 104, 160, 0.14);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             overflow: hidden;
-            margin-bottom: 2rem;
-            transition: border-color 0.2s ease;
+            margin-bottom: 1.75rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .content-card-modern:hover {
             border-color: rgba(102, 163, 191, 0.35);
         }
         .content-card-header {
-            padding: 1.25rem 1.75rem;
+            padding: 1.15rem 1.6rem;
             background: #F2EFE7;
             border-bottom: 1px solid rgba(51, 104, 160, 0.12);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.75rem;
         }
         .sidebar-sticky-box {
             position: sticky;
-            top: 6.5rem;
+            top: 5.5rem;
         }
         .rule-step-card {
             display: flex;
@@ -75,10 +76,101 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 8px;
             font-size: 0.8rem;
             font-weight: 600;
+        }
+        .quiz-cta-box {
+            background: #F8FAFC;
+            border: 1.5px solid rgba(51, 104, 160, 0.16);
+            border-radius: 18px;
+            padding: 2.25rem 2rem;
+            text-align: center;
+        }
+
+        /* Mobile & Responsive Screen Adjustments (< 768px) */
+        @media (max-width: 767.98px) {
+            .quiz-detail-hero {
+                padding-top: 1.25rem !important;
+                padding-bottom: 1.5rem !important;
+            }
+            .quiz-detail-hero h1 {
+                font-size: 1.35rem !important;
+                line-height: 1.35 !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .quiz-detail-hero .badge {
+                font-size: 0.76rem !important;
+                padding: 5px 10px !important;
+            }
+            .quiz-detail-hero .meta-stats-row {
+                font-size: 0.8rem !important;
+                gap: 0.6rem !important;
+            }
+            .hero-status-pill {
+                display: flex !important;
+                width: 100% !important;
+                justify-content: space-between !important;
+                padding: 8px 14px !important;
+                margin-top: 0.75rem !important;
+            }
+            .content-card-modern {
+                border-radius: 16px !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .content-card-header {
+                padding: 1rem 1.15rem !important;
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.6rem;
+            }
+            .content-card-header h5 {
+                font-size: 1.05rem !important;
+            }
+            .content-card-body-pad {
+                padding: 1.15rem 1rem !important;
+            }
+            .rule-step-card {
+                gap: 0.85rem !important;
+                padding: 1rem 1.05rem !important;
+                border-radius: 12px !important;
+            }
+            .rule-icon-box {
+                width: 38px !important;
+                height: 38px !important;
+                border-radius: 10px !important;
+                font-size: 1.15rem !important;
+            }
+            .rule-step-card h6 {
+                font-size: 0.92rem !important;
+                line-height: 1.35 !important;
+            }
+            .rule-step-card p {
+                font-size: 0.83rem !important;
+                line-height: 1.55 !important;
+            }
+            .mini-color-legend {
+                font-size: 0.74rem !important;
+                padding: 4px 9px !important;
+            }
+            .quiz-cta-box {
+                padding: 1.5rem 1.15rem !important;
+                border-radius: 16px !important;
+            }
+            .quiz-cta-box h4 {
+                font-size: 1.15rem !important;
+            }
+            .quiz-cta-box .btn {
+                width: 100% !important;
+                padding: 0.85rem 1.25rem !important;
+                font-size: 0.95rem !important;
+                justify-content: center;
+            }
+            .sidebar-sticky-box {
+                position: static !important;
+                margin-top: 0.5rem;
+            }
         }
     </style>
 
@@ -89,19 +181,19 @@
     @endphp
 
     <!-- 1. Dedicated Quiz Hero Header Banner -->
-    <section class="quiz-detail-hero py-5">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 position-relative z-1">
+    <section class="quiz-detail-hero py-4 py-md-5">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 position-relative z-1">
             
             <!-- Breadcrumbs & Badges -->
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="badge px-3 py-1.5 rounded-pill shadow-sm font-bold d-inline-flex align-items-center gap-1.5" style="background-color: #F2EFE7; color: #20456E !important; font-size: 0.8rem;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2.5 mb-3">
+                <div class="d-flex flex-wrap align-items-center gap-1.5">
+                    <span class="badge px-3 py-1.5 rounded-pill shadow-xs font-bold d-inline-flex align-items-center gap-1.5" style="background-color: #F2EFE7; color: #20456E !important; font-size: 0.78rem;">
                         <i class="ti ti-tag text-primary"></i> {{ $quiz->subject->name ?? 'Mata Pelajaran' }}
                     </span>
-                    <span class="badge px-3 py-1.5 rounded-pill shadow-sm font-semibold d-inline-flex align-items-center gap-1.5" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(8px); font-size: 0.8rem;">
+                    <span class="badge px-3 py-1.5 rounded-pill shadow-xs font-semibold d-inline-flex align-items-center gap-1.5" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(8px); font-size: 0.78rem;">
                         <i class="ti ti-school"></i> Kelas {{ $quiz->schoolClass->name ?? 'Siswa' }}
                     </span>
-                    <span class="badge px-3 py-1.5 rounded-pill font-semibold d-inline-flex align-items-center gap-1" style="background: rgba(255, 255, 255, 0.15); font-size: 0.8rem;">
+                    <span class="badge px-3 py-1.5 rounded-pill font-semibold d-inline-flex align-items-center gap-1 d-none d-sm-inline-flex" style="background: rgba(255, 255, 255, 0.15); font-size: 0.78rem;">
                         <a href="{{ route('dashboard') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Dashboard</a>
                         <i class="ti ti-chevron-right fs-6"></i>
                         <a href="{{ route('student.quizzes.index') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Kuis Online</a>
@@ -113,65 +205,62 @@
                 <!-- Back Button -->
                 <div>
                     <a href="{{ route('student.quizzes.index') }}" 
-                       class="btn btn-sm rounded-pill px-3.5 py-1.5 font-bold d-inline-flex align-items-center gap-1.5 text-white text-decoration-none shadow-sm" 
-                       style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(6px);">
-                        <i class="ti ti-arrow-left"></i> Kembali ke Daftar Kuis
+                       class="btn btn-sm rounded-pill px-3 py-1.5 font-bold d-inline-flex align-items-center gap-1.5 text-white text-decoration-none shadow-xs" 
+                       style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(6px); font-size: 0.8rem;">
+                        <i class="ti ti-arrow-left"></i> <span class="d-none d-sm-inline">Kembali ke</span> Daftar Kuis
                     </a>
                 </div>
             </div>
 
             <!-- Quiz Title & Info Row -->
-            <div class="row align-items-center g-4 mt-1">
+            <div class="row align-items-center g-3 g-md-4 mt-1">
                 <div class="col-lg-8">
-                    <h1 class="display-6 fw-extrabold mb-3 text-white" style="font-family: 'Jost', sans-serif; letter-spacing: -0.5px; line-height: 1.25;">
+                    <h1 class="display-6 fs-3 fs-md-2 fw-extrabold mb-2 text-white" style="font-family: 'Jost', sans-serif; letter-spacing: -0.3px; line-height: 1.25;">
                         {{ $quiz->title }}
                     </h1>
                     
-                    <div class="d-flex flex-wrap align-items-center gap-3 text-white-50 small">
-                        <span class="d-inline-flex align-items-center gap-1.5 text-white">
-                            <i class="ti ti-user-circle fs-5 text-warning"></i>
+                    <div class="d-flex flex-wrap align-items-center gap-2 text-white small meta-stats-row">
+                        <span class="badge px-3 py-1.5 rounded-pill shadow-xs d-inline-flex align-items-center gap-1.5 font-semibold" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(6px); font-size: 0.78rem;">
+                            <i class="ti ti-user-circle text-warning fs-6"></i>
                             <strong>{{ $quiz->instructor->name ?? 'Guru Pengampu' }}</strong>
                         </span>
-                        <span>•</span>
-                        <span>
-                            <i class="ti ti-clock me-1"></i> Durasi: {{ $quiz->duration_minutes }} Menit
+                        <span class="badge px-3 py-1.5 rounded-pill shadow-xs d-inline-flex align-items-center gap-1.5 font-semibold" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(6px); font-size: 0.78rem;">
+                            <i class="ti ti-clock fs-6"></i> {{ $quiz->formatted_duration }}
                         </span>
-                        <span>•</span>
-                        <span>
-                            <i class="ti ti-list-check me-1"></i> {{ $quiz->questions->count() }} Butir Soal
+                        <span class="badge px-3 py-1.5 rounded-pill shadow-xs d-inline-flex align-items-center gap-1.5 font-semibold" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(6px); font-size: 0.78rem;">
+                            <i class="ti ti-list-check fs-6"></i> {{ $quiz->total_questions_count }} Butir Soal
                         </span>
-                        <span>•</span>
                         @if($isOverdue)
-                            <span class="badge px-3 py-1.5 rounded-pill shadow-sm d-inline-flex align-items-center gap-1.5 font-bold" style="background-color: #FFE8E8; color: #DC2626 !important; border: 1px solid #FFA8A8; font-size: 0.82rem;">
-                                <i class="ti ti-alert-triangle-filled text-danger fs-6"></i> Batas: {{ $quiz->deadline ? $quiz->deadline->format('d F Y - H:i') . ' WIB' : 'Tanpa Batas' }}
+                            <span class="badge px-3 py-1.5 rounded-pill shadow-xs d-inline-flex align-items-center gap-1.5 font-bold" style="background-color: #FFE8E8; color: #DC2626 !important; border: 1px solid #FFA8A8; font-size: 0.78rem;">
+                                <i class="ti ti-alert-triangle-filled text-danger fs-6"></i> Batas: {{ $quiz->deadline ? $quiz->deadline->format('d M Y - H:i') . ' WIB' : 'Tanpa Batas' }}
                             </span>
                         @else
-                            <span class="badge px-3 py-1.5 rounded-pill shadow-sm d-inline-flex align-items-center gap-1.5 font-bold" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FCD34D; font-size: 0.82rem;">
-                                <i class="ti ti-clock-hour-4 text-warning fs-6"></i> Batas: {{ $quiz->deadline ? $quiz->deadline->format('d F Y - H:i') . ' WIB' : 'Tanpa Batas' }}
+                            <span class="badge px-3 py-1.5 rounded-pill shadow-xs d-inline-flex align-items-center gap-1.5 font-bold" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FCD34D; font-size: 0.78rem;">
+                                <i class="ti ti-clock-hour-4 text-warning fs-6"></i> Batas: {{ $quiz->deadline ? $quiz->deadline->format('d M Y - H:i') . ' WIB' : 'Tanpa Batas' }}
                             </span>
                         @endif
                     </div>
                 </div>
 
-                <!-- Hero Right: Spacious Status Pill (Tidak sempit) -->
-                <div class="col-lg-4 text-lg-end">
-                    <div class="d-inline-flex align-items-center gap-3 shadow-sm border" 
-                         style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-color: rgba(255, 255, 255, 0.6) !important; border-radius: 50rem; padding: 8px 14px 8px 22px;">
-                        <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.78rem; letter-spacing: 0.8px;">Status:</span>
+                <!-- Hero Right: Spacious Status Pill -->
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <div class="hero-status-pill d-inline-flex align-items-center gap-2.5 shadow-sm border" 
+                         style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-color: rgba(255, 255, 255, 0.6) !important; border-radius: 50rem; padding: 7px 16px;">
+                        <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.76rem; letter-spacing: 0.8px;">Status:</span>
                         @if($isCompleted)
-                            <span class="badge bg-success rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 font-bold shadow-sm" style="font-size: 0.85rem;">
+                            <span class="badge bg-success rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 font-bold shadow-xs" style="font-size: 0.82rem;">
                                 <i class="ti ti-trophy fs-6"></i> Selesai (Skor: {{ $attempt->score }})
                             </span>
                         @elseif($isInProgress)
-                            <span class="badge bg-warning text-dark rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 font-bold shadow-sm" style="font-size: 0.85rem;">
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 font-bold shadow-xs" style="font-size: 0.82rem;">
                                 <i class="ti ti-hourglass fs-6"></i> Sedang Mengerjakan
                             </span>
                         @elseif($isOverdue)
-                            <span class="badge bg-danger rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 font-bold shadow-sm" style="font-size: 0.85rem;">
+                            <span class="badge bg-danger rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 font-bold shadow-xs" style="font-size: 0.82rem;">
                                 <i class="ti ti-alert-triangle fs-6"></i> Waktu Habis
                             </span>
                         @else
-                            <span class="badge rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 font-bold" style="background: #e2e8f0; color: #475569; font-size: 0.85rem;">
+                            <span class="badge rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 font-bold" style="background: #e2e8f0; color: #475569; font-size: 0.82rem;">
                                 <i class="ti ti-clock fs-6"></i> Belum Dikerjakan
                             </span>
                         @endif
@@ -183,7 +272,7 @@
     </section>
 
     <!-- 2. Main Content Area -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 py-md-5">
         
         <!-- Flash Messages -->
         @if(session('success'))
@@ -229,11 +318,11 @@
                         </span>
                     </div>
 
-                    <div class="p-4 p-md-5 bg-white">
+                    <div class="content-card-body-pad p-3 p-sm-4 p-md-5 bg-white">
                         
                         <!-- Description if available -->
                         @if($quiz->description)
-                            <div class="p-4 rounded-4 mb-4" style="background: #F8FAFC; border-left: 4px solid #3368A0; border-top: 1px solid #E2E8F0; border-right: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0;">
+                            <div class="p-3.5 p-md-4 rounded-4 mb-4" style="background: #F8FAFC; border-left: 4px solid #3368A0; border-top: 1px solid #E2E8F0; border-right: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0;">
                                 <div class="text-primary small fw-bold text-uppercase mb-1.5" style="letter-spacing: 0.5px;">
                                     <i class="ti ti-notes me-1"></i> Catatan Khusus dari Guru Pengampu:
                                 </div>
@@ -264,7 +353,7 @@
                                 <div>
                                     <h6 class="fw-bold text-dark mb-1">1. Waktu Berjalan Real-Time di Server</h6>
                                     <p class="text-secondary small mb-0" style="line-height: 1.65;">
-                                        Durasi ujian adalah <strong>{{ $quiz->duration_minutes }} menit</strong>. Waktu akan langsung dihitung mundur di server begitu tombol <em>Mulai Kuis Sekarang</em> ditekan. 
+                                        Durasi ujian adalah <strong>{{ $quiz->formatted_duration }}</strong> (<strong>{{ $quiz->duration_hms }}</strong>). Waktu akan langsung dihitung mundur di server begitu tombol <em>Mulai Kuis Sekarang</em> ditekan. 
                                         <strong class="text-danger">Jika Anda keluar dari kuis, menutup tab browser, atau me-refresh halaman, waktu ujian tetap terus berjalan</strong> dan tidak akan berhenti.
                                     </p>
                                 </div>
@@ -289,9 +378,9 @@
                                     <i class="ti ti-layout-grid fs-4"></i>
                                 </div>
                                 <div>
-                                    <h6 class="fw-bold text-dark mb-1">3. Tampilan Satu Halaman Satu Soal & Indikator Warna</h6>
+                                    <h6 class="fw-bold text-dark mb-1">3. Tampilan Satu Halaman Satu Soal & Penilaian Mandiri</h6>
                                     <p class="text-secondary small mb-2" style="line-height: 1.65;">
-                                        Soal kuis disajikan bertahap <strong>satu nomor per halaman</strong> untuk memudahkan fokus Anda. Gunakan tombol <em>Soal Sebelumnya / Selanjutnya</em> atau klik nomor di panel <strong>Navigasi Soal</strong> untuk berpindah soal. Panel dilengkapi penanda warna:
+                                        Soal kuis disajikan bertahap <strong>satu nomor per halaman</strong> untuk memudahkan fokus Anda. Pada soal <em>Menjodohkan</em>, skor dinilai mandiri per pasangan premis (soal), bukan per paket. Gunakan tombol navigasi untuk berpindah soal. Panel dilengkapi penanda warna:
                                     </p>
                                     <div class="d-flex flex-wrap align-items-center gap-2 pt-1">
                                         <div class="mini-color-legend" style="background: #2563EB; color: #ffffff;">
@@ -315,7 +404,7 @@
                                 <div>
                                     <h6 class="fw-bold text-dark mb-1">4. Otomatis Dikumpulkan Saat Waktu Habis</h6>
                                     <p class="text-secondary small mb-0" style="line-height: 1.65;">
-                                        Apabila hitungan mundur waktu telah mencapai <strong>00:00</strong>, lembar kuis akan otomatis dikumpulkan dan dinilai oleh sistem tanpa perlu menekan tombol kumpulkan manual.
+                                        Apabila hitungan mundur waktu telah mencapai <strong>00:00:00</strong>, lembar kuis akan otomatis dikumpulkan dan dinilai oleh sistem tanpa perlu menekan tombol kumpulkan manual.
                                     </p>
                                 </div>
                             </div>
@@ -349,7 +438,7 @@
                         </div>
 
                         <!-- Action Button Card (Lega, Nyaman, Sesuai Status Siswa) -->
-                        <div class="p-4 p-md-5 rounded-4 text-center border" style="background: #F8FAFC; border-color: rgba(51, 104, 160, 0.18) !important;">
+                        <div class="quiz-cta-box p-4 p-md-5 rounded-4 text-center border" style="background: #F8FAFC; border-color: rgba(51, 104, 160, 0.18) !important;">
                             @if($isCompleted)
                                 <div class="mb-3">
                                     <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-success mb-2" style="background: rgba(16, 185, 129, 0.15); width: 68px; height: 68px;">
@@ -444,25 +533,25 @@
                             <div class="col-6">
                                 <div class="p-3 rounded-3 bg-light text-center border">
                                     <div class="text-muted small mb-1" style="font-size: 0.75rem;"><i class="ti ti-clock me-1 text-primary"></i> Durasi</div>
-                                    <div class="fs-5 fw-extrabold text-dark">{{ $quiz->duration_minutes }} Menit</div>
+                                    <div class="fs-5 fw-extrabold text-dark">{{ $quiz->formatted_duration }}</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-3 rounded-3 bg-light text-center border">
                                     <div class="text-muted small mb-1" style="font-size: 0.75rem;"><i class="ti ti-list-check me-1 text-success"></i> Soal</div>
-                                    <div class="fs-5 fw-extrabold text-dark">{{ $quiz->questions->count() }} Butir</div>
+                                    <div class="fs-5 fw-extrabold text-dark">{{ $quiz->total_questions_count }} Butir</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-3 rounded-3 bg-light text-center border">
-                                    <div class="text-muted small mb-1" style="font-size: 0.75rem;"><i class="ti ti-award me-1 text-warning"></i> Poin/Soal</div>
-                                    <div class="fs-5 fw-extrabold text-dark">{{ $quiz->points_per_question ?? 100 }}</div>
+                                    <div class="text-muted small mb-1" style="font-size: 0.75rem;"><i class="ti ti-award me-1 text-warning"></i> Bobot Poin</div>
+                                    <div class="fs-5 fw-extrabold text-dark">{{ $quiz->points_per_question ?? 100 }} (Skala 100)</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-3 rounded-3 bg-light text-center border">
                                     <div class="text-muted small mb-1" style="font-size: 0.75rem;"><i class="ti ti-shield-check me-1 text-info"></i> Format</div>
-                                    <div class="fs-6 fw-extrabold text-dark">Pilihan Ganda</div>
+                                    <div class="fs-6 fw-extrabold text-dark text-truncate">{{ $quiz->question_types_summary }}</div>
                                 </div>
                             </div>
                         </div>
