@@ -6,9 +6,7 @@
             <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative" style="background: linear-gradient(135deg, #3368A0 0%, #66A3BF 100%);">
                 <div class="position-relative z-1">
                     <div class="d-flex align-items-center gap-2 mb-4">
-                        <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center p-2" style="width: 42px; height: 42px;">
-                            <i class="ti ti-school fs-3" style="color: #3368A0;"></i>
-                        </div>
+                        <img src="{{ asset('images/icon.png') }}" alt="RuangTerra Icon" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));">
                         <span class="fs-4 fw-bold text-white tracking-wide">RuangTerra</span>
                     </div>
 
@@ -34,9 +32,7 @@
             <div class="col-lg-6 p-4 p-md-5 bg-white">
                 <div class="d-lg-none text-center mb-4">
                     <div class="d-inline-flex align-items-center gap-2">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center p-2" style="width: 40px; height: 40px; background-color: #66A3BF !important;">
-                            <i class="ti ti-school fs-3"></i>
-                        </div>
+                        <img src="{{ asset('images/icon.png') }}" alt="RuangTerra Icon" style="width: 38px; height: 38px; object-fit: contain;">
                         <span class="fs-3 fw-bold" style="color: #3368A0;">RuangTerra</span>
                     </div>
                 </div>

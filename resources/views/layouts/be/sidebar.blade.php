@@ -64,13 +64,13 @@
       <li class="sidebar-nav-item">
         <a href="{{ route('admin.materials.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
           <i class="ti ti-file-text"></i>
-          <span>Materi Kelas</span>
+          <span>Materi</span>
         </a>
       </li>
       <li class="sidebar-nav-item">
         <a href="{{ route('admin.assignments.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.assignments.*') ? 'active' : '' }}">
           <i class="ti ti-clipboard-list"></i>
-          <span>Tugas Kelas</span>
+          <span>Tugas</span>
         </a>
       </li>
       <li class="sidebar-nav-item">

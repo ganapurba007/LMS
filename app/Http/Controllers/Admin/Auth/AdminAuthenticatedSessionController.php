@@ -77,7 +77,12 @@ class AdminAuthenticatedSessionController extends Controller
         RateLimiter::clear($this->throttleKey($request));
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        $intended = $request->session()->pull('url.intended', null);
+        if ($intended && str_contains($intended, '/admin') && ! str_contains($intended, '/admin/login')) {
+            return redirect()->to($intended);
+        }
+
+        return redirect()->route('admin.dashboard');
     }
 
     /**

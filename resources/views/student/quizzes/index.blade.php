@@ -164,7 +164,7 @@
                         <span class="badge px-3 py-1.5 rounded-pill shadow-sm font-semibold d-inline-flex align-items-center gap-1" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); font-size: 0.8rem;">
                             <a href="{{ route('dashboard') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Dashboard</a>
                             <i class="ti ti-chevron-right fs-6"></i>
-                            <span class="text-white font-bold">Kuis Online</span>
+                            <span class="text-white font-bold">Kuis</span>
                         </span>
                         <span class="badge px-3 py-1.5 rounded-pill shadow-sm font-semibold d-inline-flex align-items-center gap-1" style="background: rgba(16, 185, 129, 0.25); color: #d1fae5; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.8rem;">
                             <i class="ti ti-award"></i> {{ $completedCount }} Selesai

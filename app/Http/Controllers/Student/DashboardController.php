@@ -15,32 +15,59 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $classId = $user->class_id;
+        if ($user->isGuru()) {
+            $upcomingAssignments = Assignment::where('instructor_id', $user->id)
+                ->where('due_date', '>=', now())
+                ->with(['subject', 'instructor'])
+                ->orderBy('due_date', 'asc')
+                ->take(5)
+                ->get();
 
-        $upcomingAssignments = Assignment::when($classId, fn($q) => $q->where('class_id', $classId))
-            ->where('due_date', '>=', now())
-            ->with(['subject', 'instructor'])
-            ->orderBy('due_date', 'asc')
-            ->take(5)
-            ->get();
+            $activeQuizzes = Quiz::where('instructor_id', $user->id)
+                ->where('deadline', '>=', now())
+                ->with(['subject', 'instructor'])
+                ->orderBy('deadline', 'asc')
+                ->take(5)
+                ->get();
 
-        $activeQuizzes = Quiz::when($classId, fn($q) => $q->where('class_id', $classId))
-            ->where('deadline', '>=', now())
-            ->with(['subject', 'instructor'])
-            ->orderBy('deadline', 'asc')
-            ->take(5)
-            ->get();
+            $materials = Material::where('instructor_id', $user->id)
+                ->with(['subject', 'instructor'])
+                ->latest()
+                ->take(5)
+                ->get();
 
-        $materials = Material::when($classId, fn($q) => $q->where('class_id', $classId))
-            ->with(['subject', 'instructor'])
-            ->latest()
-            ->take(5)
-            ->get();
+            $totalClassMaterials = Material::where('instructor_id', $user->id)->count();
+            $completedMaterialsCount = MaterialProgress::where('user_id', $user->id)
+                ->where('is_completed', true)
+                ->count();
+        } else {
+            $classId = $user->class_id;
 
-        $totalClassMaterials = Material::when($classId, fn($q) => $q->where('class_id', $classId))->count();
-        $completedMaterialsCount = MaterialProgress::where('user_id', $user->id)
-            ->where('is_completed', true)
-            ->count();
+            $upcomingAssignments = Assignment::where('class_id', $classId)
+                ->where('due_date', '>=', now())
+                ->with(['subject', 'instructor'])
+                ->orderBy('due_date', 'asc')
+                ->take(5)
+                ->get();
+
+            $activeQuizzes = Quiz::where('class_id', $classId)
+                ->where('deadline', '>=', now())
+                ->with(['subject', 'instructor'])
+                ->orderBy('deadline', 'asc')
+                ->take(5)
+                ->get();
+
+            $materials = Material::where('class_id', $classId)
+                ->with(['subject', 'instructor'])
+                ->latest()
+                ->take(5)
+                ->get();
+
+            $totalClassMaterials = Material::where('class_id', $classId)->count();
+            $completedMaterialsCount = MaterialProgress::where('user_id', $user->id)
+                ->where('is_completed', true)
+                ->count();
+        }
 
         $overallProgress = $totalClassMaterials > 0
             ? round(($completedMaterialsCount / $totalClassMaterials) * 100, 1)

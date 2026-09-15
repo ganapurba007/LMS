@@ -148,7 +148,7 @@
                         <span class="badge px-3 py-1.5 rounded-pill font-semibold d-inline-flex align-items-center gap-1" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); font-size: 0.8rem;">
                             <a href="{{ route('dashboard') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Dashboard</a>
                             <i class="ti ti-chevron-right fs-6"></i>
-                            <span class="text-white font-bold">Tugas Kelas</span>
+                            <span class="text-white font-bold">Tugas</span>
                         </span>
                     </div>
 
@@ -189,7 +189,7 @@
                                 <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #059669, #10B981); width: 34px; height: 34px;">
                                     <i class="ti ti-checklist fs-5"></i>
                                 </div>
-                                <span class="fw-bold text-dark fs-6" style="font-family: 'Jost', sans-serif;">Penyelesaian Tugas Kelas</span>
+                                <span class="fw-bold text-dark fs-6" style="font-family: 'Jost', sans-serif;">Penyelesaian Tugas</span>
                             </div>
                             <span class="badge rounded-pill px-2.5 py-1 font-bold text-white shadow-sm" style="background: {{ $progressPercent >= 100 ? '#10B981' : '#3368A0' }}; font-size: 0.75rem;">
                                 {{ $progressPercent }}% Terkumpul
@@ -510,7 +510,7 @@
                             <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="background: rgba(51, 104, 160, 0.08); width: 80px; height: 80px;">
                                 <i class="ti ti-clipboard-off fs-1 text-muted"></i>
                             </div>
-                            <h4 class="fw-bold text-dark mb-2" style="font-family: 'Jost', sans-serif;">Belum Ada Tugas Kelas</h4>
+                            <h4 class="fw-bold text-dark mb-2" style="font-family: 'Jost', sans-serif;">Belum Ada Tugas</h4>
                             <p class="text-muted small max-w-md mx-auto mb-4">
                                 @if(request('search') || request('subject_id') || request('status'))
                                     Tidak ditemukan tugas yang sesuai dengan kriteria filter yang Anda pilih. Silakan sesuaikan kata kunci atau reset filter.
@@ -650,7 +650,7 @@
         @if($assignments->hasPages())
             <div class="d-flex justify-content-between align-items-center flex-column flex-md-row gap-3 pt-3">
                 <div class="text-muted small">
-                    Menampilkan <span class="fw-bold text-dark">{{ $assignments->firstItem() }}</span> - <span class="fw-bold text-dark">{{ $assignments->lastItem() }}</span> dari <span class="fw-bold text-dark">{{ $assignments->total() }}</span> total tugas kelas
+                    Menampilkan <span class="fw-bold text-dark">{{ $assignments->firstItem() }}</span> - <span class="fw-bold text-dark">{{ $assignments->lastItem() }}</span> dari <span class="fw-bold text-dark">{{ $assignments->total() }}</span> total tugas
                 </div>
                 <div>
                     {{ $assignments->links() }}

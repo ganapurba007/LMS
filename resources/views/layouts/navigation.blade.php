@@ -45,20 +45,22 @@
                 @if(Auth::check())
                     <a href="{{ route('student.materials.index') }}" 
                        class="arsha-nav-link {{ request()->routeIs('student.materials.*') ? 'active' : '' }}">
-                        Courses / Materi
+                        Materi
                     </a>
                     <a href="{{ route('student.assignments.index') }}" 
                        class="arsha-nav-link {{ request()->routeIs('student.assignments.*') ? 'active' : '' }}">
-                        Tugas Kelas
+                        Tugas
                     </a>
                     <a href="{{ route('student.quizzes.index') }}" 
                        class="arsha-nav-link {{ request()->routeIs('student.quizzes.*') ? 'active' : '' }}">
-                        Kuis Online
+                        Kuis
                     </a>
-                    <a href="{{ route('student.report.index') }}" 
-                       class="arsha-nav-link {{ request()->routeIs('student.report.*') ? 'active' : '' }}">
-                        Laporan Diri
-                    </a>
+                    @if(Auth::user() && Auth::user()->isSiswa())
+                        <a href="{{ route('student.report.index') }}" 
+                           class="arsha-nav-link {{ request()->routeIs('student.report.*') ? 'active' : '' }}">
+                            Laporan
+                        </a>
+                    @endif
                 @endif
             </div>
 
@@ -419,6 +421,25 @@
             </div>
         </div>
 
+        @if(Auth::user() && Auth::user()->isGuru())
+            <!-- Admin Portal Quick Action Button for Mobile -->
+            <div style="margin: 10px 14px 0;">
+                <a href="{{ route('admin.dashboard') }}"
+                   style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 700; color: #ffffff; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); border: 1px solid rgba(56, 189, 248, 0.45); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="ti ti-dashboard" style="font-size: 16px; color: #ffffff;"></i>
+                        </span>
+                        <div>
+                            <div style="line-height: 1.2;">Portal Admin Guru</div>
+                            <div style="font-size: 10px; font-weight: 500; color: #bae6fd; margin-top: 1px;">Kelola materi, tugas &amp; nilai</div>
+                        </div>
+                    </div>
+                    <i class="ti ti-chevron-right" style="font-size: 16px; color: #ffffff;"></i>
+                </a>
+            </div>
+        @endif
+
         <!-- Navigation Links -->
         <div style="padding: 10px 14px;">
             <div style="font-size: 10px; font-weight: 700; color: #475569; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 4px 8px;">Menu</div>
@@ -428,10 +449,12 @@
                     ['href' => route('dashboard'), 'label' => 'Dashboard', 'icon' => 'ti-home', 'active' => request()->routeIs('dashboard')],
                 ];
                 if(Auth::check()) {
-                    $mobileLinks[] = ['href' => route('student.materials.index'),   'label' => 'Courses / Materi', 'icon' => 'ti-book-2',      'active' => request()->routeIs('student.materials.*')];
-                    $mobileLinks[] = ['href' => route('student.assignments.index'), 'label' => 'Tugas Kelas',     'icon' => 'ti-file-pencil', 'active' => request()->routeIs('student.assignments.*')];
-                    $mobileLinks[] = ['href' => route('student.quizzes.index'),     'label' => 'Kuis Online',     'icon' => 'ti-alarm',       'active' => request()->routeIs('student.quizzes.*')];
-                    $mobileLinks[] = ['href' => route('student.report.index'),      'label' => 'Laporan Diri',    'icon' => 'ti-chart-bar',   'active' => request()->routeIs('student.report.*')];
+                    $mobileLinks[] = ['href' => route('student.materials.index'),   'label' => 'Materi', 'icon' => 'ti-book-2',      'active' => request()->routeIs('student.materials.*')];
+                    $mobileLinks[] = ['href' => route('student.assignments.index'), 'label' => 'Tugas',  'icon' => 'ti-file-pencil', 'active' => request()->routeIs('student.assignments.*')];
+                    $mobileLinks[] = ['href' => route('student.quizzes.index'),     'label' => 'Kuis',   'icon' => 'ti-alarm',       'active' => request()->routeIs('student.quizzes.*')];
+                    if (Auth::user() && Auth::user()->isSiswa()) {
+                        $mobileLinks[] = ['href' => route('student.report.index'),  'label' => 'Laporan',    'icon' => 'ti-chart-bar',   'active' => request()->routeIs('student.report.*')];
+                    }
                 }
             @endphp
 
@@ -467,6 +490,16 @@
                     </span>
                     Profil Saya
                 </a>
+
+                @if(Auth::user() && Auth::user()->isGuru())
+                    <a href="{{ route('admin.dashboard') }}"
+                       style="display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25);">
+                        <span style="width: 32px; height: 32px; border-radius: 9px; background: rgba(56,189,248,0.2); border: 1px solid rgba(56,189,248,0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="ti ti-dashboard" style="font-size: 15px; color: #38bdf8;"></i>
+                        </span>
+                        Portal Admin Guru
+                    </a>
+                @endif
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

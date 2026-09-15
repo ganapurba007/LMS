@@ -296,8 +296,11 @@ class NotificationTest extends TestCase
             'title' => 'Diskusi Baru: Sistem Ekskresi Manusia',
         ]);
 
+        $studentComment = \App\Models\MaterialDiscussion::where('material_id', $material->id)->first();
+
         // Sekarang Guru membalas komentar tersebut
         $this->actingAs($guru)->post(route('student.materials.discussions', $material), [
+            'parent_id' => $studentComment->id,
             'comment' => 'Nefron berfungsi menyaring darah dan membentuk urin.',
         ]);
 

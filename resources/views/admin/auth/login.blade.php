@@ -29,7 +29,7 @@
       <div class="text-center mb-4">
         <a href="{{ route('admin.login') }}" class="d-inline-flex align-items-center gap-2 text-decoration-none">
           <div class="sidebar-brand-icon">
-            <i class="ti ti-brand-tabler fs-2"></i>
+            <img src="{{ asset('images/icon.png') }}" alt="{{ config('app.name', 'RuangTerra') }} Icon" style="width: 38px; height: 38px; object-fit: contain;">
           </div>
           <span class="fs-3 fw-bold heading-custom">{{ config('app.name', 'RuangTerra') }}</span>
         </a>
@@ -78,7 +78,7 @@
               <label class="form-label small fw-semibold" for="email">Alamat Email Guru</label>
               <div class="input-group">
                 <span class="input-group-text bg-transparent border-end-0 text-muted-custom"><i class="ti ti-mail"></i></span>
-                <input type="email" id="email" name="email" class="form-control border-start-0 ps-0 @error('email') is-invalid @enderror" placeholder="guru@lms.com" value="{{ old('email') }}" required autofocus autocomplete="username">
+                <input type="email" id="email" name="email" class="form-control border-start-0 ps-1 @error('email') is-invalid @enderror" placeholder="guru@lms.com" value="{{ old('email') }}" required autofocus autocomplete="username">
               </div>
             </div>
 
@@ -90,7 +90,7 @@
               </div>
               <div class="input-group">
                 <span class="input-group-text bg-transparent border-end-0 text-muted-custom"><i class="ti ti-lock"></i></span>
-                <input type="password" id="password" name="password" class="form-control border-start-0 border-end-0 ps-0 @error('password') is-invalid @enderror" placeholder="••••••••" required autocomplete="current-password">
+                <input type="password" id="password" name="password" class="form-control border-start-0 border-end-0 ps-1 @error('password') is-invalid @enderror" placeholder="••••••••" required autocomplete="current-password">
                 <button type="button" class="btn btn-outline-secondary border-start-0 text-muted-custom toggle-password" data-target="password" title="Lihat Kata Sandi" style="border-color: var(--tblr-border-color, #e2e8f0);">
                   <i class="ti ti-eye fs-5"></i>
                 </button>

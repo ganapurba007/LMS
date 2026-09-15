@@ -25,6 +25,12 @@
         <!-- Custom Theme CSS -->
         <link rel="stylesheet" href="{{ asset('css/theme-custom.css') }}">
 
+        <style>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style>
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -99,7 +105,7 @@
                                 </div>
                             </a>
                             <p class="small text-slate-400 pe-lg-4 mb-4" style="line-height: 1.65; max-width: 440px;">
-                                Platform E-Learning SMA terpadu untuk mengakses modul materi interaktif, mengumpulkan tugas kelas, dan mengikuti kuis online dengan pengalaman belajar modern yang menyenangkan.
+                                Platform Learning Management System terpadu untuk mengakses modul materi interaktif, mengumpulkan tugas kelas, dan mengikuti kuis online dengan pengalaman belajar modern yang menyenangkan.
                             </p>
 
                             <!-- Tidy & Beautiful Social Media Badges -->
@@ -124,9 +130,9 @@
                             <h5 class="footer-widget-title">Navigasi Utama</h5>
                             <ul class="list-unstyled d-flex flex-column gap-2.5 mb-0">
                                 <li><a href="{{ route('dashboard') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Home / Dashboard</a></li>
-                                <li><a href="{{ route('student.materials.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Courses / Materi</a></li>
-                                <li><a href="{{ route('student.assignments.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Tugas Kelas</a></li>
-                                <li><a href="{{ route('student.quizzes.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Kuis Online</a></li>
+                                <li><a href="{{ route('student.materials.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Materi</a></li>
+                                <li><a href="{{ route('student.assignments.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Tugas</a></li>
+                                <li><a href="{{ route('student.quizzes.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Kuis</a></li>
                                 <li><a href="{{ route('student.report.index') }}" class="footer-nav-link"><i class="ti ti-chevron-right"></i> Laporan Diri</a></li>
                             </ul>
                         </div>
@@ -151,12 +157,6 @@
                     <div class="border-top pt-4 d-flex flex-wrap align-items-center justify-content-between text-center text-md-start small text-slate-400 gap-3" style="border-top-color: rgba(255, 255, 255, 0.08) !important;">
                         <div>
                             &copy; {{ date('Y') }} <strong class="text-white" style="font-family: 'Jost', sans-serif; letter-spacing: 0.3px;">Ruang<span style="color: #38bdf8;">Terra</span></strong>. All rights reserved.
-                        </div>
-                        <div class="d-flex align-items-center gap-3 mx-auto mx-md-0">
-                            <button type="button" onclick="window.scrollTo({top:0, behavior:'smooth'});" class="footer-back-to-top" title="Kembali ke Bagian Atas">
-                                <i class="ti ti-arrow-up"></i>
-                                <span>Kembali ke Atas</span>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -204,6 +204,52 @@
                 navigator.serviceWorker.register('/sw.js').catch(function() {});
             });
         }
+        </script>
+
+        <!-- Floating Back to Top Button -->
+        <button type="button" id="btnFloatingScrollTop" onclick="smoothScrollToTop();" class="btn-floating-scrolltop" title="Kembali ke Atas" aria-label="Kembali ke Atas">
+            <i class="ti ti-arrow-up fs-4"></i>
+        </button>
+
+        <script>
+            window.smoothScrollToTop = function(duration = 450) {
+                const startPosition = window.pageYOffset || document.documentElement.scrollTop;
+                if (startPosition === 0) return;
+                const startTime = performance.now();
+
+                function easeInOutCubic(t) {
+                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                }
+
+                function step(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeProgress = easeInOutCubic(progress);
+                    
+                    window.scrollTo(0, startPosition * (1 - easeProgress));
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    }
+                }
+
+                requestAnimationFrame(step);
+            };
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const btnScrollTop = document.getElementById('btnFloatingScrollTop');
+                if (btnScrollTop) {
+                    const toggleScrollBtn = function() {
+                        if (window.scrollY > 180) {
+                            btnScrollTop.classList.add('show');
+                        } else {
+                            btnScrollTop.classList.remove('show');
+                        }
+                    };
+                    window.addEventListener('scroll', toggleScrollBtn, { passive: true });
+                    toggleScrollBtn();
+                }
+            });
         </script>
     </body>
 </html>

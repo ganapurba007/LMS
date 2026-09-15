@@ -5,7 +5,9 @@
     <link rel="stylesheet" href="{{ asset('css/theme-custom.css') }}">
 
     <style>
-        /* Modern Sticky Header Bar (Lega, Mewah & Tidak Mepet) */
+        /* ==========================================================================
+           MODERN STICKY HEADER BAR
+           ========================================================================== */
         .quiz-attempt-hero {
             background: linear-gradient(135deg, #20456E 0%, #3368A0 60%, #2b5788 100%);
             border-bottom: 3px solid #66A3BF;
@@ -14,8 +16,14 @@
             top: 0 !important;
             z-index: 1020;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-            padding-top: 1.15rem !important;
-            padding-bottom: 1.15rem !important;
+            padding-top: 0.85rem !important;
+            padding-bottom: 0.85rem !important;
+        }
+        @media (min-width: 768px) {
+            .quiz-attempt-hero {
+                padding-top: 1.15rem !important;
+                padding-bottom: 1.15rem !important;
+            }
         }
         
         /* Single Question Card Stepper */
@@ -34,30 +42,48 @@
         /* Compact & Balanced Question Card */
         .question-card-modern {
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 14px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             overflow: hidden;
             margin-bottom: 1.25rem;
             transition: border-color 0.2s ease;
         }
+        @media (min-width: 768px) {
+            .question-card-modern {
+                border-radius: 16px;
+                margin-bottom: 1.5rem;
+            }
+        }
         .question-card-header {
-            padding: 0.8rem 1.25rem;
+            padding: 0.75rem 1rem;
             background: #F2EFE7;
             border-bottom: 1px solid rgba(51, 104, 160, 0.12);
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        @media (min-width: 768px) {
+            .question-card-header {
+                padding: 0.85rem 1.25rem;
+            }
         }
 
         /* Question Text Content Typography & Media Constraints */
         .question-text-wrapper {
-            font-size: 1.05rem;
+            font-size: 0.98rem;
             line-height: 1.65;
             color: #1e293b;
             overflow-wrap: break-word;
             word-break: break-word;
+        }
+        @media (min-width: 768px) {
+            .question-text-wrapper {
+                font-size: 1.05rem;
+                line-height: 1.7;
+            }
         }
         .question-text-wrapper img {
             max-width: 100% !important;
@@ -66,14 +92,24 @@
             margin: 0.6rem 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
             object-fit: contain;
+            display: block;
         }
         .question-text-wrapper table {
             width: 100%;
             max-width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             display: block;
-            margin: 0.5rem 0;
+            margin: 0.75rem 0;
             border-collapse: collapse;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .question-text-wrapper table th,
+        .question-text-wrapper table td {
+            padding: 0.55rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            font-size: 0.88rem;
         }
         .question-text-wrapper p {
             margin-bottom: 0.65rem;
@@ -87,15 +123,21 @@
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
-            padding: 0.85rem 1.15rem;
+            padding: 0.75rem 0.95rem;
             border-radius: 12px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             background: #ffffff;
-            margin-bottom: 0.65rem;
+            margin-bottom: 0.6rem;
             cursor: pointer;
             transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
             touch-action: manipulation;
+        }
+        @media (min-width: 768px) {
+            .quiz-option-tile {
+                padding: 0.85rem 1.15rem;
+                margin-bottom: 0.65rem;
+            }
         }
         .quiz-option-tile:hover {
             background: #f8fafc;
@@ -108,19 +150,26 @@
             box-shadow: 0 2px 12px rgba(37, 99, 235, 0.12) !important;
         }
         .option-badge-letter {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 8px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.88rem;
+            font-size: 0.84rem;
             background: #e2e8f0;
             color: #334155;
             flex-shrink: 0;
             margin-top: 1px;
             transition: all 0.18s ease;
+        }
+        @media (min-width: 768px) {
+            .option-badge-letter {
+                width: 32px;
+                height: 32px;
+                font-size: 0.88rem;
+            }
         }
         .quiz-option-tile.selected .option-badge-letter {
             background: #2563EB !important;
@@ -129,11 +178,17 @@
         }
         .option-text-wrapper {
             flex: 1;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             line-height: 1.5;
             color: #1e293b;
             word-break: break-word;
-            padding-top: 4px;
+            padding-top: 3px;
+        }
+        @media (min-width: 768px) {
+            .option-text-wrapper {
+                font-size: 0.95rem;
+                padding-top: 4px;
+            }
         }
 
         /* True/False Option Tiles */
@@ -142,17 +197,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1rem 0.75rem;
-            border-radius: 14px;
+            padding: 0.85rem 0.65rem;
+            border-radius: 12px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             background: #ffffff;
             cursor: pointer;
             transition: all 0.18s ease;
             height: 100%;
             text-align: center;
-            min-height: 85px;
+            min-height: 80px;
             user-select: none;
             touch-action: manipulation;
+        }
+        @media (min-width: 768px) {
+            .quiz-option-tf {
+                padding: 1rem 0.75rem;
+                border-radius: 14px;
+                min-height: 85px;
+            }
         }
         .quiz-option-tf:hover {
             border-color: #3368A0;
@@ -176,8 +238,13 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 50rem;
-            padding: 7px 18px;
+            padding: 5px 12px;
             box-shadow: 0 4px 16px rgba(220, 53, 69, 0.35);
+        }
+        @media (min-width: 768px) {
+            .timer-badge-box {
+                padding: 7px 18px;
+            }
         }
         .timer-warning {
             animation: pulse-timer 1.2s infinite;
@@ -187,20 +254,31 @@
             50% { transform: scale(1.04); }
         }
 
-        /* Ultra-Modern Interactive Matching Question UI Styles */
+        /* Interactive Matching Question UI Styles */
         .matching-guide-banner {
             background: linear-gradient(135deg, #20456E 0%, #3368A0 60%, #2b5788 100%) !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             box-shadow: 0 4px 18px rgba(32, 69, 110, 0.16) !important;
             color: #ffffff !important;
+            border-radius: 12px;
+        }
+        @media (min-width: 768px) {
+            .matching-guide-banner {
+                border-radius: 14px;
+            }
         }
 
         .matching-premise-card {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 14px !important;
+            border-radius: 12px !important;
             border: 1.5px solid rgba(51, 104, 160, 0.14) !important;
             background: #ffffff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        @media (min-width: 768px) {
+            .matching-premise-card {
+                border-radius: 14px !important;
+            }
         }
         .matching-premise-card:hover {
             border-color: #3368A0 !important;
@@ -210,10 +288,17 @@
         .matching-target-slot {
             border: 2px dashed #94A3B8;
             background: #F8FAFC;
-            border-radius: 12px !important;
+            border-radius: 10px !important;
             transition: all 0.2s ease;
             user-select: none;
             touch-action: manipulation;
+            min-height: 42px;
+        }
+        @media (min-width: 768px) {
+            .matching-target-slot {
+                border-radius: 12px !important;
+                min-height: 44px;
+            }
         }
         .matching-target-slot.is-empty:hover {
             border-color: #38BDF8 !important;
@@ -242,12 +327,19 @@
             border: 1.5px solid #CBD5E1;
             color: #1E293B;
             border-radius: 50rem !important;
-            padding: 0.55rem 1.15rem !important;
+            padding: 0.45rem 0.95rem !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             cursor: pointer;
             font-weight: 600;
+            font-size: 0.84rem;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             touch-action: manipulation;
+        }
+        @media (min-width: 768px) {
+            .btn-match-chip {
+                padding: 0.55rem 1.15rem !important;
+                font-size: 0.88rem;
+            }
         }
         .btn-match-chip.is-available:hover {
             border-color: #3368A0 !important;
@@ -268,13 +360,20 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
             font-weight: 700;
-            font-size: 0.86rem;
-            padding: 0.65rem 1.15rem;
+            font-size: 0.82rem;
+            padding: 0.6rem 1rem;
             border-radius: 50rem;
             white-space: nowrap;
             transition: all 0.18s ease;
+        }
+        @media (min-width: 768px) {
+            .quiz-nav-btn {
+                font-size: 0.86rem;
+                padding: 0.65rem 1.15rem;
+                gap: 0.4rem;
+            }
         }
         .quiz-nav-btn-next-wrap {
             flex: 1;
@@ -284,11 +383,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            padding: 0.45rem 0.85rem;
+            font-size: 0.76rem;
+            padding: 0.4rem 0.75rem;
             border-radius: 50rem;
             white-space: nowrap;
             flex-shrink: 0;
+        }
+        @media (min-width: 768px) {
+            .quiz-step-badge {
+                font-size: 0.8rem;
+                padding: 0.45rem 0.85rem;
+            }
         }
 
         /* Mobile Floating Palette Trigger */
@@ -299,7 +404,7 @@
             box-shadow: 0 8px 24px rgba(32, 69, 110, 0.35);
             backdrop-filter: blur(8px);
             font-weight: 700;
-            font-size: 0.84rem;
+            font-size: 0.82rem;
             transition: all 0.2s ease;
             user-select: none;
             touch-action: manipulation;
@@ -309,195 +414,39 @@
             color: #ffffff;
         }
 
-        /* Mobile & Responsive Screen Adjustments (< 768px) */
-        @media (max-width: 767.98px) {
-            .quiz-attempt-hero {
-                padding-top: 0.75rem !important;
-                padding-bottom: 0.75rem !important;
-            }
-
-            .quiz-attempt-hero h1 {
-                font-size: 0.95rem !important;
-                line-height: 1.35 !important;
-                max-width: none !important;
-            }
-
-            .quiz-attempt-hero .text-white-50 {
-                font-size: 0.74rem !important;
-            }
-
-            .quiz-attempt-hero .hero-icon-box {
-                width: 38px !important;
-                height: 38px !important;
-            }
-            .quiz-attempt-hero .hero-icon-box i {
-                font-size: 1.1rem !important;
-            }
-
-            .timer-badge-box {
-                padding: 6px 12px !important;
-                border-radius: 50rem !important;
-                gap: 5px !important;
-            }
-
-            .timer-badge-box #quizTimer {
-                font-size: 1rem !important;
-            }
-
-            .question-card-header {
-                padding: 0.85rem 1rem !important;
-            }
-
-            .question-card-modern {
-                border-radius: 16px !important;
-                margin-bottom: 1.35rem !important;
-            }
-
-            .question-card-modern .card-body-wrapper {
-                padding: 1.15rem 1rem !important;
-            }
-
-            .question-text-wrapper {
-                font-size: 1rem !important;
-                line-height: 1.6 !important;
-                margin-bottom: 1.25rem !important;
-            }
-
-            /* Responsive Matching Question Layout */
-            .matching-guide-banner {
-                padding: 0.85rem 1rem !important;
-                gap: 0.75rem !important;
-                border-radius: 14px !important;
-                margin-bottom: 1.25rem !important;
-            }
-            .matching-guide-banner .rounded-circle {
-                width: 34px !important;
-                height: 34px !important;
-            }
-            .matching-guide-banner .rounded-circle i {
-                font-size: 1rem !important;
-            }
-            .matching-guide-banner .fw-extrabold {
-                font-size: 0.88rem !important;
-            }
-            .matching-guide-banner .text-white-50 {
-                font-size: 0.78rem !important;
-            }
-
-            .matching-premise-card {
-                padding: 0.9rem 1rem !important;
-                border-radius: 14px !important;
-                margin-bottom: 0.85rem !important;
-            }
-
-            .matching-target-slot {
-                min-height: 44px !important;
-                padding: 0.5rem 0.75rem !important;
-                font-size: 0.86rem !important;
-                word-break: break-word !important;
-            }
-
-            .btn-match-chip {
-                padding: 0.55rem 1rem !important;
-                font-size: 0.84rem !important;
-                max-width: 100% !important;
-                word-break: break-word !important;
-                white-space: normal !important;
-            }
-
-            .matching-choices-pool {
-                padding: 1rem !important;
-                border-radius: 14px !important;
-                margin-top: 1.25rem !important;
-            }
-
-            .quiz-option-tile {
-                padding: 0.85rem 1rem !important;
-                border-radius: 12px !important;
-                margin-bottom: 0.75rem !important;
-                gap: 0.8rem !important;
-            }
-
-            .option-badge-letter {
-                width: 32px !important;
-                height: 32px !important;
-                font-size: 0.88rem !important;
-                border-radius: 8px !important;
-                margin-top: 1px !important;
-            }
-
-            .option-text-wrapper {
-                font-size: 0.92rem !important;
-                line-height: 1.5 !important;
-                padding-top: 3px !important;
-            }
-
-            /* Stepper Navigation Responsive */
-            .quiz-nav-btn {
-                flex: 1 !important;
-                padding: 0.65rem 0.85rem !important;
-                font-size: 0.84rem !important;
-                justify-content: center !important;
-                gap: 0.5rem !important;
-            }
-            .quiz-nav-btn-next-wrap {
-                flex: 1 !important;
-                display: flex !important;
-            }
-            .quiz-step-badge {
-                font-size: 0.78rem !important;
-                padding: 5px 10px !important;
-            }
-
-            /* Responsive Palette */
-            .palette-sticky-card {
-                position: static !important;
-                padding: 1.25rem 1.25rem !important;
-                border-radius: 16px !important;
-                margin-top: 1.5rem !important;
-            }
-            .palette-grid {
-                grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)) !important;
-                gap: 8px !important;
-            }
-            .nav-question-btn {
-                height: 38px !important;
-                font-size: 0.85rem !important;
-                border-radius: 8px !important;
-            }
-
-            /* Exam Modal Cards on Mobile */
-            .exam-modal-card {
-                max-width: 95vw !important;
-                margin: 0.85rem auto !important;
-                border-radius: 18px !important;
-            }
-            .exam-modal-body {
-                padding: 1.15rem 1.25rem !important;
-            }
-        }
-
         /* Navigasi Nomor Soal (Palette) Lega, Luas & Rapi */
         .palette-sticky-card {
-            position: sticky;
-            top: 5.25rem !important;
             background: #ffffff;
-            border-radius: 18px;
+            border-radius: 16px;
             border: 1.5px solid rgba(51, 104, 160, 0.16);
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
-            padding: 1.35rem 1.45rem !important;
+            padding: 1.15rem 1.25rem !important;
             overflow: hidden;
+        }
+        @media (min-width: 992px) {
+            .palette-sticky-card {
+                position: sticky;
+                top: 5rem !important;
+                border-radius: 18px;
+                padding: 1.35rem 1.45rem !important;
+            }
         }
         .palette-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+            gap: 7px;
+        }
+        @media (min-width: 768px) {
+            .palette-grid {
+                grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+                gap: 8px;
+            }
         }
         .nav-question-btn {
-            height: 36px;
+            height: 35px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -506,6 +455,12 @@
             transition: all 0.15s ease;
             position: relative;
             border: none;
+        }
+        @media (min-width: 768px) {
+            .nav-question-btn {
+                height: 36px;
+                font-size: 0.85rem;
+            }
         }
         
         /* 1. Belum dijawab: Abu-abu netral */
@@ -548,20 +503,20 @@
             color: #ffffff !important;
         }
 
-        /* Keterangan Warna (Legend) Lega & Rapi */
+        /* Keterangan Warna (Legend) */
         .legend-box-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 9px 13px;
-            border-radius: 11px;
+            padding: 8px 12px;
+            border-radius: 10px;
             background: #F8FAFC;
             border: 1px solid #E2E8F0;
             transition: background-color 0.15s ease;
         }
         .legend-indicator-dot {
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             border-radius: 4px;
             flex-shrink: 0;
         }
@@ -585,15 +540,14 @@
             border: 1px solid rgba(255, 255, 255, 0.35);
             backdrop-filter: blur(8px);
             color: #ffffff;
-            font-size: 0.8rem;
-            padding: 7px 16px;
+            font-size: 0.78rem;
+            padding: 5px 14px;
             border-radius: 50rem;
         }
 
         /* ==========================================================================
            SECURE EXAM LOCKDOWN & ANTI-CHEAT ENVIRONMENT
            ========================================================================== */
-        /* Sembunyikan seluruh navigasi portal luar, header website, dan footer agar layar 100% fokus kuis */
         nav,
         .edusite-header,
         .arsha-header,
@@ -629,7 +583,6 @@
             background-color: #F8FAFC !important;
         }
 
-        /* Mobile Touch Scroll & Tap Fix */
         button, input, select, textarea, .matching-target-slot, .btn-match-chip, .quiz-option-tile {
             touch-action: manipulation !important;
         }
@@ -639,13 +592,7 @@
             padding-top: 0 !important;
         }
 
-        .quiz-attempt-hero {
-            top: 0 !important;
-            position: sticky !important;
-            z-index: 1020 !important;
-        }
-
-        /* Overlay & Modal Proteksi Ujian (Scrollable & Responsive di Mobile) */
+        /* Overlay & Modal Proteksi Ujian */
         .exam-overlay-backdrop {
             position: fixed;
             top: 0;
@@ -671,8 +618,8 @@
 
         .exam-modal-card {
             background: #ffffff;
-            border-radius: 20px;
-            max-width: 540px;
+            border-radius: 18px;
+            max-width: 520px;
             width: 100%;
             max-height: 90vh;
             display: flex;
@@ -690,33 +637,9 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        .violation-pill-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 1.25rem 0;
-        }
-        .violation-dot {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: #F1F5F9;
-            border: 2px solid #CBD5E1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #64748B;
-            transition: all 0.2s ease;
-        }
-        .violation-dot.active {
-            background: #DC2626;
-            border-color: #991B1B;
-            color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.25);
-            transform: scale(1.08);
+        .exam-modal-body {
+            padding: 1.25rem 1.5rem;
+            background: #ffffff;
         }
 
         /* Toast Peringatan Navigasi Back */
@@ -727,29 +650,28 @@
             transform: translateX(-50%);
             z-index: 99998;
             pointer-events: none;
+            width: 90%;
+            max-width: 450px;
         }
         .exam-toast {
             background: #1E293B;
             color: #ffffff;
-            padding: 12px 24px;
+            padding: 10px 18px;
             border-radius: 50rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
             border: 1.5px solid #EF4444;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.88rem;
+            gap: 8px;
+            font-size: 0.84rem;
             font-weight: 600;
             animation: slideUpToast 0.3s ease;
+            text-align: center;
+            justify-content: center;
         }
         @keyframes slideUpToast {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
-        }
-
-        .exam-modal-body {
-            padding: 1.5rem 1.75rem;
-            background: #ffffff;
         }
     </style>
 
@@ -759,37 +681,37 @@
             <div class="d-flex align-items-center justify-content-between gap-2">
                 
                 <!-- Left: Quiz Info (Compact & Truncated on Mobile) -->
-                <div class="d-flex align-items-center gap-2.5 overflow-hidden">
-                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm hero-icon-box" style="background: rgba(255, 255, 255, 0.2); width: 42px; height: 42px;">
-                        <i class="ti ti-checklist fs-4"></i>
+                <div class="d-flex align-items-center gap-2 overflow-hidden min-w-0">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm" style="background: rgba(255, 255, 255, 0.2); width: 36px; height: 36px;">
+                        <i class="ti ti-checklist fs-5"></i>
                     </div>
-                    <div class="overflow-hidden">
-                        <h1 class="fs-6 fs-sm-5 fw-bold mb-0 text-white text-truncate" style="font-family: 'Jost', sans-serif;">
+                    <div class="overflow-hidden min-w-0">
+                        <h1 class="fw-bold mb-0 text-white text-truncate" style="font-family: 'Jost', sans-serif; font-size: clamp(0.9rem, 2.5vw, 1.15rem);">
                             {{ $quiz->title }}
                         </h1>
-                        <div class="text-white-50 small d-flex flex-wrap align-items-center gap-1.5" style="font-size: 0.78rem;">
+                        <div class="text-white-50 small d-flex flex-wrap align-items-center gap-1.5" style="font-size: 0.74rem;">
                             <span class="text-truncate">{{ $quiz->subject->name ?? 'Mata Pelajaran' }}</span>
-                            <span>•</span>
-                            <span>{{ $quiz->questions->count() === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions->count() . ' Nomor (' . $quiz->total_questions_count . ' Butir Soal)' }}</span>
+                            <span class="opacity-50">•</span>
+                            <span>{{ $quiz->questions->count() }} Nomor</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right: Auto-Save Status & Countdown Timer -->
-                <div class="d-flex align-items-center gap-2 gap-sm-3 shrink-0">
+                <div class="d-flex align-items-center gap-2 shrink-0">
                     
                     <!-- Auto-Save Status Indicator -->
-                    <div id="saveStatusBadge" class="sync-badge d-none d-lg-inline-flex align-items-center gap-1.5">
+                    <div id="saveStatusBadge" class="sync-badge d-none d-md-inline-flex align-items-center gap-1.5">
                         <i class="ti ti-cloud-check text-warning fs-5" id="saveStatusIcon"></i>
-                        <span id="saveStatusText" class="fw-medium">Tersimpan Otomatis</span>
+                        <span id="saveStatusText" class="fw-medium">Tersimpan</span>
                     </div>
 
                     <!-- Countdown Timer -->
-                    <div class="timer-badge-box d-flex align-items-center gap-2 text-white" id="timerContainer">
-                        <i class="ti ti-clock-hour-4 fs-5 text-warning"></i>
-                        <div class="d-flex align-items-center gap-1.5">
-                            <span class="text-uppercase fw-semibold d-none d-sm-inline" style="font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.9;">Sisa Waktu:</span>
-                            <span id="quizTimer" class="fs-5 fs-sm-4 fw-extrabold font-monospace text-white" style="line-height: 1;">--:--:--</span>
+                    <div class="timer-badge-box d-flex align-items-center gap-1.5 text-white" id="timerContainer">
+                        <i class="ti ti-clock-hour-4 fs-5 text-warning shrink-0"></i>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="text-uppercase fw-semibold d-none d-sm-inline" style="font-size: 0.68rem; letter-spacing: 0.5px; opacity: 0.9;">Sisa:</span>
+                            <span id="quizTimer" class="fw-extrabold font-monospace text-white" style="font-size: clamp(0.95rem, 2.5vw, 1.25rem); line-height: 1;">--:--:--</span>
                         </div>
                     </div>
 
@@ -834,20 +756,20 @@
                                 <!-- Question Header (Kompak & Elegan) -->
                                 <div class="question-card-header">
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="badge px-2.5 py-1 rounded-pill font-bold d-inline-flex align-items-center gap-1" style="background: #2563EB; color: #ffffff; font-size: 0.8rem;">
+                                        <span class="badge px-2.5 py-1 rounded-pill font-bold d-inline-flex align-items-center gap-1" style="background: #2563EB; color: #ffffff; font-size: 0.78rem;">
                                             <i class="ti ti-edit fs-6"></i> Soal No. {{ $stepNumber }}
                                         </span>
-                                        <span class="text-muted small fw-semibold">dari {{ $totalQuestions }} Nomor</span>
+                                        <span class="text-muted small fw-semibold" style="font-size: 0.76rem;">dari {{ $totalQuestions }} Nomor</span>
                                     </div>
                                     
                                     <div class="d-flex align-items-center gap-2">
                                         @if($question->isMatching())
-                                            <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.76rem;">
-                                                <i class="ti ti-award me-1"></i> {{ $question->options->count() }} Poin (1 Poin / Pasangan)
+                                            <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.72rem;">
+                                                <i class="ti ti-award me-0.5"></i> {{ $question->options->count() }} Poin (1 Poin / Pasangan)
                                             </span>
                                         @else
-                                            <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.76rem;">
-                                                <i class="ti ti-award me-1"></i> 1 Poin
+                                            <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 font-bold shadow-2xs" style="font-size: 0.72rem;">
+                                                <i class="ti ti-award me-0.5"></i> 1 Poin
                                             </span>
                                         @endif
                                     </div>
@@ -862,22 +784,22 @@
                                     </div>
 
                                     <!-- Options Container (Adaptive based on Question Type) -->
-                                    <div class="mb-4">
+                                    <div class="mb-3.5">
                                         @if($question->isMatching())
-                                            <!-- MATCHING QUESTION INTERFACE (Interactive Target Cards & Choice Pool) -->
+                                            <!-- MATCHING QUESTION INTERFACE -->
                                             @php
                                                 $shuffledMatches = $question->options->pluck('match_text')->filter()->unique()->sortBy(fn($m) => md5($attempt->id . '_m_' . $m))->values();
                                                 $userMatchingData = $savedMatchingAnswers[$question->id] ?? [];
                                             @endphp
                                             
                                             <!-- Interactive Guide Banner -->
-                                            <div class="matching-guide-banner p-3 rounded-4 mb-4 d-flex align-items-center gap-3">
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff;">
+                                            <div class="matching-guide-banner p-2.5 p-sm-3 mb-3 d-flex align-items-center gap-2.5">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 34px; height: 34px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff;">
                                                     <i class="ti ti-arrows-left-right fs-5"></i>
                                                 </div>
-                                                <div>
-                                                    <div class="fw-extrabold text-white" style="font-size: 0.92rem; letter-spacing: 0.3px;">Panduan Soal Menjodohkan</div>
-                                                    <div class="text-white-50 small" style="font-size: 0.8rem;">Sentuh / klik <strong>Slot Target</strong> pada pernyataan, lalu pilih opsi <strong>Jawaban</strong> di bawah. Setiap pasangan dinilai 1 poin secara mandiri.</div>
+                                                <div class="min-w-0">
+                                                    <div class="fw-bold text-white" style="font-size: 0.88rem;">Panduan Soal Menjodohkan</div>
+                                                    <div class="text-white-50 small" style="font-size: 0.76rem; line-height: 1.35;">Sentuh <strong>Slot Target</strong>, lalu pilih <strong>Jawaban</strong> di bawah.</div>
                                                 </div>
                                             </div>
 
@@ -885,17 +807,17 @@
                                             <div class="matching-container" data-question-id="{{ $question->id }}" data-question-index="{{ $stepNumber }}">
                                                 
                                                 <!-- 1. Left Premises List (Target Slots) -->
-                                                <div class="mb-4">
-                                                    <h6 class="fw-bold text-uppercase text-secondary mb-3 d-flex align-items-center gap-2" style="font-size: 0.78rem; letter-spacing: 0.8px;">
+                                                <div class="mb-3.5">
+                                                    <h6 class="fw-bold text-uppercase text-secondary mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.74rem; letter-spacing: 0.6px;">
                                                         <i class="ti ti-list-check text-primary"></i> Pernyataan / Pertanyaan
                                                     </h6>
                                                     
-                                                    <div class="vstack gap-3">
+                                                    <div class="vstack gap-2.5">
                                                         @foreach($question->options as $pairIndex => $opt)
                                                             @php
                                                                 $currentMatch = $userMatchingData[$opt->id] ?? '';
                                                             @endphp
-                                                            <div class="matching-premise-card p-3 rounded-4 border bg-white shadow-xs" id="premise-card-{{ $question->id }}-{{ $opt->id }}" data-option-id="{{ $opt->id }}">
+                                                            <div class="matching-premise-card p-2.5 p-sm-3 border bg-white shadow-xs" id="premise-card-{{ $question->id }}-{{ $opt->id }}" data-option-id="{{ $opt->id }}">
                                                                 <!-- Hidden Input for Form Submission & Auto-Save -->
                                                                 <input type="hidden" 
                                                                        name="matching_answers[{{ $question->id }}][{{ $opt->id }}]" 
@@ -905,43 +827,43 @@
                                                                        data-question-index="{{ $stepNumber }}"
                                                                        value="{{ $currentMatch }}">
 
-                                                                <div class="row align-items-center g-3">
+                                                                <div class="row align-items-center g-2.5">
                                                                     <!-- Premise Text & Number Badge -->
-                                                                    <div class="col-12 col-md-6 d-flex align-items-start gap-2.5">
-                                                                        <span class="badge rounded-circle flex-shrink-0 d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 28px; height: 28px; background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); color: #ffffff; font-weight: 700; font-size: 0.82rem;">
+                                                                    <div class="col-12 col-md-6 d-flex align-items-start gap-2">
+                                                                        <span class="badge rounded-circle flex-shrink-0 d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 26px; height: 26px; background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); color: #ffffff; font-weight: 700; font-size: 0.78rem;">
                                                                             {{ $pairIndex + 1 }}
                                                                         </span>
-                                                                        <div class="fw-semibold text-dark pt-0.5" style="font-size: 0.92rem; line-height: 1.45;">
+                                                                        <div class="fw-semibold text-dark pt-0.5" style="font-size: 0.88rem; line-height: 1.4;">
                                                                             {{ $opt->option_text }}
                                                                         </div>
                                                                     </div>
 
                                                                     <!-- Target Slot Display -->
                                                                     <div class="col-12 col-md-6">
-                                                                        <div class="matching-target-slot rounded-3 p-2.5 d-flex align-items-center justify-content-between transition-all {{ $currentMatch ? 'has-match' : 'is-empty' }}"
+                                                                        <div class="matching-target-slot p-2 d-flex align-items-center justify-content-between transition-all {{ $currentMatch ? 'has-match' : 'is-empty' }}"
                                                                              onclick="activatePremiseSlot({{ $question->id }}, {{ $opt->id }})"
                                                                              id="slot-{{ $question->id }}-{{ $opt->id }}"
-                                                                             style="min-height: 44px; cursor: pointer;">
+                                                                             style="cursor: pointer;">
                                                                             @if($currentMatch)
-                                                                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                                                                    <i class="ti ti-circle-check-filled fs-5 text-success"></i>
-                                                                                    <span class="fw-bold text-truncate" style="font-size: 0.88rem; color: #065F46;">
+                                                                                <div class="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                                                                    <i class="ti ti-circle-check-filled fs-5 text-success shrink-0"></i>
+                                                                                    <span class="fw-bold text-truncate" style="font-size: 0.85rem; color: #065F46;">
                                                                                         {{ $currentMatch }}
                                                                                     </span>
                                                                                 </div>
                                                                                 <button type="button" 
-                                                                                        class="btn btn-sm btn-light border-0 rounded-circle d-flex align-items-center justify-content-center text-danger p-0 shadow-2xs" 
+                                                                                        class="btn btn-sm btn-light border-0 rounded-circle d-flex align-items-center justify-content-center text-danger p-0 shadow-2xs shrink-0" 
                                                                                         style="width: 26px; height: 26px;"
                                                                                         onclick="clearMatchingPair(event, {{ $question->id }}, {{ $opt->id }})"
                                                                                         title="Hapus Pasangan">
                                                                                     <i class="ti ti-x fs-6"></i>
                                                                                 </button>
                                                                             @else
-                                                                                <div class="d-flex align-items-center gap-2.5 text-muted" style="font-size: 0.84rem;">
-                                                                                    <i class="ti ti-plus-circle fs-5 text-primary opacity-75"></i>
-                                                                                    <span class="fw-medium text-slate-500">Pilih pasangan jawaban...</span>
+                                                                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.8rem;">
+                                                                                    <i class="ti ti-plus-circle fs-5 text-primary opacity-75 shrink-0"></i>
+                                                                                    <span class="fw-medium text-slate-500">Pilih pasangan...</span>
                                                                                 </div>
-                                                                                <span class="badge bg-white text-secondary border px-2 py-1 shadow-2xs" style="font-size: 0.72rem;">Pilih</span>
+                                                                                <span class="badge bg-white text-secondary border px-2 py-0.5 shadow-2xs" style="font-size: 0.68rem;">Pilih</span>
                                                                             @endif
                                                                         </div>
                                                                     </div>
@@ -952,17 +874,17 @@
                                                 </div>
 
                                                 <!-- 2. Right Choice Palette (Matches Pool) -->
-                                                <div class="matching-choices-pool p-3 p-sm-3.5 rounded-4 bg-slate-50 border" style="background-color: #F8FAFC; border-color: rgba(51, 104, 160, 0.15) !important;">
-                                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                                        <h6 class="fw-bold text-uppercase text-secondary mb-0 d-flex align-items-center gap-2" style="font-size: 0.78rem; letter-spacing: 0.8px;">
+                                                <div class="matching-choices-pool p-2.5 p-sm-3 rounded-3 bg-slate-50 border" style="background-color: #F8FAFC; border-color: rgba(51, 104, 160, 0.15) !important;">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2.5">
+                                                        <h6 class="fw-bold text-uppercase text-secondary mb-0 d-flex align-items-center gap-1.5" style="font-size: 0.74rem; letter-spacing: 0.6px;">
                                                             <i class="ti ti-category text-primary"></i> Pilihan Jawaban
                                                         </h6>
-                                                        <span class="badge bg-primary-subtle text-primary fw-semibold px-2.5 py-1" style="font-size: 0.72rem;">
+                                                        <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-0.5" style="font-size: 0.68rem;">
                                                             {{ count($shuffledMatches) }} Pilihan
                                                         </span>
                                                     </div>
 
-                                                    <div class="d-flex flex-wrap gap-2.5" id="choice-pool-{{ $question->id }}">
+                                                    <div class="d-flex flex-wrap gap-2" id="choice-pool-{{ $question->id }}">
                                                         @foreach($shuffledMatches as $match)
                                                             @php
                                                                 $usedByOptId = null;
@@ -974,14 +896,14 @@
                                                                 }
                                                             @endphp
                                                             <button type="button" 
-                                                                    class="btn-match-chip btn rounded-3 px-3 py-2 text-start transition-all d-inline-flex align-items-center gap-2 {{ $usedByOptId ? 'is-used' : 'is-available' }}"
+                                                                    class="btn-match-chip btn d-inline-flex align-items-center gap-1.5 {{ $usedByOptId ? 'is-used' : 'is-available' }}"
                                                                     data-match-value="{{ $match }}"
                                                                     data-question-id="{{ $question->id }}"
                                                                     onclick="selectMatchChip({{ $question->id }}, {{ json_encode($match) }})">
                                                                 <i class="ti {{ $usedByOptId ? 'ti-check text-success' : 'ti-point text-primary' }} fs-5"></i>
-                                                                <span class="fw-semibold" style="font-size: 0.88rem;">{{ $match }}</span>
+                                                                <span class="fw-semibold">{{ $match }}</span>
                                                                 @if($usedByOptId)
-                                                                    <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.68rem;">Terpasang</span>
+                                                                    <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.65rem;">Terpasang</span>
                                                                 @endif
                                                             </button>
                                                         @endforeach
@@ -991,7 +913,7 @@
                                             </div>
                                         @elseif($question->isTrueFalse())
                                             <!-- TRUE / FALSE QUESTION INTERFACE -->
-                                            <div class="row g-3">
+                                            <div class="row g-2.5">
                                                 @foreach($question->options as $option)
                                                     @php
                                                         $isTrue = ($option->option_text === 'Benar');
@@ -1009,17 +931,17 @@
                                                                    data-is-true="{{ $isTrue ? 'true' : 'false' }}"
                                                                    {{ $isSelected ? 'checked' : '' }}
                                                                    class="form-check-input option-radio d-none">
-                                                            <div class="rounded-circle p-2 mb-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: {{ $isTrue ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; color: {{ $isTrue ? '#059669' : '#dc2626' }};">
+                                                            <div class="rounded-circle p-1.5 mb-1.5 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: {{ $isTrue ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; color: {{ $isTrue ? '#059669' : '#dc2626' }};">
                                                                 <i class="ti {{ $isTrue ? 'ti-check' : 'ti-x' }} fs-4"></i>
                                                             </div>
-                                                            <span class="fw-bold fs-6 {{ $isTrue ? 'text-success' : 'text-danger' }}">{{ $option->option_text }}</span>
+                                                            <span class="fw-bold {{ $isTrue ? 'text-success' : 'text-danger' }}" style="font-size: 0.95rem;">{{ $option->option_text }}</span>
                                                         </label>
                                                     </div>
                                                 @endforeach
                                             </div>
                                         @else
-                                            <!-- MULTIPLE CHOICE OPTIONS LIST (Sleek Modern Tiles, No Duplicate Radio Circle) -->
-                                            <div class="d-flex flex-column gap-2.5">
+                                            <!-- MULTIPLE CHOICE OPTIONS LIST -->
+                                            <div class="d-flex flex-column gap-2">
                                                 @foreach($question->options as $optIndex => $option)
                                                     @php
                                                         $letter = $letters[$optIndex % count($letters)];
@@ -1044,26 +966,25 @@
                                         @endif
                                     </div>
 
-                                    <!-- Bottom Action & Navigation Bar (Rapi & Sejajar di Semua Ukuran Layar) -->
-                                    <div class="pt-3.5 mt-4 border-top" style="border-color: #f1f5f9 !important;">
+                                    <!-- Bottom Action & Navigation Bar -->
+                                    <div class="pt-3 mt-3.5 border-top" style="border-color: #f1f5f9 !important;">
                                         <div class="d-flex align-items-center justify-content-between gap-2">
                                             
                                             <!-- Tombol Sebelumnya -->
                                             @if($index > 0)
                                                 <button type="button" 
                                                         onclick="goToQuestion({{ $index }})" 
-                                                        class="btn btn-outline-secondary rounded-pill px-3 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift quiz-nav-btn"
-                                                        style="font-size: 0.86rem;">
+                                                        class="btn btn-outline-secondary rounded-pill px-3 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift quiz-nav-btn">
                                                     <i class="ti ti-arrow-left"></i> <span>Sebelumnya</span>
                                                 </button>
                                             @else
-                                                <button type="button" class="btn btn-light rounded-pill px-3 py-2 text-muted fw-semibold quiz-nav-btn" disabled style="opacity: 0.5; cursor: not-allowed; font-size: 0.86rem;">
+                                                <button type="button" class="btn btn-light rounded-pill px-3 py-2 text-muted fw-semibold quiz-nav-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
                                                     <i class="ti ti-arrow-left"></i> <span>Sebelumnya</span>
                                                 </button>
                                             @endif
 
                                             <!-- Question Step Badge -->
-                                            <div class="badge rounded-pill px-2.5 py-1.5 font-bold text-secondary d-inline-flex align-items-center gap-1 quiz-step-badge" style="background: #F1F5F9; font-size: 0.78rem;">
+                                            <div class="badge rounded-pill px-2.5 py-1.5 font-bold text-secondary d-inline-flex align-items-center gap-1 quiz-step-badge" style="background: #F1F5F9;">
                                                 <i class="ti ti-file-text text-primary"></i> <span>{{ $stepNumber }} / {{ $totalQuestions }}</span>
                                             </div>
 
@@ -1073,14 +994,14 @@
                                                     <button type="button" 
                                                             onclick="goToQuestion({{ $stepNumber + 1 }})" 
                                                             class="btn text-white rounded-pill px-3.5 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift quiz-nav-btn w-100"
-                                                            style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.86rem;">
+                                                            style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%);">
                                                         <span>Selanjutnya</span> <i class="ti ti-arrow-right"></i>
                                                     </button>
                                                 @else
                                                     <button type="button" 
                                                             onclick="openSubmitConfirmationModal();" 
                                                             class="btn text-white rounded-pill px-3.5 py-2 font-bold d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift shadow-sm quiz-nav-btn w-100"
-                                                            style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.86rem;">
+                                                            style="background: linear-gradient(135deg, #059669 0%, #10B981 100%);">
                                                         <i class="ti ti-circle-check"></i> <span>Kumpulkan</span>
                                                     </button>
                                                 @endif
@@ -1096,13 +1017,13 @@
                         </div>
                     @empty
                         <div class="card border-0 rounded-4 shadow-sm text-center py-5">
-                            <div class="card-body p-5">
-                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="background: rgba(245, 158, 11, 0.12); width: 72px; height: 72px;">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="background: rgba(245, 158, 11, 0.12); width: 64px; height: 64px;">
                                     <i class="ti ti-alert-triangle text-warning fs-1"></i>
                                 </div>
-                                <h4 class="fw-bold mb-2 text-dark">Tidak Ada Butir Soal dalam Kuis Ini</h4>
+                                <h4 class="fw-bold mb-2 text-dark">Tidak Ada Butir Soal</h4>
                                 <p class="text-muted small mb-4">Guru pengampu belum mengunggah pertanyaan untuk kuis ini. Silakan kembali lagi nanti.</p>
-                                <a href="{{ route('student.quizzes.index') }}" class="btn btn-primary rounded-pill px-4 py-2 font-bold" style="background: #20456E;">
+                                <a href="{{ route('student.quizzes.index') }}" class="btn text-white rounded-pill px-4 py-2 font-bold" style="background: #20456E;">
                                     <i class="ti ti-arrow-left me-1"></i> Kembali ke Daftar Kuis
                                 </a>
                             </div>
@@ -1112,43 +1033,40 @@
                     <!-- Hidden input to track violation counts -->
                     <input type="hidden" name="violation_count" id="violationCountInput" value="0">
 
-                    <!-- Hidden fallback submit button for accessibility and automated testing -->
-                    <button type="submit" 
-                            id="submitQuizBtn" 
-                            class="d-none">
-                    </button>
+                    <!-- Hidden fallback submit button -->
+                    <button type="submit" id="submitQuizBtn" class="d-none"></button>
 
                 </div>
 
-                <!-- 2. Right Column: Navigasi Soal (Question Palette) & Keterangan Warna (Legend) Lega & Luas -->
+                <!-- 2. Right Column: Navigasi Soal (Question Palette) & Keterangan Warna -->
                 <div class="col-lg-4 col-xl-4">
                     <aside class="palette-sticky-card" id="paletteCardSection">
                         
                         <!-- Palette Header -->
-                        <div class="d-flex align-items-center justify-content-between mb-3 pb-2.5 border-bottom" style="border-color: rgba(51, 104, 160, 0.12) !important;">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #20456E, #3368A0); width: 34px; height: 34px;">
+                        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(51, 104, 160, 0.12) !important;">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0" style="background: linear-gradient(135deg, #20456E, #3368A0); width: 32px; height: 32px;">
                                     <i class="ti ti-layout-grid fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 1.05rem;">
+                                    <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.98rem;">
                                         Navigasi Soal
                                     </h6>
-                                    <div class="text-muted small" style="font-size: 0.76rem;">Klik nomor untuk menuju soal</div>
+                                    <div class="text-muted small" style="font-size: 0.72rem;">Klik nomor untuk menuju soal</div>
                                 </div>
                             </div>
-                            <span class="badge rounded-pill px-3 py-1 font-bold small" style="background: rgba(51, 104, 160, 0.1); color: #20456E;">
+                            <span class="badge rounded-pill px-2.5 py-1 font-bold small" style="background: rgba(51, 104, 160, 0.1); color: #20456E; font-size: 0.72rem;">
                                 {{ $totalQuestions }} Butir
                             </span>
                         </div>
 
-                        <!-- Progress Bar Pengerjaan (Berjarak Lega ke Kotak Nomor Soal) -->
-                        <div class="mb-4 pb-1">
-                            <div class="d-flex align-items-center justify-content-between small text-muted mb-2">
+                        <!-- Progress Bar Pengerjaan -->
+                        <div class="mb-3 pb-1">
+                            <div class="d-flex align-items-center justify-content-between small text-muted mb-1.5" style="font-size: 0.76rem;">
                                 <span class="fw-semibold">Progres Pengerjaan</span>
                                 <span class="fw-bold text-primary" id="progressPercentageText">{{ $initialProgress }}%</span>
                             </div>
-                            <div class="progress" style="height: 7px; border-radius: 50rem; background-color: #E2E8F0;">
+                            <div class="progress" style="height: 6px; border-radius: 50rem; background-color: #E2E8F0;">
                                 <div id="progressBarFill" 
                                      class="progress-bar rounded-pill" 
                                      role="progressbar" 
@@ -1160,8 +1078,8 @@
                             </div>
                         </div>
 
-                        <!-- Grid Nomor Soal (Lega & Simetris) -->
-                        <div class="palette-grid mb-3.5" id="questionPaletteGrid">
+                        <!-- Grid Nomor Soal -->
+                        <div class="palette-grid mb-3" id="questionPaletteGrid">
                             @foreach($quiz->questions as $index => $q)
                                 @php
                                     $num = $index + 1;
@@ -1179,45 +1097,45 @@
                         </div>
 
                         <!-- Divider -->
-                        <hr class="my-3" style="border-color: rgba(51, 104, 160, 0.12);">
+                        <hr class="my-2.5" style="border-color: rgba(51, 104, 160, 0.12);">
 
-                        <!-- Keterangan Warna (Legend) Lega di Bawah Navigasi Soal -->
-                        <div class="mb-3.5">
-                            <div class="text-uppercase fw-bold text-secondary mb-2" style="font-size: 0.72rem; letter-spacing: 0.6px;">
-                                <i class="ti ti-info-circle me-1"></i> Keterangan Warna
+                        <!-- Keterangan Warna (Legend) -->
+                        <div class="mb-3">
+                            <div class="text-uppercase fw-bold text-secondary mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                                <i class="ti ti-info-circle me-0.5"></i> Keterangan Warna
                             </div>
 
-                            <div class="d-flex flex-column gap-2">
+                            <div class="d-flex flex-column gap-1.5">
                                 
                                 <!-- Legend 1: Sedang Dikerjakan (BIRU) -->
                                 <div class="legend-box-item" style="background: rgba(37, 99, 235, 0.06); border-color: rgba(37, 99, 235, 0.25);">
-                                    <div class="d-flex align-items-center gap-2.5">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="legend-indicator-dot dot-current"></div>
-                                        <div class="small fw-bold text-primary">Sedang Dikerjakan</div>
+                                        <div class="small fw-bold text-primary" style="font-size: 0.78rem;">Sedang Dikerjakan</div>
                                     </div>
-                                    <span id="legendCurrentNum" class="badge rounded-pill px-2.5 py-1 text-white font-bold" style="background-color: #2563EB; font-size: 0.75rem;">
+                                    <span id="legendCurrentNum" class="badge rounded-pill px-2 py-0.5 text-white font-bold" style="background-color: #2563EB; font-size: 0.72rem;">
                                         No. 1
                                     </span>
                                 </div>
 
                                 <!-- Legend 2: Sudah Dijawab (HIJAU) -->
                                 <div class="legend-box-item">
-                                    <div class="d-flex align-items-center gap-2.5">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="legend-indicator-dot dot-answered"></div>
-                                        <div class="small fw-semibold text-dark">Sudah Dijawab</div>
+                                        <div class="small fw-semibold text-dark" style="font-size: 0.78rem;">Sudah Dijawab</div>
                                     </div>
-                                    <span id="legendAnsweredCount" class="badge rounded-pill px-2.5 py-1 text-white font-bold" style="background-color: #10B981; font-size: 0.75rem;">
+                                    <span id="legendAnsweredCount" class="badge rounded-pill px-2 py-0.5 text-white font-bold" style="background-color: #10B981; font-size: 0.72rem;">
                                         {{ $initialAnsweredCount }} Soal
                                     </span>
                                 </div>
 
                                 <!-- Legend 3: Belum Dijawab (ABU-ABU) -->
                                 <div class="legend-box-item">
-                                    <div class="d-flex align-items-center gap-2.5">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="legend-indicator-dot dot-unanswered"></div>
-                                        <div class="small fw-semibold text-dark">Belum Dijawab</div>
+                                        <div class="small fw-semibold text-dark" style="font-size: 0.78rem;">Belum Dijawab</div>
                                     </div>
-                                    <span id="legendUnansweredCount" class="badge rounded-pill px-2.5 py-1 text-secondary font-bold" style="background-color: #E2E8F0; color: #475569 !important; font-size: 0.75rem;">
+                                    <span id="legendUnansweredCount" class="badge rounded-pill px-2 py-0.5 text-secondary font-bold" style="background-color: #E2E8F0; color: #475569 !important; font-size: 0.72rem;">
                                         {{ $initialUnansweredCount }} Soal
                                     </span>
                                 </div>
@@ -1226,14 +1144,14 @@
                         </div>
 
                         <!-- Divider Antara Legenda & Tombol Kumpulkan -->
-                        <hr class="my-3.5" style="border-color: rgba(51, 104, 160, 0.12);">
+                        <hr class="my-2.5" style="border-color: rgba(51, 104, 160, 0.12);">
 
                         <!-- Sidebar Quick Submit Button -->
                         <div class="pt-1">
                             <button type="button" 
                                     onclick="openSubmitConfirmationModal();" 
                                     class="btn text-white w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2 hover-lift"
-                                    style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.92rem;">
+                                    style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.88rem;">
                                 <i class="ti ti-circle-check fs-5"></i> Selesai & Kumpulkan
                             </button>
                         </div>
@@ -1247,11 +1165,11 @@
 
     </div>
 
-    <!-- Floating Mobile Question Palette Shortcut (Quick Navigation on Mobile) -->
-    <div class="d-md-none position-fixed" style="bottom: 1.25rem; right: 1rem; z-index: 1015;">
+    <!-- Floating Mobile Question Palette Shortcut -->
+    <div class="d-lg-none position-fixed" style="bottom: 1.25rem; right: 1rem; z-index: 1015;">
         <button type="button" 
                 onclick="scrollToPalette()" 
-                class="btn btn-floating-palette rounded-pill py-2 px-3.5 d-flex align-items-center gap-1.5 shadow-lg"
+                class="btn btn-floating-palette rounded-pill py-2 px-3 d-flex align-items-center gap-1.5 shadow-lg"
                 title="Buka Navigasi Soal">
             <i class="ti ti-layout-grid fs-5"></i>
             <span>Soal No.</span>
@@ -1266,24 +1184,23 @@
     <!-- 1. Modal Gerbang Mulai Kuis (Wajib Masuk Fullscreen) -->
     <div id="examStartModal" class="exam-overlay-backdrop" style="display: none;">
         <div class="exam-modal-card">
-            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%);">
-                <div class="rounded-circle bg-white text-primary mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px;">
-                    <i class="ti ti-shield-lock fs-1" style="color: #20456E;"></i>
+            <div class="p-3.5 p-sm-4 text-center text-white" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%);">
+                <div class="rounded-circle bg-white text-primary mx-auto mb-2.5 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px;">
+                    <i class="ti ti-shield-lock fs-2" style="color: #20456E;"></i>
                 </div>
-                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif;">Kuis Terproteksi RuangTerra</h4>
-                <p class="small text-white-50 mb-0">Mode Layar Penuh (Fullscreen) & Pengawasan Anti-Curang</p>
+                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif; font-size: 1.2rem;">Kuis Terproteksi RuangTerra</h4>
+                <p class="small text-white-50 mb-0" style="font-size: 0.78rem;">Mode Layar Penuh (Fullscreen) & Pengawasan Anti-Curang</p>
             </div>
             <div class="exam-modal-body text-dark">
-                <div class="alert alert-light border rounded-3 p-3 mb-3 small" style="background: #F8FAFC; border-color: #E2E8F0 !important;">
+                <div class="alert alert-light border rounded-3 p-3 mb-3 small" style="background: #F8FAFC; border-color: #E2E8F0 !important; font-size: 0.8rem;">
                     <div class="fw-bold text-dark mb-2 d-flex align-items-center gap-1.5">
-                        <i class="ti ti-info-circle text-primary fs-5"></i> Peraturan Ketat Selama Kuis Berlangsung:
+                        <i class="ti ti-info-circle text-primary fs-5"></i> Peraturan Selama Kuis Berlangsung:
                     </div>
-                    <ul class="mb-0 ps-3 text-secondary d-flex flex-column gap-1.5" style="line-height: 1.5;">
+                    <ul class="mb-0 ps-3 text-secondary d-flex flex-column gap-1.5" style="line-height: 1.45;">
                         <li>Kuis <strong>wajib dikerjakan dalam mode Layar Penuh (Fullscreen)</strong>.</li>
-                        <li><strong>DILARANG membuka tab lain</strong>, berpindah jendela, atau meminimalkan browser.</li>
-                        <li><strong>DILARANG keluar dari kuis</strong> sebelum Anda menyelesaikan dan mengumpulkan kuis.</li>
-                        <li><strong>Batas toleransi pelanggaran HANYA 1 KALI</strong>: Berpindah tab, keluar layar penuh, atau beralih jendela akan langsung dicatat sebagai pelanggaran.</li>
-                        <li><strong class="text-danger">Jika melanggar (1 kali saja), lembar kuis akan LANGSUNG OTOMATIS DIKUMPULKAN ke server</strong> dan dinilai apa adanya!</li>
+                        <li><strong>DILARANG membuka tab lain</strong> atau berpindah jendela/aplikasi.</li>
+                        <li><strong>Batas toleransi pelanggaran HANYA 1 KALI</strong>.</li>
+                        <li><strong class="text-danger">Jika melanggar, lembar kuis akan LANGSUNG OTOMATIS DIKUMPULKAN</strong> ke server dan dinilai apa adanya!</li>
                     </ul>
                 </div>
 
@@ -1292,7 +1209,7 @@
                             id="btnEnterFullscreenExam" 
                             onclick="startFullscreenExam()" 
                             class="btn text-white w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2 hover-lift"
-                            style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.95rem;">
+                            style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.9rem;">
                         <i class="ti ti-maximize fs-5"></i> Saya Mengerti, Mulai Kuis
                     </button>
                 </div>
@@ -1300,31 +1217,31 @@
         </div>
     </div>
 
-    <!-- 2. Modal Peringatan Pelanggaran Pindah Tab / Layar Penuh Lepas / Blur Jendela -->
+    <!-- 2. Modal Peringatan Pelanggaran Pindah Tab / Layar Penuh Lepas -->
     <div id="tabViolationModal" class="exam-overlay-backdrop" style="display: none;">
         <div class="exam-modal-card">
-            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);">
-                <div class="rounded-circle bg-white text-danger mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px;">
-                    <i class="ti ti-alert-octagon fs-1" style="color: #dc2626;"></i>
+            <div class="p-3.5 p-sm-4 text-center text-white" style="background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);">
+                <div class="rounded-circle bg-white text-danger mx-auto mb-2.5 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px;">
+                    <i class="ti ti-alert-octagon fs-2" style="color: #dc2626;"></i>
                 </div>
-                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif;">PELANGGARAN TERDETEKSI!</h4>
-                <p class="small text-white-50 mb-0">Terdeteksi Membuka Tab Baru atau Meninggalkan Jendela Kuis</p>
+                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif; font-size: 1.2rem;">PELANGGARAN TERDETEKSI!</h4>
+                <p class="small text-white-50 mb-0" style="font-size: 0.78rem;">Terdeteksi Membuka Tab Baru atau Meninggalkan Jendela Kuis</p>
             </div>
             <div class="exam-modal-body text-center">
-                <div class="alert alert-danger rounded-3 py-2.5 px-3 small font-bold mb-3" style="background-color: #fef2f2; border-color: #fecaca; color: #991b1b;">
-                    <i class="ti ti-ban me-1 fs-5"></i> Batas Toleransi Pelanggaran (1 Kali) Telah Terlampaui!
+                <div class="alert alert-danger rounded-3 py-2 px-3 small font-bold mb-3" style="background-color: #fef2f2; border-color: #fecaca; color: #991b1b; font-size: 0.8rem;">
+                    <i class="ti ti-ban me-1 fs-5"></i> Batas Toleransi Pelanggaran Telah Terlampaui!
                 </div>
 
-                <p class="text-secondary small mb-3" style="line-height: 1.6;">
-                    Sistem mendeteksi Anda meninggalkan jendela kuis, beralih ke tab/aplikasi lain, atau keluar dari layar penuh. Sesuai ketentuan pengawasan, lembar kuis Anda <strong>sedang otomatis dikumpulkan ke server dan dinilai apa adanya</strong>.
+                <p class="text-secondary small mb-3" style="line-height: 1.5; font-size: 0.82rem;">
+                    Sistem mendeteksi Anda meninggalkan jendela kuis atau keluar dari layar penuh. Sesuai ketentuan, lembar kuis Anda <strong>sedang otomatis dikumpulkan ke server</strong>.
                 </p>
 
-                <div class="p-3 rounded-3 mb-3 text-start border" style="background: #FFF5F5; border-color: #FED7D7 !important;">
-                    <div class="d-flex align-items-center gap-2 text-danger fw-bold small mb-1">
-                        <i class="ti ti-clock-pause fs-5"></i> Status Penyerahan Jawaban:
+                <div class="p-2.5 rounded-3 mb-3 text-start border" style="background: #FFF5F5; border-color: #FED7D7 !important;">
+                    <div class="d-flex align-items-center gap-1.5 text-danger fw-bold small mb-0.5" style="font-size: 0.78rem;">
+                        <i class="ti ti-clock-pause fs-5"></i> Status Penyerahan:
                     </div>
-                    <div class="small text-muted">
-                        Seluruh jawaban Anda yang telah tersimpan sedang diserahkan ke server untuk dinilai. Harap tunggu sebentar...
+                    <div class="small text-muted" style="font-size: 0.76rem;">
+                        Seluruh jawaban Anda sedang diserahkan ke server. Harap tunggu sebentar...
                     </div>
                 </div>
 
@@ -1332,59 +1249,59 @@
                         id="btnAckViolation"
                         disabled
                         class="btn btn-danger w-100 rounded-pill py-2.5 font-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
-                        style="font-size: 0.95rem;">
+                        style="font-size: 0.9rem;">
                     <i class="ti ti-loader ti-spin fs-5"></i> Mengumpulkan Kuis Otomatis...
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 4. Modal Konfirmasi Pengumpulan Kuis -->
+    <!-- 3. Modal Konfirmasi Pengumpulan Kuis -->
     <div id="submitConfirmModal" class="exam-overlay-backdrop" style="display: none;">
         <div class="exam-modal-card">
-            <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%);">
-                <div class="rounded-circle bg-white text-success mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px;">
-                    <i class="ti ti-file-check fs-1" style="color: #059669;"></i>
+            <div class="p-3.5 p-sm-4 text-center text-white" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%);">
+                <div class="rounded-circle bg-white text-success mx-auto mb-2.5 d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px;">
+                    <i class="ti ti-file-check fs-2" style="color: #059669;"></i>
                 </div>
-                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif;">Konfirmasi Kumpulkan Kuis</h4>
-                <p class="small text-white-50 mb-0">Pastikan seluruh jawaban telah Anda periksa</p>
+                <h4 class="fw-bold mb-1" style="font-family: 'Jost', sans-serif; font-size: 1.2rem;">Konfirmasi Kumpulkan Kuis</h4>
+                <p class="small text-white-50 mb-0" style="font-size: 0.78rem;">Pastikan seluruh jawaban telah Anda periksa</p>
             </div>
             <div class="exam-modal-body">
                 <div class="row g-2 mb-3 text-center">
                     <div class="col-6">
-                        <div class="p-3 rounded-3 border" style="background: #F8FAFC;">
-                            <div class="small text-muted fw-semibold">Sudah Dijawab</div>
+                        <div class="p-2.5 rounded-3 border" style="background: #F8FAFC;">
+                            <div class="small text-muted fw-semibold" style="font-size: 0.74rem;">Sudah Dijawab</div>
                             <div class="fs-4 fw-extrabold text-success" id="modalAnsweredCount">0</div>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="p-3 rounded-3 border" style="background: #F8FAFC;">
-                            <div class="small text-muted fw-semibold">Belum Dijawab</div>
+                        <div class="p-2.5 rounded-3 border" style="background: #F8FAFC;">
+                            <div class="small text-muted fw-semibold" style="font-size: 0.74rem;">Belum Dijawab</div>
                             <div class="fs-4 fw-extrabold text-danger" id="modalUnansweredCount">0</div>
                         </div>
                     </div>
                 </div>
 
-                <div id="unansweredWarningBox" class="alert alert-warning border rounded-3 p-3 mb-3 small d-none" style="background-color: #fffbeb; border-color: #fde68a !important; color: #92400e;">
+                <div id="unansweredWarningBox" class="alert alert-warning border rounded-3 p-2.5 mb-3 small d-none" style="background-color: #fffbeb; border-color: #fde68a !important; color: #92400e; font-size: 0.78rem;">
                     <i class="ti ti-alert-triangle me-1 fs-5"></i>
                     <strong>Perhatian:</strong> Masih ada <span id="warningUnansweredNum">0</span> butir soal yang belum Anda jawab! Apakah Anda tetap ingin mengumpulkan?
                 </div>
 
-                <p class="small text-muted text-center mb-4">
-                    Setelah kuis dikumpulkan, Anda tidak dapat kembali mengubah jawaban. Kuis akan dinilai secara otomatis oleh sistem.
+                <p class="small text-muted text-center mb-3" style="font-size: 0.78rem; line-height: 1.4;">
+                    Setelah kuis dikumpulkan, Anda tidak dapat mengubah jawaban. Kuis akan dinilai secara otomatis oleh sistem.
                 </p>
 
-                <div class="d-flex align-items-center gap-2.5">
+                <div class="d-flex align-items-center gap-2">
                     <button type="button" 
                             onclick="closeSubmitModal()" 
-                            class="btn btn-outline-secondary w-50 rounded-pill py-2.5 font-bold"
-                            style="font-size: 0.9rem;">
+                            class="btn btn-outline-secondary w-50 rounded-pill py-2 font-bold"
+                            style="font-size: 0.85rem;">
                         Periksa Kembali
                     </button>
                     <button type="button" 
                             onclick="confirmActualSubmit()" 
-                            class="btn text-white w-50 rounded-pill py-2.5 font-bold shadow-sm hover-lift"
-                            style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.9rem;">
+                            class="btn text-white w-50 rounded-pill py-2 font-bold shadow-sm hover-lift"
+                            style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); font-size: 0.85rem;">
                         <i class="ti ti-check me-1"></i> Ya, Kumpulkan
                     </button>
                 </div>
@@ -1392,11 +1309,11 @@
         </div>
     </div>
 
-    <!-- 5. Toast Notifikasi Penolakan Tombol Back -->
+    <!-- 4. Toast Notifikasi Penolakan Tombol Back -->
     <div id="backNavToast" class="exam-toast-container d-none">
         <div class="exam-toast">
-            <i class="ti ti-ban text-danger fs-4"></i>
-            <span>Tombol 'Kembali' dinonaktifkan! Kuis harus dikumpulkan untuk keluar.</span>
+            <i class="ti ti-ban text-danger fs-5 shrink-0"></i>
+            <span>Tombol 'Kembali' dinonaktifkan saat kuis berlangsung!</span>
         </div>
     </div>
 
@@ -1467,6 +1384,9 @@
             if (mobileBadge) {
                 mobileBadge.innerText = currentQuestion;
             }
+
+            // Scroll halus ke atas kartu soal saat pindah nomor
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function scrollToPalette() {
@@ -1503,15 +1423,15 @@
             if (status === 'saving') {
                 badge.classList.remove('d-none');
                 icon.className = 'ti ti-loader ti-spin text-warning fs-6';
-                text.innerText = 'Menyimpan jawaban...';
+                text.innerText = 'Menyimpan...';
             } else if (status === 'saved') {
                 badge.classList.remove('d-none');
                 icon.className = 'ti ti-cloud-check text-success fs-6';
-                text.innerText = 'Jawaban tersimpan otomatis';
+                text.innerText = 'Tersimpan';
             } else if (status === 'error') {
                 badge.classList.remove('d-none');
                 icon.className = 'ti ti-alert-circle text-danger fs-6';
-                text.innerText = 'Koneksi terganggu';
+                text.innerText = 'Gagal simpan';
             }
         }
 
@@ -1521,7 +1441,6 @@
         let isExamActive = false;
         let isSubmitting = false;
         let violationCount = 0;
-        const MAX_VIOLATIONS = 1;
         const storageKey = 'quiz_end_{{ $quiz->id }}_{{ $attempt->id }}';
         const violationStorageKey = 'quiz_violation_{{ $quiz->id }}_{{ $attempt->id }}';
 
@@ -1573,15 +1492,6 @@
 
             requestFullscreenSafe().catch(err => {
                 console.warn('Fullscreen request rejected or not supported on this device:', err);
-            });
-        }
-
-        function restoreFullscreenExam() {
-            requestFullscreenSafe().catch(err => {
-                console.warn('Fullscreen request rejected:', err);
-            }).finally(() => {
-                const restoreOverlay = document.getElementById('fullscreenRestoreOverlay');
-                if (restoreOverlay) restoreOverlay.style.display = 'none';
             });
         }
 
@@ -1692,19 +1602,16 @@
 
         // Lock Keyboard Shortcuts (DevTools, View Source, Copy-Paste, New Tab)
         document.addEventListener('keydown', function (e) {
-            // F12 key
             if (e.key === 'F12' || e.keyCode === 123) {
                 e.preventDefault();
                 return false;
             }
-            // Ctrl/Meta + Shortcuts
             if (e.ctrlKey || e.metaKey) {
                 const key = e.key.toLowerCase();
                 if (['c', 'v', 'x', 'u', 's', 'p', 'w', 't', 'n'].includes(key)) {
                     e.preventDefault();
                     return false;
                 }
-                // Ctrl + Shift + (I, J, C)
                 if (e.shiftKey && ['i', 'j', 'c'].includes(key)) {
                     e.preventDefault();
                     return false;
@@ -1713,11 +1620,9 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Inisialisasi pelanggaran tersimpan
             const savedViolations = parseInt(localStorage.getItem(violationStorageKey), 10);
             if (savedViolations && !isNaN(savedViolations)) {
                 violationCount = savedViolations;
-                updateViolationUI();
             }
 
             // Tampilkan modal fullscreen jika belum fullscreen dan kuis memiliki soal
@@ -1730,7 +1635,7 @@
                 }
             }
 
-            // Monitor perubahan status Fullscreen (Keluar Fullscreen = Pelanggaran Langsung Kuis Dikumpulkan)
+            // Monitor perubahan status Fullscreen
             document.addEventListener('fullscreenchange', function () {
                 if (!isFullscreenActive() && isExamActive && !isSubmitting) {
                     handleTabSwitchViolation();
@@ -1744,7 +1649,7 @@
                 }
             });
 
-            // Monitor hilangnya fokus jendela (Alt+Tab / klik ke aplikasi lain)
+            // Monitor hilangnya fokus jendela
             window.addEventListener('blur', function () {
                 setTimeout(() => {
                     if (!document.hasFocus() && isExamActive && !isSubmitting) {
@@ -1895,28 +1800,28 @@
                     if (val !== '') {
                         usedMatches.add(val);
                         if (slot) {
-                            slot.className = 'matching-target-slot rounded-3 p-2.5 d-flex align-items-center justify-content-between transition-all has-match';
+                            slot.className = 'matching-target-slot p-2 d-flex align-items-center justify-content-between transition-all has-match';
                             slot.style.cursor = 'pointer';
                             slot.innerHTML = `
-                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                    <i class="ti ti-circle-check-filled fs-5 text-success"></i>
-                                    <span class="fw-bold text-truncate" style="font-size: 0.9rem; color: #065F46;">${escapeHtml(val)}</span>
+                                <div class="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                    <i class="ti ti-circle-check-filled fs-5 text-success shrink-0"></i>
+                                    <span class="fw-bold text-truncate" style="font-size: 0.85rem; color: #065F46;">${escapeHtml(val)}</span>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-light border-0 rounded-circle d-flex align-items-center justify-content-center text-danger p-0 shadow-2xs" style="width: 28px; height: 28px;" onclick="clearMatchingPair(event, ${questionId}, ${optionId})" title="Hapus Pasangan">
+                                <button type="button" class="btn btn-sm btn-light border-0 rounded-circle d-flex align-items-center justify-content-center text-danger p-0 shadow-2xs shrink-0" style="width: 26px; height: 26px;" onclick="clearMatchingPair(event, ${questionId}, ${optionId})" title="Hapus Pasangan">
                                     <i class="ti ti-x fs-6"></i>
                                 </button>
                             `;
                         }
                     } else {
                         if (slot) {
-                            slot.className = 'matching-target-slot rounded-3 p-2.5 d-flex align-items-center justify-content-between transition-all is-empty';
+                            slot.className = 'matching-target-slot p-2 d-flex align-items-center justify-content-between transition-all is-empty';
                             slot.style.cursor = 'pointer';
                             slot.innerHTML = `
-                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.88rem;">
-                                    <i class="ti ti-plus-circle fs-5 text-primary opacity-75"></i>
-                                    <span class="fw-medium text-slate-500">Pilih pasangan jawaban...</span>
+                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.8rem;">
+                                    <i class="ti ti-plus-circle fs-5 text-primary opacity-75 shrink-0"></i>
+                                    <span class="fw-medium text-slate-500">Pilih pasangan...</span>
                                 </div>
-                                <span class="badge bg-white text-secondary border px-2 py-1 shadow-2xs" style="font-size: 0.72rem;">Klik Opsi</span>
+                                <span class="badge bg-white text-secondary border px-2 py-0.5 shadow-2xs" style="font-size: 0.68rem;">Pilih</span>
                             `;
                         }
                     }
@@ -1926,17 +1831,17 @@
                 chips.forEach(chip => {
                     const val = chip.getAttribute('data-match-value').trim();
                     if (usedMatches.has(val)) {
-                        chip.className = 'btn-match-chip btn rounded-3 px-3 py-2 text-start transition-all d-inline-flex align-items-center gap-2 is-used';
+                        chip.className = 'btn-match-chip btn d-inline-flex align-items-center gap-1.5 is-used';
                         chip.innerHTML = `
                             <i class="ti ti-check text-success fs-5"></i>
-                            <span class="fw-semibold" style="font-size: 0.9rem;">${escapeHtml(val)}</span>
-                            <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.7rem;">Terpasang</span>
+                            <span class="fw-semibold">${escapeHtml(val)}</span>
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.65rem;">Terpasang</span>
                         `;
                     } else {
-                        chip.className = 'btn-match-chip btn rounded-3 px-3 py-2 text-start transition-all d-inline-flex align-items-center gap-2 is-available';
+                        chip.className = 'btn-match-chip btn d-inline-flex align-items-center gap-1.5 is-available';
                         chip.innerHTML = `
                             <i class="ti ti-point text-primary fs-5"></i>
-                            <span class="fw-semibold" style="font-size: 0.9rem;">${escapeHtml(val)}</span>
+                            <span class="fw-semibold">${escapeHtml(val)}</span>
                         `;
                     }
                 });
@@ -2004,13 +1909,10 @@
                 return text.replace(/[&<>"']/g, function(m) { return map[m]; });
             }
 
-            // 7. Real-Time Countdown Timer (Persistent server countdown & browser state)
+            // 7. Real-Time Countdown Timer
             const serverRemainingSeconds = {{ (int)$remainingSeconds }};
-
-            // Hitung target waktu selesai berbasis timestamp server dan clock client
             let targetEndTime = Date.now() + (serverRemainingSeconds * 1000);
 
-            // Sinkronisasi dengan localStorage jika kuis sedang berjalan (agar transisi refresh mulus tanpa lag)
             const storedEndTime = parseInt(localStorage.getItem(storageKey), 10);
             if (storedEndTime && Math.abs(storedEndTime - targetEndTime) < 5000) {
                 targetEndTime = storedEndTime;
@@ -2054,7 +1956,6 @@
                     String(seconds).padStart(2, '0');
             }
 
-            // Bersihkan storage ketika form dikumpulkan
             if (quizForm) {
                 quizForm.addEventListener('submit', function () {
                     isSubmitting = true;

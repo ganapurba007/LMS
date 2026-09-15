@@ -28,6 +28,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if (Auth::user()->isGuru()) {
+            $intended = $request->session()->pull('url.intended', null);
+            if ($intended && str_contains($intended, '/admin') && ! str_contains($intended, '/admin/login')) {
+                return redirect()->to($intended);
+            }
+            return redirect()->route('admin.dashboard');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

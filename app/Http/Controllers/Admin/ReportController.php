@@ -31,7 +31,7 @@ class ReportController extends Controller
             $studentsQuery->where('class_id', $selectedClassId);
         }
 
-        $students = $studentsQuery->with(['schoolClass'])->paginate(15);
+        $students = $studentsQuery->with(['schoolClass'])->get();
 
         // Calculate metrics for each student
         $totalMaterials = Material::when($selectedClassId, fn($q) => $q->where('class_id', $selectedClassId))

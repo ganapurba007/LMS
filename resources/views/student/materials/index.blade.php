@@ -147,7 +147,7 @@
                         <span class="badge px-3 py-1.5 rounded-pill font-semibold d-inline-flex align-items-center gap-1" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); font-size: 0.8rem;">
                             <a href="{{ route('dashboard') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Dashboard</a>
                             <i class="ti ti-chevron-right fs-6"></i>
-                            <span class="text-white font-bold">Courses / Materi</span>
+                            <span class="text-white font-bold">Materi</span>
                         </span>
                     </div>
 

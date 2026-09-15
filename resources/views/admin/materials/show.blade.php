@@ -157,7 +157,7 @@
                                 <div class="text-muted-custom small" style="font-size: 0.72rem;">File pendukung pembelajaran</div>
                             </div>
                         </div>
-                        <a href="{{ asset('storage/' . $material->document_path) }}" target="_blank" class="btn btn-sm btn-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-2xs" style="font-size: 0.78rem;">
+                        <a href="{{ asset('storage/' . $material->document_path) }}" target="_blank" download class="btn btn-sm btn-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-2xs" style="font-size: 0.78rem;">
                             <i class="ti ti-download"></i> Unduh
                         </a>
                     </div>

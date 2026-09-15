@@ -14,10 +14,16 @@ class AssignmentController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $classId = $user->class_id;
 
-        $query = Assignment::when($classId, fn($q) => $q->where('class_id', $classId))
-            ->with(['subject', 'instructor', 'schoolClass']);
+        if ($user->isGuru()) {
+            $query = Assignment::where('instructor_id', $user->id)
+                ->with(['subject', 'instructor', 'schoolClass']);
+            $allClassAssignments = Assignment::where('instructor_id', $user->id)->get();
+        } else {
+            $query = Assignment::where('class_id', $user->class_id)
+                ->with(['subject', 'instructor', 'schoolClass']);
+            $allClassAssignments = Assignment::where('class_id', $user->class_id)->get();
+        }
 
         // Filter pencarian judul, deskripsi, mata pelajaran, atau guru
         if ($request->filled('search')) {
@@ -59,7 +65,6 @@ class AssignmentController extends Controller
         $submissions = $allSubmissions;
 
         // Hitung statistik penugasan kelas siswa
-        $allClassAssignments = Assignment::when($classId, fn($q) => $q->where('class_id', $classId))->get();
         $totalAssignments = $allClassAssignments->count();
         $submittedCount = count(array_intersect($submittedIds, $allClassAssignments->pluck('id')->toArray()));
         $unsubmittedCount = max(0, $totalAssignments - $submittedCount);
@@ -86,6 +91,9 @@ class AssignmentController extends Controller
     public function show(Assignment $assignment)
     {
         $user = Auth::user();
+        if ($user->isGuru() && $assignment->instructor_id !== $user->id) {
+            abort(403, 'Tugas ini bukan milik Anda.');
+        }
         if ($user->isSiswa() && $assignment->class_id !== $user->class_id) {
             abort(403, 'Tugas ini tidak ditujukan untuk kelas Anda.');
         }
@@ -96,12 +104,34 @@ class AssignmentController extends Controller
             ->where('assignment_id', $assignment->id)
             ->first();
 
-        return view('student.assignments.show', compact('assignment', 'submission'));
+        $teacherStats = null;
+        if ($user->isGuru()) {
+            $totalClassStudents = \App\Models\User::where('class_id', $assignment->class_id)
+                ->whereHas('role', fn ($q) => $q->where('name', 'siswa'))
+                ->count();
+            $submittedStudentsCount = AssignmentSubmission::where('assignment_id', $assignment->id)
+                ->count();
+            $gradedStudentsCount = AssignmentSubmission::where('assignment_id', $assignment->id)
+                ->whereNotNull('grade')
+                ->count();
+            $teacherStats = [
+                'total_students' => $totalClassStudents,
+                'submitted_count' => $submittedStudentsCount,
+                'graded_count' => $gradedStudentsCount,
+                'submitted_percent' => $totalClassStudents > 0 ? round(($submittedStudentsCount / $totalClassStudents) * 100) : 0,
+            ];
+        }
+
+        return view('student.assignments.show', compact('assignment', 'submission', 'teacherStats'));
     }
 
     public function submit(Request $request, Assignment $assignment)
     {
         $user = Auth::user();
+        if ($user->isGuru()) {
+            return redirect()->route('student.assignments.show', $assignment)
+                ->with('error', 'Guru tidak dapat mengumpulkan tugas.');
+        }
         if ($user->isSiswa() && $assignment->class_id !== $user->class_id) {
             abort(403);
         }

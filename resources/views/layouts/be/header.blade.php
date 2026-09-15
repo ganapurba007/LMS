@@ -34,6 +34,10 @@
   <!-- Custom Template CSS -->
   <link rel="stylesheet" href="{{ asset('template/be/assets/css/custom.css') }}">
 
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
+
   @stack('styles')
 </head>
 <body>

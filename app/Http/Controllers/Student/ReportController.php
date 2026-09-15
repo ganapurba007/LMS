@@ -18,6 +18,11 @@ class ReportController extends Controller
     public function index()
     {
         $user = Auth::user();
+
+        if ($user->isGuru()) {
+            return redirect()->route('dashboard')->with('error', 'Menu Laporan Diri hanya ditujukan untuk Siswa.');
+        }
+
         $classId = $user->class_id;
 
         // Material Progress

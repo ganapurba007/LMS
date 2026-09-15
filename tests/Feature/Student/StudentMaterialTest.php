@@ -169,4 +169,42 @@ class StudentMaterialTest extends TestCase
         $response = $this->actingAs($this->siswa)->get(route('student.materials.show', $this->materialClassB));
         $response->assertStatus(403);
     }
+
+    public function test_guru_cannot_toggle_material_completion(): void
+    {
+        $response = $this->actingAs($this->guru)->post(route('student.materials.complete', $this->materialClassA));
+        $response->assertSessionHas('error', 'Guru tidak dapat menandai penyelesaian materi.');
+        $this->assertDatabaseMissing('material_progress', [
+            'user_id' => $this->guru->id,
+            'material_id' => $this->materialClassA->id,
+        ]);
+    }
+
+    public function test_guru_cannot_post_top_level_discussion_comment(): void
+    {
+        $response = $this->actingAs($this->guru)->post(route('student.materials.discussions', $this->materialClassA), [
+            'comment' => 'Komentar awal dari guru',
+        ]);
+        $response->assertSessionHas('error', 'Guru hanya dapat membalas komentar diskusi yang sudah ada.');
+        $this->assertDatabaseMissing('material_discussions', [
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->guru->id,
+            'comment' => 'Komentar awal dari guru',
+        ]);
+    }
+
+    public function test_guru_can_delete_discussion_comment(): void
+    {
+        $comment = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Komentar yang akan dihapus guru',
+        ]);
+
+        $response = $this->actingAs($this->guru)->delete(route('student.materials.discussions.destroy', [$this->materialClassA, $comment]));
+        $response->assertSessionHas('success', 'Komentar diskusi berhasil dihapus.');
+        $this->assertDatabaseMissing('material_discussions', [
+            'id' => $comment->id,
+        ]);
+    }
 }

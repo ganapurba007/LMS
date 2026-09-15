@@ -52,7 +52,9 @@ Route::middleware(['auth'])->prefix('student')->as('student.')->group(function (
     Route::get('materials', [StudentMaterialController::class, 'index'])->name('materials.index');
     Route::get('materials/{material}', [StudentMaterialController::class, 'show'])->name('materials.show');
     Route::post('materials/{material}/complete', [StudentMaterialController::class, 'toggleComplete'])->name('materials.complete');
+    Route::post('materials/{material}/toggle-complete', [StudentMaterialController::class, 'toggleComplete'])->name('materials.toggle-complete');
     Route::post('materials/{material}/discussions', [StudentMaterialController::class, 'storeComment'])->name('materials.discussions');
+    Route::delete('materials/{material}/discussions/{discussion}', [StudentMaterialController::class, 'destroyComment'])->name('materials.discussions.destroy');
 
     Route::get('assignments', [StudentAssignmentController::class, 'index'])->name('assignments.index');
     Route::get('assignments/{assignment}', [StudentAssignmentController::class, 'show'])->name('assignments.show');

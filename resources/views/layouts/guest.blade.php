@@ -6,7 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#66A3BF">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <link rel="apple-touch-icon" href="{{ asset('tabler/static/logo-small.svg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
 
     <title>{{ config('app.name', 'RuangTerra') }}</title>
 
@@ -20,6 +22,10 @@
     
     <!-- Tabler Icons Webfont CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+    <!-- Select2 CSS CDN & Bootstrap 5 Theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
 
     <!-- Custom Theme CSS -->
     <link rel="stylesheet" href="{{ asset('css/theme-custom.css') }}">
@@ -64,13 +70,42 @@
         {{ $slot }}
     </div>
 
-    <!-- PWA Service Worker Registration -->
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Select2 JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- PWA Service Worker Registration & Select2 Init -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js');
         });
     }
+
+    window.initSelect2 = function(targetSelector) {
+        if (typeof $ === 'undefined' || !$.fn || !$.fn.select2) return;
+        var $targets = targetSelector ? $(targetSelector) : $('.select2, select.select2');
+        $targets.each(function() {
+            var $el = $(this);
+            if ($el.hasClass('select2-hidden-accessible') || $el.data('no-select2')) {
+                return;
+            }
+            var placeholder = $el.data('placeholder') || $el.attr('placeholder') || $el.find('option[value=""]').first().text() || 'Pilih...';
+            $el.select2({
+                theme: 'bootstrap-5',
+                width: $el.data('width') ? $el.data('width') : '100%',
+                placeholder: placeholder,
+                allowClear: $el.data('allow-clear') !== undefined ? $el.data('allow-clear') : true,
+                dropdownParent: $el.closest('.modal').length ? $el.closest('.modal') : $(document.body)
+            });
+        });
+    };
+
+    $(document).ready(function() {
+        window.initSelect2();
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
         // Universal Password Eye Toggle Handler

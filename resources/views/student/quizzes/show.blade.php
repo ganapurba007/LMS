@@ -196,7 +196,7 @@
                     <span class="badge px-3 py-1.5 rounded-pill font-semibold d-inline-flex align-items-center gap-1 d-none d-sm-inline-flex" style="background: rgba(255, 255, 255, 0.15); font-size: 0.78rem;">
                         <a href="{{ route('dashboard') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Dashboard</a>
                         <i class="ti ti-chevron-right fs-6"></i>
-                        <a href="{{ route('student.quizzes.index') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Kuis Online</a>
+                        <a href="{{ route('student.quizzes.index') }}" class="text-white text-decoration-none opacity-80 hover:opacity-100">Kuis</a>
                         <i class="ti ti-chevron-right fs-6"></i>
                         <span class="text-white font-bold">Petunjuk Pengerjaan</span>
                     </span>
@@ -439,7 +439,32 @@
 
                         <!-- Action Button Card (Lega, Nyaman, Sesuai Status Siswa) -->
                         <div class="quiz-cta-box p-4 p-md-5 rounded-4 text-center border" style="background: #F8FAFC; border-color: rgba(51, 104, 160, 0.18) !important;">
-                            @if($isCompleted)
+                            @if(Auth::user() && Auth::user()->isGuru())
+                                <div class="p-3.5 rounded-3 border bg-white mb-0 text-start shadow-xs" style="border-color: rgba(51, 104, 160, 0.2) !important;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 font-bold">
+                                            <i class="ti ti-eye me-1"></i> Mode Peninjauan Guru
+                                        </span>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 font-bold">
+                                            {{ $teacherStats['completed_percent'] ?? 0 }}% Selesai
+                                        </span>
+                                    </div>
+                                    <div class="text-center my-3">
+                                        <div class="text-muted small mb-1" style="font-size: 0.76rem;">Siswa Sudah Menyelesaikan Kuis</div>
+                                        <div class="fw-extrabold text-dark fs-3" style="font-family: 'Jost', sans-serif;">
+                                            {{ $teacherStats['completed_count'] ?? 0 }} <span class="text-muted fs-5 fw-normal">/ {{ $teacherStats['total_students'] ?? 0 }} Siswa</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress rounded-pill shadow-inner mb-3" style="height: 8px; background: rgba(51, 104, 160, 0.12);">
+                                        <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ $teacherStats['completed_percent'] ?? 0 }}%; background: linear-gradient(90deg, #3368A0, #66A3BF);" aria-valuenow="{{ $teacherStats['completed_percent'] ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <a href="{{ route('admin.quizzes.students', $quiz) }}" class="btn text-white rounded-pill px-4 py-2.5 font-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-2 hover-lift text-decoration-none" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%);">
+                                            <i class="ti ti-users-group fs-5"></i> Lihat Hasil & Rekap Kuis Siswa
+                                        </a>
+                                    </div>
+                                </div>
+                            @elseif($isCompleted)
                                 <div class="mb-3">
                                     <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-success mb-2" style="background: rgba(16, 185, 129, 0.15); width: 68px; height: 68px;">
                                         <i class="ti ti-trophy" style="font-size: 2.4rem;"></i>

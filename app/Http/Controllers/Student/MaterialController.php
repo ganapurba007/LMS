@@ -17,11 +17,22 @@ class MaterialController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $classId = $user->class_id;
 
-        // Base query untuk materi kelas siswa
-        $query = Material::when($classId, fn($q) => $q->where('class_id', $classId))
-            ->with(['subject', 'instructor', 'schoolClass']);
+        if ($user->isGuru()) {
+            $query = Material::where('instructor_id', $user->id)
+                ->with(['subject', 'instructor', 'schoolClass']);
+            $allClassMaterialIds = Material::where('instructor_id', $user->id)->pluck('id');
+            $subjects = \App\Models\Subject::whereIn('id', Material::where('instructor_id', $user->id)->pluck('subject_id')->unique())
+                ->orderBy('name')
+                ->get();
+        } else {
+            $query = Material::where('class_id', $user->class_id)
+                ->with(['subject', 'instructor', 'schoolClass']);
+            $allClassMaterialIds = Material::where('class_id', $user->class_id)->pluck('id');
+            $subjects = \App\Models\Subject::whereIn('id', Material::where('class_id', $user->class_id)->pluck('subject_id')->unique())
+                ->orderBy('name')
+                ->get();
+        }
 
         // Filter pencarian judul, mata pelajaran, atau guru pengampu
         if ($request->filled('search')) {
@@ -61,16 +72,10 @@ class MaterialController extends Controller
             ->withQueryString();
 
         // Hitung statistik progres belajar materi siswa
-        $allClassMaterialIds = Material::when($classId, fn($q) => $q->where('class_id', $classId))->pluck('id');
         $totalMaterials = $allClassMaterialIds->count();
         $completedCount = count(array_intersect($completedIds, $allClassMaterialIds->toArray()));
         $uncompletedCount = max(0, $totalMaterials - $completedCount);
         $progressPercent = $totalMaterials > 0 ? round(($completedCount / $totalMaterials) * 100) : 0;
-
-        // Daftar mata pelajaran yang memiliki materi di kelas ini
-        $subjects = \App\Models\Subject::whereIn('id', Material::when($classId, fn($q) => $q->where('class_id', $classId))->pluck('subject_id')->unique())
-            ->orderBy('name')
-            ->get();
 
         return view('student.materials.index', compact(
             'materials',
@@ -86,6 +91,9 @@ class MaterialController extends Controller
     public function show(Material $material)
     {
         $user = Auth::user();
+        if ($user->isGuru() && $material->instructor_id !== $user->id) {
+            abort(403, 'Materi ini bukan milik Anda.');
+        }
         if ($user->isSiswa() && $material->class_id !== $user->class_id) {
             abort(403, 'Materi ini tidak ditujukan untuk kelas Anda.');
         }
@@ -104,12 +112,30 @@ class MaterialController extends Controller
             ->where('is_completed', true)
             ->exists();
 
-        return view('student.materials.show', compact('material', 'isCompleted'));
+        $teacherStats = null;
+        if ($user->isGuru()) {
+            $totalClassStudents = \App\Models\User::where('class_id', $material->class_id)
+                ->whereHas('role', fn ($q) => $q->where('name', 'siswa'))
+                ->count();
+            $completedStudentsCount = MaterialProgress::where('material_id', $material->id)
+                ->where('is_completed', true)
+                ->count();
+            $teacherStats = [
+                'total_students' => $totalClassStudents,
+                'completed_count' => $completedStudentsCount,
+                'completed_percent' => $totalClassStudents > 0 ? round(($completedStudentsCount / $totalClassStudents) * 100) : 0,
+            ];
+        }
+
+        return view('student.materials.show', compact('material', 'isCompleted', 'teacherStats'));
     }
 
     public function toggleComplete(Material $material)
     {
         $user = Auth::user();
+        if ($user->isGuru()) {
+            return back()->with('error', 'Guru tidak dapat menandai penyelesaian materi.');
+        }
         if ($user->isSiswa() && $material->class_id !== $user->class_id) {
             abort(403);
         }
@@ -129,6 +155,12 @@ class MaterialController extends Controller
     public function storeComment(Request $request, Material $material)
     {
         $user = Auth::user();
+        if ($user->isGuru() && $material->instructor_id !== $user->id) {
+            abort(403);
+        }
+        if ($user->isGuru() && !$request->filled('parent_id')) {
+            return back()->with('error', 'Guru hanya dapat membalas komentar diskusi yang sudah ada.');
+        }
         if ($user->isSiswa() && $material->class_id !== $user->class_id) {
             abort(403);
         }
@@ -211,5 +243,21 @@ class MaterialController extends Controller
         $flashMessage = $parentId ? 'Balasan komentar berhasil dikirim.' : 'Komentar diskusi berhasil dikirim.';
 
         return back()->with('success', $flashMessage);
+    }
+
+    public function destroyComment(Material $material, MaterialDiscussion $discussion)
+    {
+        $user = Auth::user();
+        if ($discussion->material_id !== $material->id) {
+            abort(404);
+        }
+
+        if (!$user->isGuru() && $discussion->user_id !== $user->id && $material->instructor_id !== $user->id) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus komentar ini.');
+        }
+
+        $discussion->delete();
+
+        return back()->with('success', 'Komentar diskusi berhasil dihapus.');
     }
 }

@@ -29,7 +29,7 @@
       <div class="text-center mb-4">
         <a href="{{ route('admin.login') }}" class="d-inline-flex align-items-center gap-2 text-decoration-none">
           <div class="sidebar-brand-icon">
-            <i class="ti ti-brand-tabler fs-2"></i>
+            <img src="{{ asset('images/icon.png') }}" alt="{{ config('app.name', 'RuangTerra') }} Icon" style="width: 38px; height: 38px; object-fit: contain;">
           </div>
           <span class="fs-3 fw-bold heading-custom">{{ config('app.name', 'RuangTerra') }}</span>
         </a>
