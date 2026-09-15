@@ -13,15 +13,25 @@ use Illuminate\View\View;
 
 class QuestionBankController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $search = $request->query('search');
+        $type = $request->query('type');
+
         $questionBanks = QuestionBank::with('options')
             ->withCount('options')
             ->where('instructor_id', Auth::id())
+            ->when($search, function ($query, $search) {
+                $query->where('question_text', 'like', "%{$search}%");
+            })
+            ->when($type, function ($query, $type) {
+                $query->where('question_type', $type);
+            })
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('admin.question-banks.index', compact('questionBanks'));
+        return view('admin.question-banks.index', compact('questionBanks', 'search', 'type'));
     }
 
     public function create(): View
@@ -76,7 +86,7 @@ class QuestionBankController extends Controller
                             ]);
 
                             foreach ($pairs as $pair) {
-                                if (isset($pair['premise']) && isset($pair['match'])) {
+                                if (!empty($pair['premise']) && !empty($pair['match'])) {
                                     QuestionBankOption::create([
                                         'question_bank_id' => $qb->id,
                                         'option_text' => trim($pair['premise']),
@@ -136,13 +146,13 @@ class QuestionBankController extends Controller
             });
 
             if ($createdCount > 0) {
-                return redirect()->route('admin.question-banks.index')->with('success', $createdCount . ' butir soal berhasil ditambahkan ke Bank Soal sekaligus.');
+                return redirect()->route('admin.question-banks.index')->with('success', $createdCount . ' butir soal berhasil ditambahkan ke Bank Soal.');
             }
 
             return back()->with('error', 'Tidak ada butir soal yang valid untuk disimpan.');
         }
 
-        // 2. Single Question Processing (Existing Fallback)
+        // 2. Single Question Fallback
         $questionType = $request->input('question_type', 'multiple_choice');
 
         if ($questionType === 'true_false') {
@@ -326,3 +336,4 @@ class QuestionBankController extends Controller
         return redirect()->route('admin.question-banks.index')->with('success', 'Soal di Bank Soal berhasil dihapus.');
     }
 }
+

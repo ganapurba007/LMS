@@ -1,105 +1,95 @@
 @extends('layouts.be.master')
-
-@section('header_title', 'Detail Materi & Ruang Diskusi — ' . $material->title)
+@section('header_title', 'Master Data — Detail Materi & Diskusi')
 
 @section('content')
-<!-- Page Header -->
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
-    <div>
-        <div class="d-flex align-items-center gap-1.5 mb-1">
-            <span class="badge badge-soft-primary rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
-                <i class="ti ti-school me-1"></i> {{ $material->schoolClass->name ?? 'Kelas' }}
-            </span>
-            <span class="badge badge-soft-info rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
-                <i class="ti ti-book me-1"></i> {{ $material->subject->name ?? 'Mata Pelajaran' }}
-            </span>
+
+{{-- Page Header --}}
+<div class="md-page-header mb-4">
+    <div class="md-page-title">
+        <div class="md-page-icon" style="background:rgba(32,107,196,.1);color:#206bc4;">
+            <i class="ti ti-book"></i>
         </div>
-        <h5 class="fw-bold m-0 heading-custom" style="font-size: 1.15rem;">{{ $material->title }}</h5>
-        <p class="text-muted-custom mb-0" style="font-size: 0.8rem;">Kelola konten materi dan pantau serta balas pertanyaan dan diskusi dari siswa kelas.</p>
+        <div>
+            <h5 class="md-title">{{ $material->title }}</h5>
+        </div>
     </div>
-    <div class="d-flex align-items-center gap-2">
-        <a href="{{ route('admin.materials.index') }}" class="btn btn-sm btn-light d-inline-flex align-items-center gap-1 fw-semibold px-2.5 py-1.5" style="font-size: 0.8rem;">
-            <i class="ti ti-arrow-left"></i> Kembali
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ route('admin.materials.index') }}" class="md-btn-secondary">
+            <i class="ti ti-arrow-left"></i> <span>Kembali</span>
         </a>
-        <a href="{{ route('admin.materials.edit', $material) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 fw-semibold px-2.5 py-1.5" style="font-size: 0.8rem;">
-            <i class="ti ti-edit"></i> Edit Materi
+        <a href="{{ route('admin.materials.edit', $material) }}" class="md-btn-primary">
+            <i class="ti ti-edit"></i> <span>Edit Materi</span>
         </a>
     </div>
 </div>
 
+{{-- Flash Alert --}}
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-3 rounded-3" role="alert">
-        <div class="d-flex align-items-center py-0.5" style="font-size: 0.85rem;">
-            <i class="ti ti-circle-check fs-5 me-2"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-        <button type="button" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="md-alert success mb-4">
+        <i class="ti ti-check-circle"></i> {{ session('success') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
     </div>
 @endif
-
 @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-3 rounded-3" role="alert">
-        <div class="d-flex align-items-center py-0.5" style="font-size: 0.85rem;">
-            <i class="ti ti-alert-triangle fs-5 me-2"></i>
-            <div>{{ session('error') }}</div>
-        </div>
-        <button type="button" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="md-alert danger mb-4">
+        <i class="ti ti-alert-triangle"></i> {{ session('error') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
     </div>
 @endif
 
-<!-- Quick Metrics Overview Cards -->
-<div class="row g-2 mb-4">
+{{-- Quick Metrics Overview --}}
+<div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="card card-hover mb-0 p-2.5 h-100">
-            <div class="d-flex align-items-center gap-2.5">
-                <div class="avatar-icon-box avatar-icon-primary flex-shrink-0" style="width: 36px; height: 36px; font-size: 1.1rem;">
-                    <i class="ti ti-users"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-muted-custom fw-semibold" style="font-size: 0.7rem; line-height: 1.1;">Siswa Kelas</div>
-                    <div class="fw-bold heading-custom mb-0" style="font-size: 0.95rem; line-height: 1.2;">{{ $totalStudents }} <span class="text-muted-custom fw-normal" style="font-size: 0.7rem;">Siswa</span></div>
+        <div class="md-card p-3 h-100 d-flex align-items-center gap-3">
+            <div class="md-page-icon" style="background:rgba(32,107,196,.1);color:#206bc4;width:42px;height:42px;font-size:1.1rem;margin:0;">
+                <i class="ti ti-users"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size:.72rem;font-weight:600;">Siswa Kelas</div>
+                <div class="fw-bold" style="font-size:1.05rem;color:var(--tblr-heading-color,#0f172a);">
+                    {{ $totalStudents }} <span class="text-muted fw-normal" style="font-size:.72rem;">Siswa</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-6 col-md-3">
-        <div class="card card-hover mb-0 p-2.5 h-100">
-            <div class="d-flex align-items-center gap-2.5">
-                <div class="avatar-icon-box avatar-icon-success flex-shrink-0" style="width: 36px; height: 36px; font-size: 1.1rem;">
-                    <i class="ti ti-circle-check"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-muted-custom fw-semibold" style="font-size: 0.7rem; line-height: 1.1;">Sudah Membaca</div>
-                    <div class="fw-bold text-success mb-0" style="font-size: 0.95rem; line-height: 1.2;">{{ $completedStudentsCount }} <span class="text-muted-custom fw-normal" style="font-size: 0.7rem;">/ {{ $totalStudents }}</span></div>
+        <div class="md-card p-3 h-100 d-flex align-items-center gap-3">
+            <div class="md-page-icon" style="background:rgba(12,166,120,.1);color:#0ca678;width:42px;height:42px;font-size:1.1rem;margin:0;">
+                <i class="ti ti-circle-check"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size:.72rem;font-weight:600;">Sudah Membaca</div>
+                <div class="fw-bold text-success" style="font-size:1.05rem;">
+                    {{ $completedStudentsCount }} <span class="text-muted fw-normal" style="font-size:.72rem;">/ {{ $totalStudents }}</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-6 col-md-3">
-        <div class="card card-hover mb-0 p-2.5 h-100">
-            <div class="d-flex align-items-center gap-2.5">
-                <div class="avatar-icon-box avatar-icon-info flex-shrink-0" style="width: 36px; height: 36px; font-size: 1.1rem;">
-                    <i class="ti ti-messages"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-muted-custom fw-semibold" style="font-size: 0.7rem; line-height: 1.1;">Total Diskusi</div>
-                    <div class="fw-bold text-info mb-0" style="font-size: 0.95rem; line-height: 1.2;">{{ $material->discussions->count() }} <span class="text-muted-custom fw-normal" style="font-size: 0.7rem;">Komentar</span></div>
+        <div class="md-card p-3 h-100 d-flex align-items-center gap-3">
+            <div class="md-page-icon" style="background:rgba(8,145,178,.1);color:#0891b2;width:42px;height:42px;font-size:1.1rem;margin:0;">
+                <i class="ti ti-messages"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size:.72rem;font-weight:600;">Total Diskusi</div>
+                <div class="fw-bold text-info" style="font-size:1.05rem;">
+                    {{ $material->discussions->count() }} <span class="text-muted fw-normal" style="font-size:.72rem;">Pesan</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-6 col-md-3">
-        <div class="card card-hover mb-0 p-2.5 h-100">
-            <div class="d-flex align-items-center gap-2.5">
-                <div class="avatar-icon-box avatar-icon-warning flex-shrink-0" style="width: 36px; height: 36px; font-size: 1.1rem;">
-                    <i class="ti ti-sort-ascending-numbers"></i>
-                </div>
-                <div class="min-w-0">
-                    <div class="text-muted-custom fw-semibold" style="font-size: 0.7rem; line-height: 1.1;">Urutan Materi</div>
-                    <div class="fw-bold text-warning mb-0" style="font-size: 0.95rem; line-height: 1.2;">Urutan ke-{{ $material->order }}</div>
+        <div class="md-card p-3 h-100 d-flex align-items-center gap-3">
+            <div class="md-page-icon" style="background:rgba(245,158,11,.1);color:#d97706;width:42px;height:42px;font-size:1.1rem;margin:0;">
+                <i class="ti ti-sort-ascending-numbers"></i>
+            </div>
+            <div>
+                <div class="text-muted" style="font-size:.72rem;font-weight:600;">Urutan Materi</div>
+                <div class="fw-bold text-warning" style="font-size:1.05rem;">
+                    #{{ $material->order }}
                 </div>
             </div>
         </div>
@@ -107,20 +97,20 @@
 </div>
 
 <div class="row g-4 align-items-start">
-    
-    <!-- 1. Left Column: Konten & Lampiran Materi -->
-    <div class="col-lg-5">
-        <div class="card mb-4">
-            <div class="card-header py-2.5 px-3 d-flex align-items-center justify-content-between">
-                <h6 class="card-title mb-0 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
-                    <i class="ti ti-file-text text-primary fs-5"></i> Konten Materi
-                </h6>
-                <span class="badge badge-soft-secondary rounded-pill px-2.5 py-0.5" style="font-size: 0.72rem;">
-                    {{ strtoupper($material->content_type ?? 'MODUL') }}
-                </span>
+    {{-- Left Column: Konten Materi & Media --}}
+    <div class="col-12 col-lg-5">
+        <div class="md-form-card mb-4">
+            <div class="md-form-head">
+                <div class="md-form-head-icon" style="background:rgba(32,107,196,.1);color:#206bc4;">
+                    <i class="ti ti-file-text"></i>
+                </div>
+                <div class="d-flex justify-content-between align-items-center flex-grow-1">
+                    <h6 class="md-form-head-title mb-0">Konten Pembelajaran</h6>
+                </div>
             </div>
-            <div class="card-body p-3">
-                
+
+            <div class="md-form-body">
+                {{-- YouTube Video --}}
                 @if($material->video_url)
                     @php
                         $videoUrl = $material->video_url;
@@ -130,200 +120,177 @@
                         }
                     @endphp
                     @if($embedUrl)
-                        <div class="ratio ratio-16x9 rounded-3 overflow-hidden mb-3 border shadow-2xs">
+                        <div class="ratio ratio-16x9 rounded-3 overflow-hidden mb-3 border">
                             <iframe src="{{ $embedUrl }}" title="Video Materi Pembelajaran" allowfullscreen></iframe>
                         </div>
                     @else
-                        <div class="p-2.5 rounded-3 subtle-well mb-3 d-flex align-items-center justify-content-between">
+                        <div class="p-2.5 rounded-3 mb-3 d-flex align-items-center justify-content-between" style="background:var(--tblr-body-bg,#f8fafc);border:1px solid var(--tblr-border-color,#e2e8f0);">
                             <div class="d-flex align-items-center gap-2 text-truncate me-2">
                                 <i class="ti ti-brand-youtube text-danger fs-4"></i>
                                 <span class="text-truncate small fw-semibold">{{ $material->video_url }}</span>
                             </div>
-                            <a href="{{ $material->video_url }}" target="_blank" class="btn btn-sm btn-outline-danger px-2 py-1 rounded-pill" style="font-size: 0.75rem;">
+                            <a href="{{ $material->video_url }}" target="_blank" class="md-btn-secondary" style="padding:.2rem .6rem;font-size:.72rem;">
                                 Buka Video
                             </a>
                         </div>
                     @endif
                 @endif
 
+                {{-- Document Attachment --}}
                 @if($material->document_path)
-                    <div class="p-3 rounded-3 mb-3 subtle-well d-flex align-items-center justify-content-between">
+                    <div class="p-3 rounded-3 mb-3 d-flex align-items-center justify-content-between" style="background:var(--tblr-body-bg,#f8fafc);border:1px solid var(--tblr-border-color,#e2e8f0);">
                         <div class="d-flex align-items-center gap-2.5 overflow-hidden me-2">
-                            <div class="avatar-icon-box avatar-icon-danger flex-shrink-0" style="width: 38px; height: 38px;">
-                                <i class="ti ti-file-type-pdf fs-4"></i>
+                            <div class="md-page-icon" style="background:rgba(239,68,68,.1);color:#ef4444;width:36px;height:36px;font-size:1.1rem;margin:0;">
+                                <i class="ti ti-file-text"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <div class="fw-bold heading-custom text-truncate" style="font-size: 0.85rem;">Dokumen Lampiran</div>
-                                <div class="text-muted-custom small" style="font-size: 0.72rem;">File pendukung pembelajaran</div>
+                                <div class="fw-bold text-truncate" style="font-size:.84rem;color:var(--tblr-heading-color,#0f172a);">Dokumen Lampiran</div>
+                                <div class="text-muted small" style="font-size:.72rem;">{{ basename($material->document_path) }}</div>
                             </div>
                         </div>
-                        <a href="{{ asset('storage/' . $material->document_path) }}" target="_blank" download class="btn btn-sm btn-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-2xs" style="font-size: 0.78rem;">
+                        <a href="{{ asset('storage/' . $material->document_path) }}" target="_blank" download class="md-btn-primary" style="padding:.3rem .75rem;font-size:.75rem;">
                             <i class="ti ti-download"></i> Unduh
                         </a>
                     </div>
                 @endif
 
+                {{-- Text Content --}}
                 @if($material->content)
-                    <div class="material-text-content subtle-well p-3 mb-0" style="font-size: 0.88rem; line-height: 1.65; color: var(--tblr-body-color);">
-                        {!! nl2br(e($material->content)) !!}
+                    <div class="p-3 rounded-3" style="background:var(--tblr-card-bg,#fff);border:1px solid var(--tblr-border-color,#e2e8f0);line-height:1.65;font-size:.85rem;color:var(--tblr-body-color);">
+                        {!! $material->content !!}
                     </div>
                 @elseif(!$material->video_url && !$material->document_path)
-                    <div class="empty-state py-4 text-muted-custom small">
-                        <i class="ti ti-file-off fs-2 opacity-50 mb-1 d-block"></i>
-                        Tidak ada isi teks atau lampiran pada materi ini.
+                    <div class="text-center py-4 text-muted" style="font-size:.8rem;">
+                        <i class="ti ti-file-off fs-2 d-block mb-1 opacity-50"></i>
+                        Belum ada isi teks, video, ataupun dokumen lampiran pada materi ini.
                     </div>
                 @endif
-
             </div>
         </div>
     </div>
 
-    <!-- 2. Right Column: Ruang Diskusi Interaktif Guru & Siswa -->
-    <div class="col-lg-7">
-        <div class="card mb-4" id="discussion-card">
-            
-            <!-- Card Header -->
-            <div class="card-header py-2.5 px-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="avatar-icon-box avatar-icon-primary" style="width: 32px; height: 32px;">
-                        <i class="ti ti-messages fs-5"></i>
-                    </div>
-                    <div>
-                        <h6 class="card-title mb-0" style="font-size: 0.95rem;">Ruang Diskusi &amp; Tanya Jawab</h6>
-                        <div class="text-muted-custom" style="font-size: 0.72rem;">Forum tanya-jawab materi bersama siswa kelas</div>
-                    </div>
+    {{-- Right Column: Ruang Diskusi Kelas --}}
+    <div class="col-12 col-lg-7" id="discussion-card">
+        <div class="md-form-card mb-4">
+            <div class="md-form-head">
+                <div class="md-form-head-icon" style="background:rgba(8,145,178,.1);color:#0891b2;">
+                    <i class="ti ti-messages"></i>
                 </div>
-                <span class="badge badge-soft-primary rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.75rem;">
-                    {{ $material->discussions->count() }} Komentar
-                </span>
+                <div class="d-flex justify-content-between align-items-center flex-grow-1">
+                    <h6 class="md-form-head-title mb-0">Ruang Diskusi &amp; Tanya Jawab Kelas</h6>
+                    <span class="md-badge blue">
+                        {{ $material->discussions->count() }} Pesan
+                    </span>
+                </div>
             </div>
 
-            <div class="card-body p-3 p-md-3.5">
-                
-                <!-- 1. Form Kirim Tanggapan / Diskusi Baru oleh Guru -->
-                <div class="p-3 subtle-well mb-4">
+            <div class="md-form-body">
+                {{-- Form Kirim Komentar Guru --}}
+                <div class="p-3 rounded-3 mb-4" style="background:var(--tblr-body-bg,#f8fafc);border:1px solid var(--tblr-border-color,#e2e8f0);">
                     <form action="{{ route('admin.materials.discussions', $material) }}" method="POST">
                         @csrf
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <div class="avatar bg-primary text-white rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-xs" style="width: 28px; height: 28px; font-size: 0.75rem;">
-                                {{ strtoupper(substr(Auth::user()->name ?? 'G', 0, 1)) }}
-                            </div>
-                            <span class="fw-bold heading-custom" style="font-size: 0.82rem;">{{ Auth::user()->name }}</span>
-                            <span class="badge badge-soft-primary rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">
-                                <i class="ti ti-award me-0.5"></i> Guru Pengampu
+                            <span class="fw-bold" style="font-size:.82rem;color:var(--tblr-heading-color,#0f172a);">{{ Auth::user()->name }}</span>
+                            <span class="md-badge blue" style="font-size:.65rem;padding:.15rem .45rem;">
+                                <i class="ti ti-award"></i> Guru Pengampu
                             </span>
                         </div>
 
                         <div class="mb-2">
-                            <textarea name="comment" 
-                                      class="form-control rounded-3 @error('comment') is-invalid @enderror" 
-                                      rows="2" 
-                                      placeholder="Tuliskan catatan, arahan, atau tanggapan untuk siswa kelas..." 
-                                      required 
-                                      style="font-size: 0.84rem; resize: vertical;"></textarea>
+                            <textarea name="comment" class="form-control @error('comment') is-invalid @enderror" rows="2" placeholder="Tuliskan catatan, arahan, atau tanggapan untuk siswa kelas..." required style="font-size:.82rem;resize:vertical;"></textarea>
                             @error('comment')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1 shadow-2xs" style="font-size: 0.8rem;">
+                            <button type="submit" class="md-btn-primary" style="padding:.35rem .85rem;font-size:.78rem;">
                                 <i class="ti ti-send"></i> Kirim Pesan Diskusi
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- 2. Feed Komentar & Balasan Diskusi Siswa -->
+                {{-- Feed Komentar --}}
                 <div class="d-flex flex-column gap-3" id="discussion-list">
                     @forelse($material->rootDiscussions as $disc)
                         @php
                             $isTeacherRoot = $disc->user && $disc->user->isGuru();
                         @endphp
-                        <div class="dashboard-feed-item d-flex flex-column gap-2" id="discussion-item-{{ $disc->id }}">
+                        <div class="p-3 rounded-3" style="background:var(--tblr-card-bg,#fff);border:1px solid var(--tblr-border-color,#e2e8f0);" id="discussion-item-{{ $disc->id }}">
                             
-                            <!-- Header Komentar Induk -->
-                            <div class="d-flex justify-content-between align-items-start gap-2">
+                            {{-- Header Komentar Induk --}}
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar {{ $isTeacherRoot ? 'bg-primary' : 'bg-secondary' }} text-white rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-xs" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                    <div class="avatar text-white rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:.78rem;background:{{ $isTeacherRoot ? '#206bc4' : '#64748b' }};">
                                         {{ strtoupper(substr($disc->user->name ?? 'U', 0, 1)) }}
                                     </div>
                                     <div>
                                         <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                            <span class="fw-bold heading-custom" style="font-size: 0.85rem;">{{ $disc->user->name ?? 'Pengguna' }}</span>
+                                            <span class="fw-bold" style="font-size:.82rem;color:var(--tblr-heading-color,#0f172a);">{{ $disc->user->name ?? 'Pengguna' }}</span>
                                             @if($isTeacherRoot)
-                                                <span class="badge badge-soft-primary rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">Guru</span>
+                                                <span class="md-badge blue" style="font-size:.62rem;padding:.1rem .4rem;">Guru</span>
                                             @else
-                                                <span class="badge badge-soft-secondary rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">Siswa</span>
+                                                <span class="md-badge teal" style="font-size:.62rem;padding:.1rem .4rem;">Siswa</span>
                                             @endif
                                         </div>
-                                        <div class="text-muted-custom" style="font-size: 0.7rem;">
-                                            <i class="ti ti-clock me-0.5"></i> {{ $disc->created_at ? $disc->created_at->diffForHumans() : '-' }}
+                                        <div class="text-muted" style="font-size:.68rem;">
+                                            <i class="ti ti-clock"></i> {{ $disc->created_at ? $disc->created_at->diffForHumans() : '-' }}
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Aksi Hapus Komentar -->
-                                <button type="button" 
-                                        class="btn btn-sm btn-link text-danger p-0 opacity-75 hover:opacity-100" 
-                                        onclick="openDeleteCommentModal('{{ route('admin.materials.discussions.destroy', [$material, $disc]) }}')" 
-                                        title="Hapus Komentar">
-                                    <i class="ti ti-trash fs-5"></i>
+                                <button type="button" class="md-icon-btn red" style="width:26px;height:26px;font-size:.75rem;" onclick="openDeleteCommentModal('{{ route('admin.materials.discussions.destroy', [$material, $disc]) }}')" title="Hapus Komentar">
+                                    <i class="ti ti-trash"></i>
                                 </button>
                             </div>
 
-                            <!-- Isi Komentar Induk -->
-                            <div class="py-1" style="font-size: 0.85rem; line-height: 1.55; color: var(--tblr-body-color);">
+                            {{-- Isi Komentar Induk --}}
+                            <div class="py-1" style="font-size:.82rem;line-height:1.55;color:var(--tblr-body-color);">
                                 {!! nl2br(e($disc->comment)) !!}
                             </div>
 
-                            <!-- Tombol Balas Komentar -->
-                            <div class="d-flex align-items-center gap-2 pt-1 border-top" style="border-color: var(--tblr-border-color) !important;">
-                                <button type="button" 
-                                        class="btn btn-sm btn-soft-primary rounded-pill px-2.5 py-0.5 fw-semibold d-inline-flex align-items-center gap-1" 
-                                        style="font-size: 0.74rem;" 
-                                        onclick="toggleReplyForm({{ $disc->id }})">
-                                    <i class="ti ti-corner-down-right"></i> Balas Komentar Ini
+                            {{-- Tombol Balas --}}
+                            <div class="pt-2 mt-2 border-top d-flex align-items-center gap-2">
+                                <button type="button" class="md-btn-secondary" style="padding:.2rem .6rem;font-size:.72rem;" onclick="toggleReplyForm({{ $disc->id }})">
+                                    <i class="ti ti-corner-down-right"></i> Balas Komentar
                                 </button>
                             </div>
 
-                            <!-- Nested Thread Balasan (Replies) -->
+                            {{-- Nested Replies --}}
                             @if($disc->replies && $disc->replies->count() > 0)
-                                <div class="d-flex flex-column gap-2 mt-1 ps-3 border-start" style="border-width: 2.5px !important; border-color: var(--tblr-border-color) !important;">
+                                <div class="d-flex flex-column gap-2 mt-2 ps-3 border-start" style="border-width:2px !important;border-color:var(--tblr-border-color,#e2e8f0) !important;">
                                     @foreach($disc->replies as $reply)
                                         @php
                                             $isTeacherReply = $reply->user && $reply->user->isGuru();
                                         @endphp
-                                        <div class="p-2.5 rounded-3 {{ $isTeacherReply ? 'badge-soft-primary' : 'subtle-well' }}" id="discussion-item-{{ $reply->id }}">
+                                        <div class="p-2.5 rounded-3" style="background:{{ $isTeacherReply ? 'rgba(32,107,196,.06)' : 'var(--tblr-body-bg,#f8fafc)' }};border:1px solid var(--tblr-border-color,#e2e8f0);" id="discussion-item-{{ $reply->id }}">
                                             <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <div class="avatar {{ $isTeacherReply ? 'bg-primary' : 'bg-secondary' }} text-white rounded-circle fw-bold d-flex align-items-center justify-content-center shadow-xs" style="width: 24px; height: 24px; font-size: 0.68rem;">
+                                                    <div class="avatar text-white rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:.65rem;background:{{ $isTeacherReply ? '#206bc4' : '#64748b' }};">
                                                         {{ strtoupper(substr($reply->user->name ?? 'U', 0, 1)) }}
                                                     </div>
                                                     <div>
                                                         <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                                            <span class="fw-bold {{ $isTeacherReply ? 'text-primary' : 'heading-custom' }}" style="font-size: 0.8rem;">{{ $reply->user->name ?? 'Pengguna' }}</span>
+                                                            <span class="fw-bold" style="font-size:.78rem;color:{{ $isTeacherReply ? '#206bc4' : 'var(--tblr-heading-color,#0f172a)' }};">{{ $reply->user->name ?? 'Pengguna' }}</span>
                                                             @if($isTeacherReply)
-                                                                <span class="badge bg-primary text-white rounded-pill px-1.5 py-0.2" style="font-size: 0.6rem;">Guru Pengampu</span>
+                                                                <span class="md-badge blue" style="font-size:.58rem;padding:.08rem .35rem;">Guru Pengampu</span>
                                                             @else
-                                                                <span class="badge badge-soft-secondary rounded-pill px-1.5 py-0.2" style="font-size: 0.6rem;">Siswa</span>
+                                                                <span class="md-badge teal" style="font-size:.58rem;padding:.08rem .35rem;">Siswa</span>
                                                             @endif
                                                         </div>
-                                                        <div class="text-muted-custom" style="font-size: 0.68rem;">
-                                                            <i class="ti ti-clock me-0.5"></i> {{ $reply->created_at ? $reply->created_at->diffForHumans() : '-' }}
+                                                        <div class="text-muted" style="font-size:.65rem;">
+                                                            <i class="ti ti-clock"></i> {{ $reply->created_at ? $reply->created_at->diffForHumans() : '-' }}
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-link text-danger p-0 opacity-75 hover:opacity-100" 
-                                                        onclick="openDeleteCommentModal('{{ route('admin.materials.discussions.destroy', [$material, $reply]) }}')" 
-                                                        title="Hapus Balasan">
-                                                    <i class="ti ti-trash fs-6"></i>
+                                                <button type="button" class="md-icon-btn red" style="width:22px;height:22px;font-size:.7rem;" onclick="openDeleteCommentModal('{{ route('admin.materials.discussions.destroy', [$material, $reply]) }}')" title="Hapus Balasan">
+                                                    <i class="ti ti-trash"></i>
                                                 </button>
                                             </div>
 
-                                            <div style="font-size: 0.82rem; line-height: 1.5; color: var(--tblr-body-color);">
+                                            <div style="font-size:.8rem;line-height:1.5;color:var(--tblr-body-color);">
                                                 {!! nl2br(e($reply->comment)) !!}
                                             </div>
                                         </div>
@@ -331,33 +298,26 @@
                                 </div>
                             @endif
 
-                            <!-- Inline Reply Form (Tersembunyi Default) -->
-                            <div id="reply-form-{{ $disc->id }}" class="mt-2 p-2.5 rounded-3 subtle-well d-none">
+                            {{-- Inline Reply Form --}}
+                            <div id="reply-form-{{ $disc->id }}" class="mt-2 p-2.5 rounded-3 d-none" style="background:var(--tblr-body-bg,#f8fafc);border:1px solid var(--tblr-border-color,#e2e8f0);">
                                 <form action="{{ route('admin.materials.discussions', $material) }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="parent_id" value="{{ $disc->id }}">
                                     
-                                    <div class="d-flex align-items-center gap-1.5 mb-1.5">
+                                    <div class="d-flex align-items-center gap-1.5 mb-1.5" style="font-size:.72rem;color:var(--tblr-text-muted,#64748b);">
                                         <i class="ti ti-corner-down-right text-primary"></i>
-                                        <span class="small fw-semibold text-muted-custom" style="font-size: 0.75rem;">
-                                            Balas ke: <strong class="heading-custom">{{ $disc->user->name ?? 'Siswa' }}</strong>
-                                        </span>
+                                        <span>Balas ke: <strong style="color:var(--tblr-heading-color,#0f172a);">{{ $disc->user->name ?? 'Siswa' }}</strong></span>
                                     </div>
 
                                     <div class="mb-2">
-                                        <textarea name="comment" 
-                                                  class="form-control rounded-3" 
-                                                  rows="2" 
-                                                  placeholder="Ketik balasan untuk {{ $disc->user->name ?? 'siswa' }}..." 
-                                                  required 
-                                                  style="font-size: 0.82rem; resize: vertical;">{{ '@' . ($disc->user->name ?? 'Siswa') }} </textarea>
+                                        <textarea name="comment" class="form-control" rows="2" placeholder="Ketik balasan untuk {{ $disc->user->name ?? 'siswa' }}..." required style="font-size:.8rem;resize:vertical;">{{ '@' . ($disc->user->name ?? 'Siswa') }} </textarea>
                                     </div>
 
                                     <div class="d-flex justify-content-end gap-1.5">
-                                        <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-1" style="font-size: 0.75rem;" onclick="toggleReplyForm({{ $disc->id }})">
+                                        <button type="button" class="md-btn-light" style="padding:.2rem .6rem;font-size:.72rem;" onclick="toggleReplyForm({{ $disc->id }})">
                                             Batal
                                         </button>
-                                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-2xs" style="font-size: 0.75rem;">
+                                        <button type="submit" class="md-btn-primary" style="padding:.2rem .75rem;font-size:.72rem;">
                                             <i class="ti ti-send"></i> Balas Siswa
                                         </button>
                                     </div>
@@ -366,12 +326,10 @@
 
                         </div>
                     @empty
-                        <div class="empty-state py-4">
-                            <div class="avatar-icon-box avatar-icon-primary mx-auto mb-2" style="width: 48px; height: 48px; font-size: 1.4rem;">
-                                <i class="ti ti-messages-off"></i>
-                            </div>
-                            <div class="fw-semibold heading-custom" style="font-size: 0.85rem;">Belum ada komentar diskusi pada materi ini.</div>
-                            <div class="small text-muted-custom mt-0.5" style="font-size: 0.75rem;">Siswa dapat bertanya dan Anda dapat menanggapi secara langsung di forum ini.</div>
+                        <div class="md-empty-row py-4">
+                            <i class="ti ti-messages-off"></i>
+                            Belum ada pesan diskusi pada materi ini.
+                            <div class="text-muted mt-1" style="font-size:.75rem;">Siswa dapat bertanya dan Anda dapat menanggapi secara langsung di forum ini.</div>
                         </div>
                     @endforelse
                 </div>
@@ -379,53 +337,47 @@
             </div>
         </div>
     </div>
-
 </div>
 
-<!-- Modal Konfirmasi Hapus Komentar Diskusi -->
-<div class="modal fade" id="modalDeleteComment" tabindex="-1" aria-labelledby="modalDeleteCommentLabel" aria-hidden="true">
+{{-- Delete Comment Modal --}}
+<div class="modal fade" id="modalDeleteComment" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background-color: var(--tblr-card-bg); color: var(--tblr-body-color);">
-            <div class="modal-body text-center p-4">
-                <div class="avatar-icon-box avatar-icon-danger mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
-                    <i class="ti ti-trash"></i>
+        <div class="md-modal-content">
+            <div class="md-modal-icon danger"><i class="ti ti-trash"></i></div>
+            <h6 class="md-modal-title">Hapus Komentar Ini?</h6>
+            <p class="md-modal-text">Komentar beserta balasannya akan dihapus permanen dari ruang diskusi.</p>
+            <form id="deleteCommentForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="md-modal-actions">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="md-btn-danger"><i class="ti ti-trash"></i> Hapus</button>
                 </div>
-                <h6 class="fw-bold heading-custom mb-1" style="font-size: 0.95rem;">Hapus Komentar Ini?</h6>
-                <p class="text-muted-custom mb-3" style="font-size: 0.78rem;">Komentar beserta balasannya akan dihapus permanen dari ruang diskusi.</p>
-                <form id="deleteCommentForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" style="font-size: 0.78rem;" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3.5 fw-bold shadow-sm" style="font-size: 0.78rem;">
-                            <i class="ti ti-trash me-1"></i> Ya, Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
-<script>
-    function toggleReplyForm(discId) {
-        const form = document.getElementById('reply-form-' + discId);
-        if (form) {
-            form.classList.toggle('d-none');
-            if (!form.classList.contains('d-none')) {
-                const textarea = form.querySelector('textarea');
-                if (textarea) textarea.focus();
-            }
-        }
-    }
+@include('admin._partials.master-data-styles')
 
-    function openDeleteCommentModal(url) {
-        const form = document.getElementById('deleteCommentForm');
-        if (form) {
-            form.action = url;
-            const modal = new bootstrap.Modal(document.getElementById('modalDeleteComment'));
-            modal.show();
+<script>
+function toggleReplyForm(discId) {
+    const form = document.getElementById('reply-form-' + discId);
+    if (form) {
+        form.classList.toggle('d-none');
+        if (!form.classList.contains('d-none')) {
+            const textarea = form.querySelector('textarea');
+            if (textarea) textarea.focus();
         }
     }
+}
+
+function openDeleteCommentModal(url) {
+    const form = document.getElementById('deleteCommentForm');
+    if (form) {
+        form.action = url;
+        new bootstrap.Modal(document.getElementById('modalDeleteComment')).show();
+    }
+}
 </script>
 @endsection

@@ -12,24 +12,52 @@ use App\Models\Notification;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class MaterialController extends Controller
 {
-    public function index()
+    public function index(Request $request): View
     {
-        $materials = Material::with(['subject', 'schoolClass', 'instructor'])
-            ->withCount('discussions')
-            ->latest()
-            ->paginate(10);
+        $user = Auth::user();
+        $search = $request->query('search');
+        $subjectId = $request->query('subject_id');
+        $classId = $request->query('class_id');
 
-        return view('admin.materials.index', compact('materials'));
+        $query = Material::with(['subject', 'schoolClass', 'instructor'])
+            ->withCount('discussions');
+
+        if ($user->subjects()->exists()) {
+            $allowedSubjectIds = $user->subjects()->pluck('subjects.id');
+            $query->whereIn('subject_id', $allowedSubjectIds);
+        }
+
+        $materials = $query
+            ->when($search, function ($q, $search) {
+                $q->where('title', 'like', "%{$search}%");
+            })
+            ->when($subjectId, function ($q, $subjectId) {
+                $q->where('subject_id', $subjectId);
+            })
+            ->when($classId, function ($q, $classId) {
+                $q->where('class_id', $classId);
+            })
+            ->orderBy('order', 'asc')
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+
+        return view('admin.materials.index', compact('materials', 'subjects', 'classes', 'search', 'subjectId', 'classId'));
     }
 
-    public function show(Material $material)
+    public function show(Material $material): View
     {
         $user = Auth::user();
         if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
@@ -58,16 +86,16 @@ class MaterialController extends Controller
         return view('admin.materials.show', compact('material', 'totalStudents', 'completedStudentsCount'));
     }
 
-    public function create()
+    public function create(): View
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::all();
-        $classes = SchoolClass::all();
+        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.materials.create', compact('subjects', 'classes'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -99,7 +127,7 @@ class MaterialController extends Controller
         }
 
         $material = new Material();
-        $material->title = $request->title;
+        $material->title = trim($request->title);
         $material->content_type = $contentType;
         $material->content = $request->content;
         $material->document_path = $documentPath;
@@ -132,19 +160,23 @@ class MaterialController extends Controller
         }
 
         return redirect()->route('admin.materials.index')
-            ->with('success', 'Materi pembelajaran berhasil ditambahkan dan notifikasi realtime dikirim.');
+            ->with('success', 'Materi pembelajaran berhasil ditambahkan.');
     }
 
-    public function edit(Material $material)
+    public function edit(Material $material): View
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::all();
-        $classes = SchoolClass::all();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
+        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.materials.edit', compact('material', 'subjects', 'classes'));
     }
 
-    public function update(Request $request, Material $material)
+    public function update(Request $request, Material $material): RedirectResponse
     {
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -176,7 +208,7 @@ class MaterialController extends Controller
             $contentType = 'document';
         }
 
-        $material->title = $request->title;
+        $material->title = trim($request->title);
         $material->content_type = $contentType;
         $material->content = $request->content;
         $material->video_url = $request->video_url;
@@ -189,8 +221,13 @@ class MaterialController extends Controller
             ->with('success', 'Materi pembelajaran berhasil diperbarui.');
     }
 
-    public function destroy(Material $material)
+    public function destroy(Material $material): RedirectResponse
     {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
         if ($material->document_path) {
             Storage::disk('public')->delete($material->document_path);
         }
@@ -201,7 +238,7 @@ class MaterialController extends Controller
             ->with('success', 'Materi pembelajaran berhasil dihapus.');
     }
 
-    public function storeComment(Request $request, Material $material)
+    public function storeComment(Request $request, Material $material): RedirectResponse
     {
         $user = Auth::user();
         if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
@@ -228,7 +265,7 @@ class MaterialController extends Controller
             'material_id' => $material->id,
             'parent_id' => $parentId,
             'user_id' => $user->id,
-            'comment' => $request->comment,
+            'comment' => trim($request->comment),
         ]);
 
         event(new DiscussionCommentSent($discussion));
@@ -267,13 +304,13 @@ class MaterialController extends Controller
             ]);
         }
 
-        $flashMsg = $parentId ? 'Tanggapan/balasan guru berhasil dikirim ke siswa.' : 'Pesan diskusi guru berhasil diterbitkan.';
+        $flashMsg = $parentId ? 'Tanggapan balasan guru berhasil dikirim.' : 'Pesan diskusi guru berhasil diterbitkan.';
 
         return redirect()->route('admin.materials.show', $material)
             ->with('success', $flashMsg);
     }
 
-    public function destroyComment(Material $material, MaterialDiscussion $discussion)
+    public function destroyComment(Material $material, MaterialDiscussion $discussion): RedirectResponse
     {
         $user = Auth::user();
         if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
@@ -284,11 +321,11 @@ class MaterialController extends Controller
             abort(404);
         }
 
-        // Hapus balasan jika komentar adalah parent
         $discussion->replies()->delete();
         $discussion->delete();
 
         return back()->with('success', 'Komentar diskusi berhasil dihapus.');
     }
 }
+
 

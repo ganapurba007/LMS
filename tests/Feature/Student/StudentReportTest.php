@@ -23,7 +23,7 @@ class StudentReportTest extends TestCase
 
         $response = $this->actingAs($student)->get(route('student.report.index'));
         $response->assertStatus(200);
-        $response->assertSee('Laporan Progres Belajar Diri');
+        $response->assertSee('Hasil Belajar');
         $response->assertSee('Progres Materi');
         $response->assertSee('Rata-Rata Tugas');
         $response->assertSee('Rata-Rata Kuis');
@@ -86,8 +86,8 @@ class StudentReportTest extends TestCase
         $response->assertSee('Biologi Modern');
         $response->assertSee('Tugas Struktur Sel');
         $response->assertSee('Kuis Genetika');
-        $response->assertSee('90 / 100');
-        $response->assertSee('85 / 100');
+        $response->assertSee('90');
+        $response->assertSee('85');
     }
 }
 

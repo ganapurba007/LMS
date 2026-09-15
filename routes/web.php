@@ -113,7 +113,8 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
 
     // Admin Laporan & Rekapitulasi Nilai
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.export-csv');
+    Route::get('reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
+    Route::get('reports/export-csv', [ReportController::class, 'exportExcel'])->name('reports.export-csv');
 });
 
 // Profile & Notification Routes

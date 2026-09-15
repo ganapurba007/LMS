@@ -74,7 +74,7 @@
   window.initSelect2 = function(targetSelector) {
     if (!$.fn.select2) return;
     
-    var $targets = targetSelector ? $(targetSelector) : $('.select2, select.select2');
+    var $targets = targetSelector ? $(targetSelector) : $('select.select2, .select2, select.form-select:not(.no-select2)');
     $targets.each(function() {
       var $el = $(this);
       if ($el.hasClass('select2-hidden-accessible') || $el.data('no-select2')) {
@@ -96,7 +96,7 @@
     window.initSelect2();
 
     // Trigger onchange handler for form submits on select2 change
-    $(document).on('select2:select select2:unselect select2:clear', 'select.select2', function(e) {
+    $(document).on('select2:select select2:unselect select2:clear', 'select', function(e) {
       if (typeof this.onchange === 'function') {
         this.onchange();
       }

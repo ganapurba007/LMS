@@ -100,12 +100,12 @@ class AdminAuthTest extends TestCase
         $this->post('/logout');
         $this->assertGuest();
 
-        // 3. Guru can login via frontend /login -> redirects to /dashboard
+        // 3. Guru can login via frontend /login -> redirects to /admin/dashboard
         $guruResponse = $this->post('/login', [
             'email' => 'guru@lms.com',
             'password' => 'password',
         ]);
-        $guruResponse->assertRedirect('/dashboard');
+        $guruResponse->assertRedirect('/admin/dashboard');
         $this->assertAuthenticated();
     }
 
@@ -118,9 +118,9 @@ class AdminAuthTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Selamat Datang');
         $response->assertSee('Komentar Terbaru dari Siswa');
-        $response->assertSee('Akses Cepat Pengelolaan');
-        $response->assertSee('Lihat Portal Frontend');
-        $response->assertSee('TUGAS PERLU NILAI');
-        $response->assertSee('KUIS &amp; UJIAN AKTIF', false);
+        $response->assertSee('Akses Cepat');
+        $response->assertSee('Portal Siswa');
+        $response->assertSee('Perlu Dinilai');
+        $response->assertSee('Kuis Aktif');
     }
 }

@@ -1,54 +1,70 @@
 @extends('layouts.be.master')
-
 @section('header_title', 'Tambah Mata Pelajaran')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold m-0">Tambah Mata Pelajaran Baru</h3>
-    <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline-secondary">
-        <i class="ti ti-arrow-left me-1"></i> Kembali
+
+<div class="md-page-header mb-4">
+    <div class="md-page-title">
+        <div class="md-page-icon" style="background:rgba(8,145,178,.1);color:#0891b2;">
+            <i class="ti ti-books"></i>
+        </div>
+        <div>
+            <h5 class="md-title">Tambah Mata Pelajaran</h5>
+        </div>
+    </div>
+    <a href="{{ route('admin.subjects.index') }}" class="md-btn-secondary">
+        <i class="ti ti-arrow-left"></i> Kembali
     </a>
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <form method="POST" action="{{ route('admin.subjects.store') }}">
-                    @csrf
-
-                    <div class="mb-4">
-                        <label for="name" class="form-label fw-semibold">Nama Mata Pelajaran <span class="text-danger">*</span></label>
-                        <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required placeholder="Misal: Matematika Wajib, Fisika Dasar">
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold mb-2">Guru Pengampu</label>
-                        <div class="card bg-light border-0 p-3" style="max-height: 240px; overflow-y: auto;">
-                            @forelse($gurus as $guru)
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="instructor_ids[]" value="{{ $guru->id }}" id="guru_{{ $guru->id }}" {{ is_array(old('instructor_ids')) && in_array($guru->id, old('instructor_ids')) ? 'checked' : '' }}>
-                                    <label class="form-check-label fw-medium" for="guru_{{ $guru->id }}">
-                                        {{ $guru->name }} <span class="text-muted small">({{ $guru->email }})</span>
-                                    </label>
-                                </div>
-                            @empty
-                                <p class="text-muted small mb-0">Belum ada akun guru terdaftar.</p>
-                            @endforelse
-                        </div>
-                        <div class="form-text mt-1">Pilih satu atau beberapa guru yang bertugas mengampu mata pelajaran ini.</div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('admin.subjects.index') }}" class="btn btn-light">Batal</a>
-                        <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i> Simpan Mata Pelajaran</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="md-form-card">
+    <div class="md-form-head">
+        <div class="md-form-head-icon" style="background:rgba(8,145,178,.1);color:#0891b2;"><i class="ti ti-books"></i></div>
+        <h6 class="md-form-head-title">Informasi Mata Pelajaran</h6>
     </div>
+    <form method="POST" action="{{ route('admin.subjects.store') }}">
+        @csrf
+        <div class="md-form-body">
+
+            <div class="mb-4">
+                <label for="name" class="md-form-label">Nama Mata Pelajaran <span class="text-danger">*</span></label>
+                <input type="text" id="name" name="name"
+                    class="form-control @error('name') is-invalid @enderror"
+                    value="{{ old('name') }}" required
+                    placeholder="Misal: Matematika Wajib, Fisika Dasar">
+                @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+
+            <div>
+                <label class="md-form-label">Guru Pengampu</label>
+                <div class="md-check-list">
+                    @forelse($gurus as $guru)
+                        <label class="md-check-item" for="guru_{{ $guru->id }}">
+                            <input type="checkbox" class="form-check-input m-0"
+                                id="guru_{{ $guru->id }}" name="instructor_ids[]"
+                                value="{{ $guru->id }}"
+                                {{ is_array(old('instructor_ids')) && in_array($guru->id, old('instructor_ids')) ? 'checked' : '' }}>
+                            <div>
+                                <div class="md-check-label">{{ $guru->name }}</div>
+                                <div class="md-check-sub">{{ $guru->email }}</div>
+                            </div>
+                        </label>
+                    @empty
+                        <div class="p-3 text-center" style="font-size:.78rem;color:var(--tblr-text-muted,#64748b);">
+                            Belum ada akun guru terdaftar.
+                        </div>
+                    @endforelse
+                </div>
+                <div class="md-form-hint">Pilih satu atau beberapa guru yang mengampu mata pelajaran ini.</div>
+            </div>
+
+        </div>
+        <div class="md-form-footer">
+            <a href="{{ route('admin.subjects.index') }}" class="md-btn-light">Batal</a>
+            <button type="submit" class="md-btn-submit"><i class="ti ti-device-floppy"></i> Simpan Mata Pelajaran</button>
+        </div>
+    </form>
 </div>
+
+@include('admin._partials.master-data-styles')
 @endsection

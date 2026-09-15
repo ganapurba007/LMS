@@ -1,73 +1,102 @@
 @extends('layouts.be.master')
-
 @section('header_title', 'Master Data — Tugas Siswa')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold m-0">Daftar Tugas Siswa Kelas</h3>
-    <a href="{{ route('admin.assignments.create') }}" class="btn btn-primary">
-        <i class="ti ti-plus me-1"></i> Buat Tugas Baru
-    </a>
-</div>
+@include('admin._partials.master-data-styles')
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        <i class="ti ti-check me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="col-md-12">
+    {{-- Page Header --}}
+    <div class="md-page-header mb-4">
+        <div class="md-page-title">
+            <div class="md-page-icon" style="background:rgba(32,107,196,.1);color:#206bc4;">
+                <i class="ti ti-clipboard-list"></i>
+            </div>
+            <div>
+                <h5 class="md-title">Daftar Tugas Siswa</h5>
+            </div>
+        </div>
+        <a href="{{ route('admin.assignments.create') }}" class="md-btn-primary">
+            <i class="ti ti-plus"></i>
+            <span>Buat Tugas Baru</span>
+        </a>
     </div>
-@endif
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-vcenter table-hover card-table w-100 mb-0 data-table">
+    {{-- Flash Alert --}}
+    @if(session('success'))
+        <div class="md-alert success mb-4">
+            <i class="ti ti-check-circle"></i> {{ session('success') }}
+            <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="md-alert danger mb-4">
+            <i class="ti ti-alert-triangle"></i> {{ session('error') }}
+            <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
+        </div>
+    @endif
+
+    <div class="md-card">
+        <div class="md-table-wrap">
+            <table class="table table-hover md-table mb-0 data-table w-100">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width: 70px;">No</th>
+                        <th class="md-th-no text-center">No</th>
                         <th>Judul Tugas</th>
                         <th>Mata Pelajaran</th>
                         <th>Kelas Target</th>
                         <th>Batas Waktu (Deadline)</th>
-                        <th>Pengumpulan</th>
-                        <th class="pe-4 text-end" style="width: 160px;">Aksi</th>
+                        <th class="text-center" style="width: 130px;">Pengumpulan</th>
+                        <th class="md-th-action text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($assignments as $assignment)
                         <tr>
-                            <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
+                            <td class="md-td-no text-center">{{ $loop->iteration }}</td>
                             <td>
-                                <div class="fw-bold">{{ $assignment->title }}</div>
-                                <div class="small text-muted">{{ Str::limit($assignment->description, 60) }}</div>
+                                <div class="fw-bold text-dark" style="font-size: .85rem;">
+                                    {{ $assignment->title }}
+                                </div>
+                                <div class="text-muted" style="font-size: .73rem;">
+                                    {{ Str::limit(strip_tags($assignment->description), 50) }}
+                                </div>
                             </td>
                             <td>
-                                <span class="badge badge-soft-primary">
+                                <span class="md-badge blue">
                                     {{ $assignment->subject->name ?? '-' }}
                                 </span>
                             </td>
                             <td>
-                                <span class="badge badge-soft-primary">
+                                <span class="md-badge teal">
                                     {{ $assignment->schoolClass->name ?? '-' }}
                                 </span>
                             </td>
                             <td>
-                                <div class="small fw-semibold text-danger">
-                                    <i class="ti ti-clock me-1"></i> {{ $assignment->due_date ? $assignment->due_date->format('d M Y H:i') : '-' }}
-                                </div>
+                                @if($assignment->due_date)
+                                    @php $isPast = now()->greaterThan($assignment->due_date); @endphp
+                                    <span class="md-badge {{ $isPast ? 'rose' : 'teal' }}">
+                                        <i class="ti ti-calendar"></i> {{ $assignment->due_date->format('d M Y H:i') }}
+                                    </span>
+                                @else
+                                    <span class="text-muted" style="font-size: .75rem;">-</span>
+                                @endif
                             </td>
-                            <td>
-                                <span class="badge badge-soft-success">
-                                    {{ $assignment->submissions_count }} Siswa
-                                </span>
+                            <td class="text-center">
+                                <a href="{{ route('admin.submissions.index', ['assignment_id' => $assignment->id]) }}" 
+                                   class="md-badge info text-decoration-none" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);">
+                                    <i class="ti ti-users"></i> {{ $assignment->submissions_count ?? $assignment->submissions->count() }} Siswa
+                                </a>
                             </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-inline-flex gap-2">
-                                    <a href="{{ route('admin.assignments.edit', $assignment) }}" class="btn btn-sm btn-outline-primary" title="Edit Tugas">
+                            <td class="md-td-action text-center">
+                                <div class="md-action-group text-center">
+                                    <a href="{{ route('admin.submissions.index', ['assignment_id' => $assignment->id]) }}" class="md-icon-btn teal" title="Lihat Pengumpulan Siswa">
+                                        <i class="ti ti-users"></i>
+                                    </a>
+                                    <a href="{{ route('admin.assignments.edit', $assignment) }}" class="md-icon-btn blue" title="Edit Tugas">
                                         <i class="ti ti-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            onclick="openDeleteAssignmentModal('{{ route('admin.assignments.destroy', $assignment) }}', '{{ addslashes($assignment->title) }}')" 
-                                            title="Hapus">
+                                    <button type="button" class="md-icon-btn red" title="Hapus Tugas"
+                                            onclick="openDeleteAssignmentModal('{{ route('admin.assignments.destroy', $assignment) }}', '{{ addslashes($assignment->title) }}')">
                                         <i class="ti ti-trash"></i>
                                     </button>
                                 </div>
@@ -75,55 +104,42 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Belum ada tugas siswa yang dibuat. Silakan buat tugas baru.</td>
+                            <td colspan="7" class="md-empty-row">
+                                <i class="ti ti-clipboard-off"></i>
+                                Belum ada tugas siswa yang dibuat.
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
-    @if($assignments->hasPages())
-        <div class="card-footer d-flex justify-content-end py-3">
-            {{ $assignments->links() }}
-        </div>
-    @endif
 </div>
 
-<!-- Modal Konfirmasi Hapus Tugas -->
-<div class="modal fade" id="modalDeleteAssignment" tabindex="-1" aria-labelledby="modalDeleteAssignmentLabel" aria-hidden="true">
+{{-- Delete Modal --}}
+<div class="modal fade" id="modalDeleteAssignment" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-body text-center p-4">
-                <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                    <i class="ti ti-trash fs-2"></i>
+        <div class="md-modal-content">
+            <div class="md-modal-icon danger"><i class="ti ti-trash"></i></div>
+            <h6 class="md-modal-title">Hapus Tugas Ini?</h6>
+            <p class="md-modal-text" id="deleteModalAssignmentText">Tugas dan seluruh riwayat pengumpulan siswa akan dihapus permanen.</p>
+            <form id="deleteAssignmentForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="md-modal-actions">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="md-btn-danger"><i class="ti ti-trash"></i> Hapus</button>
                 </div>
-                <h5 class="fw-bold text-dark mb-1">Hapus Tugas Ini?</h5>
-                <p class="text-muted small mb-4" id="deleteModalAssignmentText">Tugas dan file pengumpulan siswa yang dihapus tidak dapat dikembalikan.</p>
-                <form id="deleteAssignmentForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="ti ti-trash me-1"></i> Ya, Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    function openDeleteAssignmentModal(url, assignmentTitle) {
-        const form = document.getElementById('deleteAssignmentForm');
-        form.action = url;
-        const textEl = document.getElementById('deleteModalAssignmentText');
-        if (textEl && assignmentTitle) {
-            textEl.innerText = `Anda akan menghapus tugas: "${assignmentTitle}". Tindakan ini tidak dapat dibatalkan.`;
-        }
-        const modal = new bootstrap.Modal(document.getElementById('modalDeleteAssignment'));
-        modal.show();
-    }
+function openDeleteAssignmentModal(url, title) {
+    document.getElementById('deleteAssignmentForm').action = url;
+    document.getElementById('deleteModalAssignmentText').innerText = `Anda akan menghapus tugas: "${title}". Tindakan ini tidak dapat dibatalkan.`;
+    new bootstrap.Modal(document.getElementById('modalDeleteAssignment')).show();
+}
 </script>
 @endsection

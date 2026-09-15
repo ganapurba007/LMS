@@ -57,14 +57,14 @@
             border-color: rgba(51, 104, 160, 0.28);
         }
         .metric-icon-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
         }
 
         /* Content Card Modern */
@@ -102,21 +102,22 @@
         /* Table Styling */
         .table-modern {
             margin-bottom: 0;
+            width: 100%;
         }
         .table-modern thead th {
             background-color: #F1F5F9;
             color: #475569;
-            font-size: 0.75rem;
+            font-size: 0.73rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 0.85rem 1.15rem;
+            padding: 0.85rem 1rem;
             border-bottom: 1px solid rgba(51, 104, 160, 0.12);
             white-space: nowrap;
         }
         .table-modern tbody td {
-            padding: 0.9rem 1.15rem;
-            font-size: 0.85rem;
+            padding: 0.85rem 1rem;
+            font-size: 0.84rem;
             color: #1e293b;
             border-bottom: 1px solid rgba(51, 104, 160, 0.07);
             vertical-align: middle;
@@ -146,23 +147,30 @@
         }
     </style>
 
-    <!-- 1. Dedicated Hero Section: Laporan Belajar Siswa -->
+    <!-- 1. Hero Section: Laporan Belajar Siswa -->
     <section class="report-hero">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 position-relative z-1">
             
-            <!-- Top Bar: Kelas & Tombol Kembali -->
+            <!-- Top Bar: Kelas, Predikat & Tombol Kembali -->
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5 mb-3">
-                <!-- Kelas -->
-                <span class="badge px-3 py-1.5 rounded-pill shadow-xs font-bold d-inline-flex align-items-center gap-1.5" 
-                      style="background-color: #F2EFE7; color: #20456E !important; font-size: 0.8rem;">
-                    <i class="ti ti-school text-primary"></i> Kelas {{ Auth::user()->schoolClass->name ?? 'Siswa' }}
-                </span>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Kelas -->
+                    <span class="badge px-3 py-1.5 rounded-pill shadow-xs font-bold d-inline-flex align-items-center gap-1.5" 
+                          style="background-color: #F2EFE7; color: #20456E !important; font-size: 0.8rem;">
+                        <i class="ti ti-school text-primary"></i> Kelas {{ Auth::user()->schoolClass->name ?? 'Siswa' }}
+                    </span>
+                    <!-- Predikat -->
+                    <span class="badge px-3 py-1.5 rounded-pill shadow-xs font-bold d-inline-flex align-items-center gap-1.5"
+                          style="background: {{ $predicateBadgeBg }}; color: {{ $predicateBadgeColor }} !important; font-size: 0.8rem;">
+                        <i class="ti ti-medal"></i> Predikat: {{ $gradePredicate }}
+                    </span>
+                </div>
 
                 <!-- Tombol Kembali -->
                 <a href="{{ route('dashboard') }}" 
                    class="btn btn-sm rounded-pill px-3 py-1.5 font-bold d-inline-flex align-items-center gap-1.5 text-white text-decoration-none shadow-sm hover-lift" 
                    style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); font-size: 0.82rem;">
-                    <i class="ti ti-arrow-left"></i> Kembali
+                    <i class="ti ti-arrow-left"></i> Kembali ke Dashboard
                 </a>
             </div>
 
@@ -181,7 +189,7 @@
         </div>
     </section>
 
-    <!-- 2. Main Content Area: Rapi, Responsif & Clean -->
+    <!-- 2. Main Content Area -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style="padding-top: 2rem !important; padding-bottom: 3.5rem !important;">
 
         <!-- Metrics Summary Cards (4 Kartu Ringkasan Prestasi) -->
@@ -273,7 +281,7 @@
                 </div>
             </div>
 
-            <!-- Card 4: Nilai Keseluruhan -->
+            <!-- Card 4: Indeks Gabungan -->
             <div class="col">
                 <div class="metric-card-modern h-100">
                     <div>
@@ -308,7 +316,7 @@
         <div class="content-card-modern mb-4">
             <div class="content-card-header">
                 <div class="d-flex align-items-center gap-2.5">
-                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0" style="background: linear-gradient(135deg, #20456E, #3368A0); width: 30px; height: 30px;">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0" style="background: linear-gradient(135deg, #20456E, #3368A0); width: 32px; height: 32px;">
                         <i class="ti ti-layout-grid fs-6"></i>
                     </div>
                     <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.95rem;">
@@ -329,7 +337,7 @@
                             <th style="min-width: 200px;">Progres Materi</th>
                             <th class="text-center" style="min-width: 130px;">Rata-Rata Tugas</th>
                             <th class="text-center" style="min-width: 130px;">Rata-Rata Kuis</th>
-                            <th class="text-end" style="min-width: 120px;">Aksi</th>
+                            <th class="text-center" style="min-width: 100px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -384,7 +392,7 @@
                                         <span class="text-muted small">-</span>
                                     @endif
                                 </td>
-                                <td class="text-end">
+                                <td class="text-center">
                                     <a href="{{ route('student.materials.index', ['subject_id' => $item['subject']->id]) }}" 
                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 font-bold d-inline-flex align-items-center gap-1 hover-lift text-decoration-none"
                                        style="font-size: 0.76rem; border-color: rgba(51, 104, 160, 0.3); color: #20456E;">
@@ -435,7 +443,7 @@
                                     <th style="min-width: 140px;">Tugas</th>
                                     <th style="min-width: 100px;">Pelajaran</th>
                                     <th class="text-center" style="min-width: 90px;">Nilai</th>
-                                    <th class="text-end" style="min-width: 70px;">Detail</th>
+                                    <th class="text-center" style="min-width: 70px;">Detail</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -467,7 +475,7 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             @if($sub->assignment)
                                                 <a href="{{ route('student.assignments.show', $sub->assignment) }}" 
                                                    class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 font-bold hover-lift text-decoration-none"
@@ -518,7 +526,7 @@
                                     <th style="min-width: 140px;">Kuis</th>
                                     <th style="min-width: 100px;">Pelajaran</th>
                                     <th class="text-center" style="min-width: 90px;">Skor</th>
-                                    <th class="text-end" style="min-width: 70px;">Hasil</th>
+                                    <th class="text-center" style="min-width: 70px;">Hasil</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -544,7 +552,7 @@
                                                 {{ number_format($qScore, 1) }}
                                             </span>
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             @if($attempt->quiz)
                                                 <a href="{{ route('student.quizzes.result', $attempt->quiz) }}" 
                                                    class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 font-bold hover-lift text-decoration-none"

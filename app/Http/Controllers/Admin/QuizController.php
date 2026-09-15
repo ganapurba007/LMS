@@ -12,32 +12,59 @@ use App\Models\QuizQuestionOption;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class QuizController extends Controller
 {
-    public function index()
-    {
-        $quizzes = Quiz::with(['subject', 'schoolClass', 'instructor', 'questions.options'])
-            ->withCount('questions')
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.quizzes.index', compact('quizzes'));
-    }
-
-    public function create()
+    public function index(Request $request): View
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::all();
-        $classes = SchoolClass::all();
+        $search = $request->query('search');
+        $subjectId = $request->query('subject_id');
+        $classId = $request->query('class_id');
+
+        $query = Quiz::with(['subject', 'schoolClass', 'instructor', 'questions.options'])
+            ->withCount('questions');
+
+        if ($user->subjects()->exists()) {
+            $allowedSubjectIds = $user->subjects()->pluck('subjects.id');
+            $query->whereIn('subject_id', $allowedSubjectIds);
+        }
+
+        $quizzes = $query
+            ->when($search, function ($q, $search) {
+                $q->where('title', 'like', "%{$search}%");
+            })
+            ->when($subjectId, function ($q, $subjectId) {
+                $q->where('subject_id', $subjectId);
+            })
+            ->when($classId, function ($q, $classId) {
+                $q->where('class_id', $classId);
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+
+        return view('admin.quizzes.index', compact('quizzes', 'subjects', 'classes', 'search', 'subjectId', 'classId'));
+    }
+
+    public function create(): View
+    {
+        $user = Auth::user();
+        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.quizzes.create', compact('subjects', 'classes'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -54,7 +81,7 @@ class QuizController extends Controller
         }
 
         $quiz = new Quiz();
-        $quiz->title = $request->title;
+        $quiz->title = trim($request->title);
         $quiz->duration_minutes = $request->duration_minutes;
         $quiz->points_per_question = $request->points_per_question;
         $quiz->deadline = $request->deadline;
@@ -83,27 +110,36 @@ class QuizController extends Controller
         }
 
         return redirect()->route('admin.quizzes.show', $quiz)
-            ->with('success', 'Kuis berhasil dibuat. Silakan tambahkan atau impor soal ke dalam kuis.');
+            ->with('success', 'Kuis berhasil dibuat. Silakan tambahkan atau impor butir soal ke dalam kuis.');
     }
 
-    public function show(Quiz $quiz)
+    public function show(Quiz $quiz): View
     {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
         $quiz->load(['questions.options', 'questions.questionBank', 'subject', 'schoolClass']);
         $questionBanks = QuestionBank::with('options')->get();
 
         return view('admin.quizzes.show', compact('quiz', 'questionBanks'));
     }
 
-    public function edit(Quiz $quiz)
+    public function edit(Quiz $quiz): View
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::all();
-        $classes = SchoolClass::all();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
+        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.quizzes.edit', compact('quiz', 'subjects', 'classes'));
     }
 
-    public function update(Request $request, Quiz $quiz)
+    public function update(Request $request, Quiz $quiz): RedirectResponse
     {
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -119,7 +155,7 @@ class QuizController extends Controller
             return back()->withErrors(['subject_id' => 'Anda tidak berhak mengedit kuis untuk mata pelajaran ini.'])->withInput();
         }
 
-        $quiz->title = $request->title;
+        $quiz->title = trim($request->title);
         $quiz->duration_minutes = $request->duration_minutes;
         $quiz->points_per_question = $request->points_per_question;
         $quiz->deadline = $request->deadline;
@@ -131,15 +167,20 @@ class QuizController extends Controller
             ->with('success', 'Pengaturan kuis berhasil diperbarui.');
     }
 
-    public function destroy(Quiz $quiz)
+    public function destroy(Quiz $quiz): RedirectResponse
     {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
         $quiz->delete();
 
         return redirect()->route('admin.quizzes.index')
             ->with('success', 'Kuis berhasil dihapus.');
     }
 
-    public function importQuestions(Request $request, Quiz $quiz)
+    public function importQuestions(Request $request, Quiz $quiz): RedirectResponse
     {
         $request->validate([
             'question_bank_ids' => ['required', 'array'],
@@ -148,7 +189,6 @@ class QuizController extends Controller
 
         DB::transaction(function () use ($request, $quiz) {
             foreach ($request->question_bank_ids as $qbId) {
-                // Avoid duplicating if already imported
                 $exists = $quiz->questions()->where('question_bank_id', $qbId)->exists();
                 if ($exists) {
                     continue;
@@ -180,7 +220,7 @@ class QuizController extends Controller
         return back()->with('success', 'Soal berhasil diimpor dari Bank Soal.');
     }
 
-    public function storeQuestion(Request $request, Quiz $quiz)
+    public function storeQuestion(Request $request, Quiz $quiz): RedirectResponse
     {
         // 1. Batch / Bulk Questions Processing
         if ($request->has('questions') && is_array($request->input('questions')) && count($request->input('questions')) > 0) {
@@ -229,7 +269,7 @@ class QuizController extends Controller
                             ]);
 
                             foreach ($pairs as $pair) {
-                                if (isset($pair['premise']) && isset($pair['match'])) {
+                                if (!empty($pair['premise']) && !empty($pair['match'])) {
                                     QuizQuestionOption::create([
                                         'quiz_question_id' => $qq->id,
                                         'option_text' => trim($pair['premise']),
@@ -261,7 +301,7 @@ class QuizController extends Controller
                             $qq = QuizQuestion::create([
                                 'quiz_id' => $quiz->id,
                                 'question_bank_id' => null,
-                                'question_text' => trim($qData['question_text']),
+                                'question_text' => $qText,
                                 'question_type' => 'multiple_choice',
                             ]);
 
@@ -290,7 +330,7 @@ class QuizController extends Controller
             });
 
             if ($createdCount > 0) {
-                return back()->with('success', $createdCount . ' soal kuis berhasil disimpan sekaligus.');
+                return back()->with('success', $createdCount . ' butir soal kuis berhasil disimpan.');
             }
 
             return back()->with('error', 'Tidak ada butir soal yang valid untuk disimpan.');
@@ -316,7 +356,7 @@ class QuizController extends Controller
                 $qq = QuizQuestion::create([
                     'quiz_id' => $quiz->id,
                     'question_bank_id' => null,
-                    'question_text' => $request->question_text,
+                    'question_text' => trim($request->question_text),
                     'question_type' => 'true_false',
                 ]);
 
@@ -344,7 +384,7 @@ class QuizController extends Controller
                 $qq = QuizQuestion::create([
                     'quiz_id' => $quiz->id,
                     'question_bank_id' => null,
-                    'question_text' => $request->question_text,
+                    'question_text' => trim($request->question_text),
                     'question_type' => 'matching',
                 ]);
 
@@ -370,15 +410,15 @@ class QuizController extends Controller
                 $qq = QuizQuestion::create([
                     'quiz_id' => $quiz->id,
                     'question_bank_id' => null,
-                    'question_text' => $request->question_text,
+                    'question_text' => trim($request->question_text),
                     'question_type' => 'multiple_choice',
                 ]);
 
                 foreach ($request->options as $index => $optionText) {
                     QuizQuestionOption::create([
                         'quiz_question_id' => $qq->id,
-                        'option_text' => $optionText,
-                        'is_correct' => ($index == $request->correct_option),
+                        'option_text' => trim($optionText),
+                        'is_correct' => ((int) $index === (int) $request->correct_option),
                     ]);
                 }
             });
@@ -387,7 +427,7 @@ class QuizController extends Controller
         return back()->with('success', 'Soal kuis baru berhasil ditambahkan.');
     }
 
-    public function destroyQuestion(Quiz $quiz, QuizQuestion $question)
+    public function destroyQuestion(Quiz $quiz, QuizQuestion $question): RedirectResponse
     {
         if ($question->quiz_id !== $quiz->id) {
             abort(403);
@@ -398,7 +438,7 @@ class QuizController extends Controller
         return back()->with('success', 'Soal kuis berhasil dihapus.');
     }
 
-    public function students(Quiz $quiz)
+    public function students(Quiz $quiz): View
     {
         $user = Auth::user();
         if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
@@ -421,7 +461,7 @@ class QuizController extends Controller
         return view('admin.quizzes.students', compact('quiz', 'students', 'attempts'));
     }
 
-    public function resetStudentAttempt(Quiz $quiz, User $student)
+    public function resetStudentAttempt(Quiz $quiz, User $student): RedirectResponse
     {
         $user = Auth::user();
         if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
@@ -449,3 +489,4 @@ class QuizController extends Controller
         return back()->with('success', $msg);
     }
 }
+

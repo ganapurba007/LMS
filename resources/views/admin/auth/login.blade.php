@@ -29,16 +29,15 @@
       <div class="text-center mb-4">
         <a href="{{ route('admin.login') }}" class="d-inline-flex align-items-center gap-2 text-decoration-none">
           <div class="sidebar-brand-icon">
-            <img src="{{ asset('images/icon.png') }}" alt="{{ config('app.name', 'RuangTerra') }} Icon" style="width: 38px; height: 38px; object-fit: contain;">
+            <img src="{{ asset('images/icon.png') }}" alt="{{ config('app.name', 'RuangTerra') }} Icon" style="width: 40px; height: 40px; object-fit: contain;">
           </div>
-          <span class="fs-3 fw-bold heading-custom">{{ config('app.name', 'RuangTerra') }}</span>
+          <span class="fs-2 fw-bold heading-custom">{{ config('app.name', 'RuangTerra') }}</span>
         </a>
-        <div class="small text-muted-custom mt-1 fw-semibold tracking-wide">PANEL KHUSUS GURU & ADMINISTRATOR</div>
       </div>
 
       <!-- Session Status -->
       @if (session('status'))
-        <div class="alert alert-success alert-dismissible fade show small mb-3 border-0 shadow-sm" role="alert">
+        <div class="alert alert-success alert-dismissible fade show small mb-3 border-0 shadow-sm rounded-3" role="alert">
           <i class="ti ti-check me-1"></i> {{ session('status') }}
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -46,7 +45,7 @@
 
       <!-- Error Message Banner -->
       @if ($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show small mb-3 border-0 shadow-sm" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show small mb-3 border-0 shadow-sm rounded-3" role="alert">
           <div class="d-flex align-items-start gap-2">
             <i class="ti ti-alert-triangle fs-5 mt-0.5"></i>
             <div>
@@ -60,14 +59,13 @@
       @endif
 
       <!-- Auth Card -->
-      <div class="card shadow-sm border mb-0">
+      <div class="card shadow-sm border rounded-4 mb-0">
         <div class="card-body p-4 p-sm-5">
           <div class="text-center mb-4">
-            <div class="avatar-icon-box avatar-icon-primary mx-auto mb-2" style="width: 52px; height: 52px; font-size: 1.6rem;">
+            <div class="avatar-icon-box avatar-icon-primary mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.65rem;">
               <i class="ti ti-shield-lock"></i>
             </div>
-            <h2 class="h4 fw-bold heading-custom mb-1">Masuk Panel Guru</h2>
-            <p class="text-muted-custom small mb-0">Hanya untuk Guru & Staf Pengajar Terdaftar</p>
+            <h2 class="h4 fw-bold heading-custom mb-0">Masuk Panel Guru</h2>
           </div>
 
           <form action="{{ route('admin.login') }}" method="POST">
@@ -75,7 +73,7 @@
 
             <!-- Email Input -->
             <div class="mb-3">
-              <label class="form-label small fw-semibold" for="email">Alamat Email Guru</label>
+              <label class="form-label small fw-semibold" for="email">Email</label>
               <div class="input-group">
                 <span class="input-group-text bg-transparent border-end-0 text-muted-custom"><i class="ti ti-mail"></i></span>
                 <input type="email" id="email" name="email" class="form-control border-start-0 ps-1 @error('email') is-invalid @enderror" placeholder="guru@lms.com" value="{{ old('email') }}" required autofocus autocomplete="username">
@@ -86,7 +84,7 @@
             <div class="mb-3">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <label class="form-label small fw-semibold mb-0" for="password">Kata Sandi</label>
-                <a href="{{ route('admin.password.request') }}" class="small text-primary text-decoration-none">Lupa Kata Sandi?</a>
+                <a href="{{ route('admin.password.request') }}" class="small text-primary text-decoration-none fw-medium">Lupa Kata Sandi?</a>
               </div>
               <div class="input-group">
                 <span class="input-group-text bg-transparent border-end-0 text-muted-custom"><i class="ti ti-lock"></i></span>
@@ -100,12 +98,12 @@
             <!-- Remember Me -->
             <div class="mb-4 form-check">
               <input type="checkbox" class="form-check-input" id="remember_me" name="remember">
-              <label class="form-check-label text-muted-custom small" for="remember_me">Ingat saya di perangkat ini</label>
+              <label class="form-check-label text-muted-custom small" for="remember_me">Ingat saya</label>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary btn-auth-submit w-100 py-2.5 fw-semibold shadow-sm" data-loading-text="Memverifikasi Akun Guru...">
-              <i class="ti ti-login me-1"></i> Masuk ke Dashboard Admin
+            <button type="submit" class="btn btn-primary btn-auth-submit w-100 py-2.5 fw-semibold shadow-sm rounded-3" data-loading-text="Memproses...">
+              <i class="ti ti-login me-1.5"></i> Masuk
             </button>
           </form>
 

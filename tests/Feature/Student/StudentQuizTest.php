@@ -136,10 +136,9 @@ class StudentQuizTest extends TestCase
 
         $response = $this->actingAs($this->student)->get(route('student.quizzes.result', $this->quiz));
         $response->assertStatus(200);
-        $response->assertSee('Hasil &amp; Preview Kuis', false);
+        $response->assertSee('Hasil &amp; Review', false);
         $response->assertSee('Berapakah 5 + 5?');
-        $response->assertSee('Jawaban Anda');
-        $response->assertSee('Jawaban Benar');
+        $response->assertSee('Jawaban Anda (Benar)');
     }
 
     public function test_siswa_cannot_access_quiz_from_another_class(): void
@@ -290,7 +289,8 @@ class StudentQuizTest extends TestCase
         // Halaman result dapat diakses dengan normal
         $resultResponse = $this->actingAs($this->student)->get(route('student.quizzes.result', $this->quiz));
         $resultResponse->assertStatus(200);
-        $resultResponse->assertSee('Skor: 50 / 100');
+        $resultResponse->assertSee('50');
+        $resultResponse->assertSee('Skor Akhir');
     }
 
     public function test_siswa_can_attempt_and_submit_true_false_and_matching_questions(): void

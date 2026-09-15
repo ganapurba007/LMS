@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Notification;
+use App\Models\Subject;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AssignmentController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $user = Auth::user();
 
@@ -27,7 +31,7 @@ class AssignmentController extends Controller
 
         // Filter pencarian judul, deskripsi, mata pelajaran, atau guru
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = trim($request->input('search'));
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
@@ -49,11 +53,12 @@ class AssignmentController extends Controller
         $submittedIds = $allSubmissions->keys()->toArray();
 
         // Filter status pengumpulan
-        if ($request->input('status') === 'submitted') {
+        $status = $request->input('status');
+        if ($status === 'submitted') {
             $query->whereIn('id', $submittedIds);
-        } elseif ($request->input('status') === 'unsubmitted') {
+        } elseif ($status === 'unsubmitted') {
             $query->whereNotIn('id', $submittedIds);
-        } elseif ($request->input('status') === 'graded') {
+        } elseif ($status === 'graded') {
             $gradedIds = $allSubmissions->whereNotNull('grade')->keys()->toArray();
             $query->whereIn('id', $gradedIds);
         }
@@ -72,7 +77,7 @@ class AssignmentController extends Controller
         $progressPercent = $totalAssignments > 0 ? round(($submittedCount / $totalAssignments) * 100) : 0;
 
         // Daftar mata pelajaran yang memiliki tugas di kelas ini
-        $subjects = \App\Models\Subject::whereIn('id', $allClassAssignments->pluck('subject_id')->unique())
+        $subjects = Subject::whereIn('id', $allClassAssignments->pluck('subject_id')->unique())
             ->orderBy('name')
             ->get();
 
@@ -88,7 +93,7 @@ class AssignmentController extends Controller
         ));
     }
 
-    public function show(Assignment $assignment)
+    public function show(Assignment $assignment): View
     {
         $user = Auth::user();
         if ($user->isGuru() && $assignment->instructor_id !== $user->id) {
@@ -98,7 +103,7 @@ class AssignmentController extends Controller
             abort(403, 'Tugas ini tidak ditujukan untuk kelas Anda.');
         }
 
-        $assignment->load(['subject', 'instructor']);
+        $assignment->load(['subject', 'instructor', 'schoolClass']);
 
         $submission = AssignmentSubmission::where('student_id', $user->id)
             ->where('assignment_id', $assignment->id)
@@ -106,7 +111,7 @@ class AssignmentController extends Controller
 
         $teacherStats = null;
         if ($user->isGuru()) {
-            $totalClassStudents = \App\Models\User::where('class_id', $assignment->class_id)
+            $totalClassStudents = User::where('class_id', $assignment->class_id)
                 ->whereHas('role', fn ($q) => $q->where('name', 'siswa'))
                 ->count();
             $submittedStudentsCount = AssignmentSubmission::where('assignment_id', $assignment->id)
@@ -125,7 +130,7 @@ class AssignmentController extends Controller
         return view('student.assignments.show', compact('assignment', 'submission', 'teacherStats'));
     }
 
-    public function submit(Request $request, Assignment $assignment)
+    public function submit(Request $request, Assignment $assignment): RedirectResponse
     {
         $user = Auth::user();
         if ($user->isGuru()) {
@@ -133,7 +138,7 @@ class AssignmentController extends Controller
                 ->with('error', 'Guru tidak dapat mengumpulkan tugas.');
         }
         if ($user->isSiswa() && $assignment->class_id !== $user->class_id) {
-            abort(403);
+            abort(403, 'Anda tidak berhak mengumpulkan tugas ini.');
         }
 
         // Cegah pengumpulan jika siswa sudah pernah mengumpulkan tugas ini (hanya 1 kali pengumpulan)
@@ -159,7 +164,7 @@ class AssignmentController extends Controller
         AssignmentSubmission::create([
             'assignment_id' => $assignment->id,
             'student_id' => $user->id,
-            'answer_text' => $request->answer_text,
+            'answer_text' => trim($request->answer_text),
             'submitted_at' => now(),
         ]);
 
@@ -179,3 +184,4 @@ class AssignmentController extends Controller
             ->with('success', 'Tugas Anda berhasil dikumpulkan.');
     }
 }
+

@@ -1,126 +1,124 @@
 @extends('layouts.be.master')
-
-@section('header_title', 'Tambah Soal Ke Bank Soal')
+@section('header_title', 'Master Data — Tambah Bank Soal')
 
 @section('content')
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-    <div>
-        <h3 class="fw-bold m-0 text-dark">Tambah Soal ke Bank Soal</h3>
-        <p class="text-muted small mb-0">Buat satu atau beberapa butir soal sekaligus, atau gunakan fitur input cepat teks.</p>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1.5 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalQuickPaste">
-            <i class="ti ti-bolt text-warning"></i> Input Cepat (Teks)
-        </button>
-        <a href="{{ route('admin.question-banks.index') }}" class="btn btn-outline-secondary">
-            <i class="ti ti-arrow-left me-1"></i> Kembali
-        </a>
-    </div>
-</div>
 
-<div class="row justify-content-center">
-    <div class="col-md-12">
-        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-
-            <!-- Header Card -->
-            <div class="card-header bg-white border-bottom py-3 py-md-4 px-4">
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                             style="width: 44px; height: 44px; background: rgba(49, 101, 155, 0.1);">
-                            <i class="ti ti-database-edit fs-4" style="color: #31659B;"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-0">Form Pembuatan Soal Bank Soal</h5>
-                            <p class="text-muted mb-0 small">Pilih tipe format soal (Pilihan Ganda, Benar/Salah, Menjodohkan) dan isi dengan mudah</p>
-                        </div>
-                    </div>
-                    <span id="qbQuestionCounterBadge" class="badge rounded-pill text-nowrap align-self-start align-self-sm-center px-3 py-2"
-                          style="background: rgba(49, 101, 155, 0.1); color: #31659B; font-size: 0.75rem;">
-                        <i class="ti ti-list-check me-1"></i> 1 Butir Soal
-                    </span>
-                </div>
+{{-- Page Header --}}
+<div class="col-md-12">
+    <div class="md-page-header mb-4">
+        <div class="md-page-title">
+            <div class="md-page-icon" style="background:rgba(8,145,178,.1);color:#0891b2;">
+                <i class="ti ti-database-plus"></i>
             </div>
-
-            <div class="card-body p-3 p-md-4">
-                <form method="POST" action="{{ route('admin.question-banks.store') }}" id="batchQbForm">
-                    @csrf
-
-                    <!-- Info hint -->
-                    <div class="alert border-0 rounded-3 d-flex align-items-start gap-2 mb-4" style="background: rgba(49, 101, 155, 0.07);">
-                        <i class="ti ti-info-circle mt-1" style="color: #31659B;"></i>
-                        <div class="small text-muted mb-0">
-                            Isi setiap butir soal dengan lengkap. Anda bisa berpindah tipe format soal atau menambah butir soal baru, dan seluruh soal akan <strong>tersimpan otomatis sekaligus</strong> saat mengklik Simpan.
-                        </div>
-                    </div>
-
-                    <!-- Container for question cards -->
-                    <div id="qbQuestionsContainer" class="d-flex flex-column gap-3 mb-4">
-                        <!-- Rendered by JavaScript -->
-                    </div>
-
-                    <!-- Tombol tambah soal (full width, dashed style agar terlihat sebagai "area tambah") -->
-                    <button type="button"
-                            class="btn btn-outline-primary btn-sm w-100 py-2.5 mb-4 d-flex align-items-center justify-content-center gap-2 rounded-3 fw-bold"
-                            style="border-style: dashed;"
-                            onclick="addNewQbQuestionCard()">
-                        <i class="ti ti-plus"></i> Tambah Butir Soal Lagi
-                    </button>
-
-                    <!-- Action buttons -->
-                    <div class="d-flex flex-column-reverse flex-md-row justify-content-md-end align-items-stretch align-items-md-center gap-2 pt-3 border-top position-sticky bottom-0 bg-white"
-                         style="z-index: 5;">
-                        <a href="{{ route('admin.question-banks.index') }}" class="btn btn-light btn-sm px-4 py-2 rounded-3 order-2 order-md-1">
-                            Batal
-                        </a>
-                        <button type="submit" id="submitQbAllBtn"
-                                class="btn btn-primary btn-sm px-4 py-2 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 rounded-3 order-1 order-md-2">
-                            <i class="ti ti-device-floppy"></i>
-                            <span id="submitQbBtnText">Simpan Semua Soal (1 Butir)</span>
-                        </button>
-                    </div>
-                </form>
+            <div>
+                <h5 class="md-title">Tambah Bank Soal</h5>
             </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="md-btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQuickPaste" style="color:#d97706;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05);">
+                <i class="ti ti-bolt text-warning"></i> <span>Input Cepat (Teks)</span>
+            </button>
+            <a href="{{ route('admin.question-banks.index') }}" class="md-btn-secondary">
+                <i class="ti ti-arrow-left"></i> <span>Kembali</span>
+            </a>
         </div>
     </div>
 </div>
 
-<!-- Modal Quick Paste (Input Cepat Soal dari Teks) -->
-<div class="modal fade" id="modalQuickPaste" tabindex="-1" aria-labelledby="modalQuickPasteLabel" aria-hidden="true">
+{{-- Flash Alert --}}
+@if(session('error'))
+    <div class="md-alert danger mb-4">
+        <i class="ti ti-alert-triangle"></i> {{ session('error') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
+    </div>
+@endif
+
+<form method="POST" action="{{ route('admin.question-banks.store') }}" id="batchQbForm">
+    @csrf
+
+    <div class="md-form-card mb-4">
+        <div class="md-form-head">
+            <div class="md-form-head-icon" style="background:rgba(8,145,178,.1);color:#0891b2;">
+                <i class="ti ti-list-details"></i>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-grow-1">
+                <h6 class="md-form-head-title mb-0">Daftar Butir Soal</h6>
+                <span id="qbQuestionCounterBadge" class="md-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);font-weight:700;">
+                    <i class="ti ti-list-check"></i> 1 Butir Soal
+                </span>
+            </div>
+        </div>
+
+        <div class="md-form-body">
+            <div class="alert border-0 rounded-3 d-flex align-items-start gap-2 mb-4 p-3" style="background:rgba(8,145,178,.06);color:var(--tblr-heading-color,#0f172a);font-size:.82rem;">
+                <i class="ti ti-info-circle fs-5" style="color:#0891b2;flex-shrink:0;margin-top:1px;"></i>
+                <div>
+                    Pilih tipe format soal untuk tiap butir. Anda dapat membuat lebih dari satu soal sekaligus dan menekan <strong>Simpan Semua Soal</strong> ketika selesai.
+                </div>
+            </div>
+
+            <!-- Container for question cards -->
+            <div id="qbQuestionsContainer" class="d-flex flex-column gap-3 mb-3">
+                <!-- Rendered by JavaScript -->
+            </div>
+
+            <!-- Add Button -->
+            <button type="button" class="qb-btn-add-more" onclick="addNewQbQuestionCard()">
+                <i class="ti ti-plus"></i>
+                <span>Tambah Butir Soal Baru</span>
+            </button>
+        </div>
+
+        <div class="md-form-footer">
+            <a href="{{ route('admin.question-banks.index') }}" class="md-btn-light">Batal</a>
+            <button type="submit" id="submitQbAllBtn" class="md-btn-submit">
+                <i class="ti ti-device-floppy"></i>
+                <span id="submitQbBtnText">Simpan Semua Soal (1 Butir)</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Modal Quick Paste -->
+<div class="modal fade" id="modalQuickPaste" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-light border-bottom px-4 py-3">
-                <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="modalQuickPasteLabel">
-                    <i class="ti ti-bolt text-warning fs-4"></i> Input Cepat Soal dari Teks (Salin-Tempel Massal)
-                </h5>
+        <div class="md-modal-content text-start p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="md-page-icon" style="background:rgba(245,158,11,.1);color:#d97706;width:34px;height:34px;font-size:.9rem;">
+                        <i class="ti ti-bolt"></i>
+                    </div>
+                    <h6 class="md-title mb-0" style="font-size:1rem;">Input Cepat Soal dari Teks</h6>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body px-4 py-3">
-                <p class="text-muted small mb-2">
-                    Salin naskah soal Anda dari dokumen (Word / PDF / Notepad), lalu tempelkan di bawah ini. Sistem cerdas akan mendeteksi soal <strong>Pilihan Ganda</strong>, <strong>Benar/Salah</strong>, dan <strong>Menjodohkan</strong> sekaligus!
-                </p>
-                
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <label class="form-label fw-bold small text-primary mb-0">Area Teks Naskah Soal:</label>
-                    <button type="button" class="btn btn-xs btn-outline-info py-0 px-2 small" onclick="loadSampleQbText()">
-                        <i class="ti ti-file-text me-1"></i> Muat Contoh Format
-                    </button>
-                </div>
-                <textarea id="quickPasteQbTextarea" class="form-control font-monospace" rows="10" placeholder="1. Apa ibukota negara Indonesia?&#10;A. Jakarta&#10;B. Bandung&#10;C. Surabaya&#10;D. Medan&#10;Kunci: A&#10;&#10;2. Bumi mengelilingi matahari dalam kurun waktu 1 tahun.&#10;Kunci: Benar&#10;&#10;3. Jodohkan bahasa pemrograman dengan ekstensinya:&#10;PHP = .php&#10;Python = .py&#10;JavaScript = .js"></textarea>
+            
+            <p class="md-subtitle mb-3" style="font-size:.8rem;">
+                Tempelkan naskah soal Anda (Word/PDF/Notepad). Sistem akan otomatis mengenali format Pilihan Ganda, Benar/Salah, dan Menjodohkan.
+            </p>
 
-                <div class="alert alert-light border small text-muted mt-3 mb-0 p-2.5 rounded-3">
-                    <div class="fw-bold text-dark mb-1"><i class="ti ti-info-circle text-primary me-1"></i> Panduan Format:</div>
-                    <ul class="mb-0 ps-3">
-                        <li><strong>Pilihan Ganda:</strong> Diawali nomor, baris opsi diawali <code>A.</code>, <code>B.</code>, dst, dan baris kunci <code>Kunci: A</code> atau <code>Jawaban: A</code>.</li>
-                        <li><strong>Benar / Salah:</strong> Pertanyaan/pernyataan diikuti baris <code>Kunci: Benar</code> atau <code>Kunci: Salah</code>.</li>
-                        <li><strong>Menjodohkan:</strong> Pernyataan diikuti baris pasangan dengan tanda <code>=</code> (contoh: <code>Indonesia = Jakarta</code>).</li>
-                    </ul>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="md-form-label mb-0" style="font-size:.78rem;">Area Teks Naskah Soal:</label>
+                <button type="button" class="md-btn-secondary" style="padding:.2rem .6rem;font-size:.72rem;" onclick="loadSampleQbText()">
+                    <i class="ti ti-file-text"></i> Muat Contoh Format
+                </button>
             </div>
-            <div class="modal-footer bg-light border-top px-4 py-2.5">
-                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" onclick="parseAndInsertQbQuestions()">
-                    <i class="ti ti-sparkles me-1"></i> Konversi &amp; Masukkan ke Form
+
+            <textarea id="quickPasteQbTextarea" class="form-control font-monospace mb-3" rows="9" style="font-size:.8rem;line-height:1.45;" placeholder="1. Apa ibukota negara Indonesia?&#10;A. Jakarta&#10;B. Bandung&#10;C. Surabaya&#10;D. Medan&#10;Kunci: A&#10;&#10;2. Bumi mengelilingi matahari dalam kurun waktu 1 tahun.&#10;Kunci: Benar&#10;&#10;3. Jodohkan bahasa pemrograman dengan ekstensinya:&#10;PHP = .php&#10;Python = .py&#10;JavaScript = .js"></textarea>
+
+            <div class="p-3 rounded-3 mb-4" style="background:var(--tblr-body-bg,#f8fafc);border:1px solid var(--tblr-border-color,#e2e8f0);font-size:.75rem;">
+                <div class="fw-bold mb-1" style="color:var(--tblr-heading-color,#0f172a);"><i class="ti ti-info-circle text-primary me-1"></i> Panduan Format Cepat:</div>
+                <ul class="mb-0 ps-3 text-muted">
+                    <li><strong>Pilihan Ganda:</strong> Diawali nomor, opsi <code>A.</code>, <code>B.</code>, dst, dan baris kunci <code>Kunci: A</code>.</li>
+                    <li><strong>Benar / Salah:</strong> Pernyataan diikuti baris <code>Kunci: Benar</code> atau <code>Kunci: Salah</code>.</li>
+                    <li><strong>Menjodohkan:</strong> Pernyataan diikuti baris pasangan dengan tanda <code>=</code> (contoh: <code>PHP = .php</code>).</li>
+                </ul>
+            </div>
+
+            <div class="md-modal-actions">
+                <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="md-btn-submit" onclick="parseAndInsertQbQuestions()">
+                    <i class="ti ti-sparkles"></i> Konversi &amp; Masukkan ke Form
                 </button>
             </div>
         </div>
@@ -130,16 +128,14 @@
 <!-- Modal Custom Delete Card Confirmation -->
 <div class="modal fade" id="modalConfirmDeleteCard" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
-            <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                <i class="ti ti-trash fs-2"></i>
-            </div>
-            <h5 class="fw-bold text-dark mb-1">Hapus Kartu Soal Ini?</h5>
-            <p class="text-muted small mb-4">Kartu butir soal ini akan dihapus dari form pembuatan.</p>
-            <div class="d-flex gap-2 justify-content-center">
-                <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="btnConfirmDeleteCard" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                    <i class="ti ti-trash me-1"></i> Hapus
+        <div class="md-modal-content">
+            <div class="md-modal-icon danger"><i class="ti ti-trash"></i></div>
+            <h6 class="md-modal-title">Hapus Butir Soal Ini?</h6>
+            <p class="md-modal-text">Butir soal ini akan dihapus dari daftar form pembuatan.</p>
+            <div class="md-modal-actions">
+                <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="button" id="btnConfirmDeleteCard" class="md-btn-danger">
+                    <i class="ti ti-trash"></i> Hapus
                 </button>
             </div>
         </div>
@@ -149,16 +145,158 @@
 <!-- Modal Custom Alert Info -->
 <div class="modal fade" id="modalAlertQb" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
-            <div class="avatar avatar-lg bg-warning-subtle text-warning rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                <i class="ti ti-alert-triangle fs-2"></i>
+        <div class="md-modal-content">
+            <div class="md-modal-icon warning" style="background:rgba(245,158,11,.1);color:#d97706;"><i class="ti ti-info-circle"></i></div>
+            <h6 class="md-modal-title" id="modalAlertTitle">Pemberitahuan</h6>
+            <p class="md-modal-text" id="modalAlertMsg"></p>
+            <div class="md-modal-actions">
+                <button type="button" class="md-btn-submit w-100" data-bs-dismiss="modal">Mengerti</button>
             </div>
-            <h5 class="fw-bold text-dark mb-1" id="modalAlertTitle">Pemberitahuan</h5>
-            <p class="text-muted small mb-4" id="modalAlertMsg">Minimal harus ada 1 butir soal dalam form.</p>
-            <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Mengerti</button>
         </div>
     </div>
 </div>
+
+@include('admin._partials.master-data-styles')
+
+<style>
+.qb-builder-item {
+    background: var(--tblr-card-bg, #ffffff);
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    border-radius: 10px;
+    padding: 1.15rem;
+    transition: all .2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,.02);
+}
+.qb-builder-item:hover {
+    border-color: rgba(8,145,178,.4);
+    box-shadow: 0 4px 12px rgba(8,145,178,.05);
+}
+.qb-btn-add-more {
+    width: 100%;
+    padding: .75rem 1rem;
+    background: transparent;
+    border: 1.5px dashed rgba(8,145,178,.35);
+    border-radius: 8px;
+    color: #0891b2;
+    font-weight: 700;
+    font-size: .82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+.qb-btn-add-more:hover {
+    background: rgba(8,145,178,.05);
+    border-color: #0891b2;
+    color: #0891b2;
+}
+.qb-format-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+.qb-format-pill {
+    flex: 1;
+    min-width: 110px;
+}
+.qb-format-pill input {
+    display: none;
+}
+.qb-format-pill label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    width: 100%;
+    padding: .4rem .6rem;
+    border-radius: 6px;
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    background: var(--tblr-body-bg, #f8fafc);
+    color: var(--tblr-text-muted, #64748b);
+    font-size: .75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s ease;
+    user-select: none;
+    margin: 0;
+}
+.qb-format-pill input:checked + label {
+    background: rgba(8,145,178,.1);
+    border-color: #0891b2;
+    color: #0891b2;
+    font-weight: 700;
+}
+.qb-option-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: var(--tblr-body-bg, #f8fafc);
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    border-radius: 7px;
+    padding: .35rem .6rem;
+    transition: border-color .15s ease;
+}
+.qb-option-row:focus-within {
+    border-color: #0891b2;
+    background: #fff;
+}
+.qb-opt-radio-wrap {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--tblr-text-muted, #64748b);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.qb-opt-radio-wrap input:checked ~ span {
+    color: #0ca678;
+}
+.qb-option-input {
+    border: none !important;
+    background: transparent !important;
+    padding: .25rem .3rem !important;
+    font-size: .8rem !important;
+    box-shadow: none !important;
+    outline: none !important;
+    flex: 1;
+}
+.qb-tf-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: .6rem;
+    border: 1.5px solid var(--tblr-border-color, #e2e8f0);
+    border-radius: 8px;
+    background: var(--tblr-body-bg, #f8fafc);
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: 700;
+    transition: all .15s ease;
+}
+.qb-tf-box input:checked + label {
+    color: inherit;
+}
+.qb-tf-wrap input:checked + .qb-tf-true {
+    border-color: #0ca678;
+    background: rgba(12,166,120,.08);
+    color: #0ca678;
+}
+.qb-tf-wrap input:checked + .qb-tf-false {
+    border-color: #ef4444;
+    background: rgba(239,68,68,.08);
+    color: #ef4444;
+}
+.qb-pair-item {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+</style>
 
 <script>
     let qbQuestionCounter = 0;
@@ -167,31 +305,29 @@
     function renderQbQuestionCard(index, data = null) {
         const qText = data ? (data.question_text || '') : '';
         const qType = data ? (data.question_type || 'multiple_choice') : 'multiple_choice';
-        const options = (data && data.options) ? data.options : ['', '', '', ''];
-        const correctOpt = (data && typeof data.correct_option !== 'undefined') ? parseInt(data.correct_option) : 0;
-        const correctTf = (data && data.correct_tf) ? data.correct_tf : 'Benar';
-        const pairs = (data && data.pairs && data.pairs.length >= 2) ? data.pairs : [
-            { premise: '', match: '' },
-            { premise: '', match: '' }
-        ];
+        const options = data ? (data.options || ['', '', '', '']) : ['', '', '', ''];
+        const correctOpt = data ? (data.correct_option !== undefined ? data.correct_option : 0) : 0;
+        const correctTf = data ? (data.correct_tf || 'Benar') : 'Benar';
+        const pairs = data ? (data.pairs || [{premise: '', match: ''}, {premise: '', match: ''}]) : [{premise: '', match: ''}, {premise: '', match: ''}];
 
         const card = document.createElement('div');
-        card.className = 'qb-builder-item border rounded-3 p-3 bg-light position-relative shadow-2xs overflow-hidden';
+        card.className = 'qb-builder-item';
         card.id = `qbCard_${index}`;
-        card.setAttribute('data-q-idx', index);
         card.setAttribute('data-current-type', qType);
 
         let optionsHtml = '';
         for (let i = 0; i < 4; i++) {
             const letter = String.fromCharCode(65 + i);
             const val = options[i] || '';
-            const checked = (correctOpt === i) ? 'checked' : '';
+            const isChecked = (parseInt(correctOpt) === i) ? 'checked' : '';
+            const req = (i < 2) ? 'required' : '';
             optionsHtml += `
-                <div class="input-group input-group-sm mb-1.5">
-                    <div class="input-group-text bg-white">
-                        <input class="form-check-input mt-0" type="radio" name="questions[${index}][correct_option]" value="${i}" ${checked} title="Tandai sebagai kunci jawaban">
-                    </div>
-                    <input type="text" name="questions[${index}][options][]" class="form-control form-control-sm bg-white" placeholder="Opsi ${letter}" value="${escapeHtml(val)}" ${i < 2 ? 'required' : ''}>
+                <div class="qb-option-row mb-2">
+                    <label class="qb-opt-radio-wrap m-0">
+                        <input type="radio" name="questions[${index}][correct_option]" value="${i}" ${isChecked} class="form-check-input m-0">
+                        <span>${letter}</span>
+                    </label>
+                    <input type="text" name="questions[${index}][options][${i}]" class="qb-option-input" placeholder="Tuliskan pilihan jawaban ${letter}..." value="${escapeHtml(val)}" ${req}>
                 </div>
             `;
         }
@@ -201,17 +337,17 @@
             pairsHtml += `
                 <div class="row g-2 align-items-center mb-2 qb-pair-row">
                     <div class="col-12 col-md-5">
-                        <input type="text" name="questions[${index}][pairs][${pIdx}][premise]" class="form-control form-control-sm bg-white" placeholder="Soal / Premis ${pIdx + 1}" value="${escapeHtml(p.premise || '')}">
+                        <input type="text" name="questions[${index}][pairs][${pIdx}][premise]" class="form-control form-control-sm" placeholder="Premis / Pernyataan ${pIdx + 1}" value="${escapeHtml(p.premise || '')}" required>
                     </div>
-                    <div class="d-none d-md-flex col-md-1 align-items-center justify-content-center text-info">
-                        <i class="ti ti-arrow-right fs-5"></i>
+                    <div class="d-none d-md-flex col-md-1 align-items-center justify-content-center" style="color:#0891b2;">
+                        <i class="ti ti-arrow-right"></i>
                     </div>
                     <div class="col-10 col-md-5">
-                        <input type="text" name="questions[${index}][pairs][${pIdx}][match]" class="form-control form-control-sm bg-white" placeholder="Pasangan Jawaban ${pIdx + 1}" value="${escapeHtml(p.match || '')}">
+                        <input type="text" name="questions[${index}][pairs][${pIdx}][match]" class="form-control form-control-sm" placeholder="Pasangan Jawaban ${pIdx + 1}" value="${escapeHtml(p.match || '')}" required>
                     </div>
                     <div class="col-2 col-md-1 text-center">
-                        <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1" onclick="removeQbPairRow(this)" title="Hapus baris pasangan ini">
-                            <i class="ti ti-x fs-6"></i>
+                        <button type="button" class="md-icon-btn red" onclick="removeQbPairRow(this)" title="Hapus pasangan">
+                            <i class="ti ti-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -219,44 +355,42 @@
         });
 
         card.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary rounded-pill px-3 py-1 fw-bold qb-num-badge">Soal #1</span>
+                    <span class="md-badge blue qb-num-badge">Soal #${index + 1}</span>
                 </div>
-                <div class="d-flex align-items-center gap-1">
-                    <button type="button" class="btn btn-sm btn-outline-danger border-0 delete-qb-btn" onclick="requestRemoveQbQuestionCard(${index})" title="Hapus butir soal ini">
-                        <i class="ti ti-trash fs-5"></i>
-                    </button>
-                </div>
+                <button type="button" class="md-icon-btn red delete-qb-btn" onclick="requestRemoveQbQuestionCard(${index})" title="Hapus soal ini">
+                    <i class="ti ti-trash"></i>
+                </button>
             </div>
 
-            <!-- Format Selector (Responsive Flex-Wrap) -->
-            <div class="mb-2">
-                <div class="d-flex flex-wrap gap-1" role="group">
-                    <div class="flex-fill" style="min-width: 100px;">
-                        <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qbtype_${index}_mc" value="multiple_choice" ${qType === 'multiple_choice' ? 'checked' : ''} onchange="handleQbFormatChange(${index}, 'multiple_choice')">
-                        <label class="btn btn-sm btn-outline-primary w-100 text-nowrap py-1.5 px-2" for="qbtype_${index}_mc"><i class="ti ti-list-check me-1"></i>Pilihan Ganda</label>
+            <!-- Format Selector -->
+            <div class="mb-3">
+                <div class="qb-format-pills">
+                    <div class="qb-format-pill">
+                        <input type="radio" name="questions[${index}][question_type]" id="qbtype_${index}_mc" value="multiple_choice" ${qType === 'multiple_choice' ? 'checked' : ''} onchange="handleQbFormatChange(${index}, 'multiple_choice')">
+                        <label for="qbtype_${index}_mc"><i class="ti ti-list-check"></i> Pilihan Ganda</label>
                     </div>
-                    <div class="flex-fill" style="min-width: 100px;">
-                        <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qbtype_${index}_tf" value="true_false" ${qType === 'true_false' ? 'checked' : ''} onchange="handleQbFormatChange(${index}, 'true_false')">
-                        <label class="btn btn-sm btn-outline-warning text-dark w-100 text-nowrap py-1.5 px-2" for="qbtype_${index}_tf"><i class="ti ti-checkup-list me-1"></i>Benar/Salah</label>
+                    <div class="qb-format-pill">
+                        <input type="radio" name="questions[${index}][question_type]" id="qbtype_${index}_tf" value="true_false" ${qType === 'true_false' ? 'checked' : ''} onchange="handleQbFormatChange(${index}, 'true_false')">
+                        <label for="qbtype_${index}_tf"><i class="ti ti-checkup-list"></i> Benar / Salah</label>
                     </div>
-                    <div class="flex-fill" style="min-width: 100px;">
-                        <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qbtype_${index}_match" value="matching" ${qType === 'matching' ? 'checked' : ''} onchange="handleQbFormatChange(${index}, 'matching')">
-                        <label class="btn btn-sm btn-outline-info text-dark w-100 text-nowrap py-1.5 px-2" for="qbtype_${index}_match"><i class="ti ti-arrows-left-right me-1"></i>Menjodohkan</label>
+                    <div class="qb-format-pill">
+                        <input type="radio" name="questions[${index}][question_type]" id="qbtype_${index}_match" value="matching" ${qType === 'matching' ? 'checked' : ''} onchange="handleQbFormatChange(${index}, 'matching')">
+                        <label for="qbtype_${index}_match"><i class="ti ti-arrows-left-right"></i> Menjodohkan</label>
                     </div>
                 </div>
             </div>
 
             <!-- Pertanyaan -->
-            <div class="mb-2 ${qType === 'matching' ? 'd-none' : ''}" id="qb_sec_qtext_${index}">
-                <label class="form-label small fw-semibold text-dark mb-1">Pertanyaan / Instruksi Soal <span class="text-danger">*</span></label>
-                <textarea name="questions[${index}][question_text]" class="form-control form-control-sm bg-white" rows="2" placeholder="Tuliskan pertanyaan atau instruksi soal di sini..." ${qType === 'matching' ? '' : 'required'}>${escapeHtml(qText)}</textarea>
+            <div class="mb-3 ${qType === 'matching' ? 'd-none' : ''}" id="qb_sec_qtext_${index}">
+                <label class="md-form-label mb-1">Pertanyaan / Instruksi Soal <span class="text-danger">*</span></label>
+                <textarea name="questions[${index}][question_text]" class="form-control" rows="2" placeholder="Tuliskan pertanyaan atau instruksi soal..." ${qType === 'matching' ? '' : 'required'}>${escapeHtml(qText)}</textarea>
             </div>
 
             <!-- Section MC -->
             <div class="sec-mc ${qType === 'multiple_choice' ? '' : 'd-none'}" id="qb_sec_mc_${index}">
-                <label class="form-label small fw-semibold text-muted mb-1">Opsi Pilihan (Pilih Radio Kunci Jawaban Benar):</label>
+                <label class="md-form-label mb-1">Pilihan Jawaban (Klik radio pada opsi yang menjadi Kunci Jawaban):</label>
                 <div class="options-container">
                     ${optionsHtml}
                 </div>
@@ -264,15 +398,19 @@
 
             <!-- Section TF -->
             <div class="sec-tf ${qType === 'true_false' ? '' : 'd-none'}" id="qb_sec_tf_${index}">
-                <label class="form-label small fw-semibold text-muted mb-1">Pilih Kunci Jawaban yang Benar:</label>
-                <div class="d-flex gap-2">
-                    <div class="form-check form-check-inline p-2 border rounded bg-white flex-fill text-center">
-                        <input class="form-check-input" type="radio" name="questions[${index}][correct_tf]" id="qb${index}_tf_true" value="Benar" ${correctTf === 'Benar' ? 'checked' : ''}>
-                        <label class="form-check-label fw-bold text-success small" for="qb${index}_tf_true">Benar (True)</label>
+                <label class="md-form-label mb-2">Kunci Jawaban Pernyataan:</label>
+                <div class="row g-2">
+                    <div class="col-6 qb-tf-wrap">
+                        <input type="radio" class="d-none" name="questions[${index}][correct_tf]" id="qb${index}_tf_true" value="Benar" ${correctTf === 'Benar' ? 'checked' : ''}>
+                        <label class="qb-tf-box qb-tf-true w-100" for="qb${index}_tf_true">
+                            <i class="ti ti-check"></i> Benar (True)
+                        </label>
                     </div>
-                    <div class="form-check form-check-inline p-2 border rounded bg-white flex-fill text-center">
-                        <input class="form-check-input" type="radio" name="questions[${index}][correct_tf]" id="qb${index}_tf_false" value="Salah" ${correctTf === 'Salah' ? 'checked' : ''}>
-                        <label class="form-check-label fw-bold text-danger small" for="qb${index}_tf_false">Salah (False)</label>
+                    <div class="col-6 qb-tf-wrap">
+                        <input type="radio" class="d-none" name="questions[${index}][correct_tf]" id="qb${index}_tf_false" value="Salah" ${correctTf === 'Salah' ? 'checked' : ''}>
+                        <label class="qb-tf-box qb-tf-false w-100" for="qb${index}_tf_false">
+                            <i class="ti ti-x"></i> Salah (False)
+                        </label>
                     </div>
                 </div>
             </div>
@@ -280,16 +418,10 @@
             <!-- Section Matching -->
             <div class="sec-matching ${qType === 'matching' ? '' : 'd-none'}" id="qb_sec_matching_${index}">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="form-label small fw-semibold text-dark mb-0"><i class="ti ti-arrows-left-right text-info me-1"></i> Soal &amp; Pasangan Jawaban:</label>
-                    <button type="button" class="btn btn-sm btn-link text-primary p-0 text-decoration-none fw-semibold" onclick="addQbPairToCard(${index})">
+                    <label class="md-form-label mb-0"><i class="ti ti-arrows-left-right me-1" style="color:#0891b2;"></i> Pasangan Soal &amp; Jawaban:</label>
+                    <button type="button" class="md-btn-secondary" style="padding:.2rem .6rem;font-size:.72rem;" onclick="addQbPairToCard(${index})">
                         <i class="ti ti-plus"></i> Tambah Pasangan
                     </button>
-                </div>
-                <div class="row g-2 text-muted small fw-semibold mb-1 d-none d-md-flex px-1">
-                    <div class="col-md-5">Soal / Premis</div>
-                    <div class="col-md-1 text-center"></div>
-                    <div class="col-md-5">Pasangan Jawaban Benar</div>
-                    <div class="col-md-1"></div>
                 </div>
                 <div class="pairs-container" id="qb_pairs_container_${index}">
                     ${pairsHtml}
@@ -300,14 +432,11 @@
         return card;
     }
 
-    // Smart Format Switcher & Auto-Spawn logic
     function handleQbFormatChange(index, newType) {
         const card = document.getElementById(`qbCard_${index}`);
         if (!card) return;
 
         const oldType = card.getAttribute('data-current-type') || 'multiple_choice';
-
-        // Check if current card has content typed
         const qTextArea = card.querySelector('textarea[name*="[question_text]"]');
         const qText = qTextArea ? qTextArea.value.trim() : '';
 
@@ -323,21 +452,16 @@
         }
 
         if (hasContent) {
-            // Revert radio check on card index to oldType
             const oldRadio = card.querySelector(`input[value="${oldType}"]`);
             if (oldRadio) oldRadio.checked = true;
 
-            // Automatically spawn a new card with newType so both questions are preserved and saved!
             addNewQbQuestionCard({ question_type: newType });
-
-            // Scroll smoothly to newly created card
             const newCards = document.querySelectorAll('.qb-builder-item');
             const lastCard = newCards[newCards.length - 1];
             if (lastCard) {
                 lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         } else {
-            // Empty card, simply switch form visibility
             card.setAttribute('data-current-type', newType);
             switchQbItemType(index, newType);
         }
@@ -427,17 +551,17 @@
         row.className = 'row g-2 align-items-center mb-2 qb-pair-row';
         row.innerHTML = `
             <div class="col-12 col-md-5">
-                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][premise]" class="form-control form-control-sm bg-white" placeholder="Soal / Premis ${currentCount + 1}" required>
+                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][premise]" class="form-control form-control-sm" placeholder="Premis / Pernyataan ${currentCount + 1}" required>
             </div>
-            <div class="d-none d-md-flex col-md-1 align-items-center justify-content-center text-info">
-                <i class="ti ti-arrow-right fs-5"></i>
+            <div class="d-none d-md-flex col-md-1 align-items-center justify-content-center" style="color:#0891b2;">
+                <i class="ti ti-arrow-right"></i>
             </div>
             <div class="col-10 col-md-5">
-                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][match]" class="form-control form-control-sm bg-white" placeholder="Pasangan Jawaban ${currentCount + 1}" required>
+                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][match]" class="form-control form-control-sm" placeholder="Pasangan Jawaban ${currentCount + 1}" required>
             </div>
             <div class="col-2 col-md-1 text-center">
-                <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1" onclick="removeQbPairRow(this)" title="Hapus baris pasangan ini">
-                    <i class="ti ti-x fs-6"></i>
+                <button type="button" class="md-icon-btn red" onclick="removeQbPairRow(this)" title="Hapus pasangan">
+                    <i class="ti ti-trash"></i>
                 </button>
             </div>
         `;
@@ -469,7 +593,7 @@
             
             const delBtn = card.querySelector('.delete-qb-btn');
             if (delBtn) {
-                delBtn.style.display = (cards.length > 1) ? 'inline-block' : 'none';
+                delBtn.style.display = (cards.length > 1) ? 'inline-flex' : 'none';
             }
         });
 
@@ -480,7 +604,7 @@
 
         const counterBadge = document.getElementById('qbQuestionCounterBadge');
         if (counterBadge) {
-            counterBadge.innerHTML = `<i class="ti ti-list-check me-1"></i> ${cards.length} Butir Soal`;
+            counterBadge.innerHTML = `<i class="ti ti-list-check"></i> ${cards.length} Butir Soal`;
         }
     }
 
@@ -494,7 +618,6 @@
             .replace(/'/g, '&#039;');
     }
 
-    // Modal Quick Paste Parser
     function loadSampleQbText() {
         const sample = `1. Apa ibukota negara Indonesia saat ini?\nA. Jakarta\nB. Surabaya\nC. Bandung\nD. Medan\nKunci: A\n\n2. Bumi mengelilingi matahari dalam kurun waktu 1 tahun.\nKunci: Benar\n\n3. Jodohkan bahasa pemrograman dengan ekstensinya:\nPHP = .php\nPython = .py\nJavaScript = .js`;
         document.getElementById('quickPasteQbTextarea').value = sample;
@@ -584,7 +707,7 @@
             if (pairs.length >= 2) {
                 qType = 'matching';
             } else if (qType === 'true_false') {
-                // already detected via keyMatch (Benar/Salah)
+                // true_false
             } else if (options.length >= 2) {
                 qType = 'multiple_choice';
             } else if (qText.toLowerCase().includes('benar') || qText.toLowerCase().includes('salah')) {

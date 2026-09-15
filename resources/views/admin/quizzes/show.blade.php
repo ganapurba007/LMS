@@ -3,64 +3,80 @@
 @section('header_title', 'Kelola Soal Kuis — ' . $quiz->title)
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="fw-bold m-0 text-dark">Kelola Soal Kuis: {{ $quiz->title }}</h3>
-        <p class="text-muted small mb-0">Tambah, impor dari bank soal, atau susun butir soal kuis multi-format.</p>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <a href="{{ route('admin.quizzes.students', $quiz) }}" class="btn btn-outline-info d-inline-flex align-items-center gap-1.5 fw-semibold">
-            <i class="ti ti-users"></i> Hasil &amp; Status Siswa
-        </a>
-        <a href="{{ route('admin.quizzes.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1.5">
-            <i class="ti ti-arrow-left"></i> Kembali ke Daftar Kuis
-        </a>
-    </div>
-</div>
+@include('admin._partials.master-data-styles')
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 rounded-3" role="alert">
-        <div class="d-flex align-items-center">
-            <i class="ti ti-circle-check fs-4 me-2"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4 rounded-3" role="alert">
-        <div class="d-flex align-items-center">
-            <i class="ti ti-alert-circle fs-4 me-2"></i>
-            <div>{{ session('error') }}</div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-<!-- Quiz Overview Card -->
-<div class="card shadow-sm border-0 mb-4 rounded-3">
-    <div class="card-body p-3 p-md-4">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-3">
-                <span class="text-muted small text-uppercase fw-bold">Mata Pelajaran</span>
-                <div class="fw-bold fs-5 text-primary">{{ $quiz->subject->name ?? '-' }}</div>
+<div class="container-fluid px-0">
+    <!-- Page Header -->
+    <div class="md-page-header mb-4">
+        <div class="md-page-title">
+            <div class="md-page-icon" style="background:rgba(245,158,11,.1);color:#d97706;">
+                <i class="ti ti-list-check"></i>
             </div>
-            <div class="col-md-3">
-                <span class="text-muted small text-uppercase fw-bold">Kelas Target</span>
-                <div class="fw-bold fs-5 text-dark">{{ $quiz->classroom->name ?? '-' }}</div>
-            </div>
-            <div class="col-md-3">
-                <span class="text-muted small text-uppercase fw-bold">Durasi Pengerjaan</span>
-                <div class="fw-bold fs-5 text-dark"><i class="ti ti-clock me-1"></i>{{ $quiz->formatted_duration }}</div>
-            </div>
-            <div class="col-md-3">
-                <span class="text-muted small text-uppercase fw-bold">Poin per Soal</span>
-                <div class="fw-bold fs-5 text-success">{{ $quiz->points_per_question }} Poin</div>
+            <div>
+                <div class="d-flex align-items-center gap-1.5 mb-1 flex-wrap">
+                    <span class="md-badge blue">
+                        <i class="ti ti-school me-1"></i> {{ $quiz->schoolClass->name ?? $quiz->classroom->name ?? 'Kelas' }}
+                    </span>
+                    <span class="md-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);">
+                        <i class="ti ti-book me-1"></i> {{ $quiz->subject->name ?? 'Mata Pelajaran' }}
+                    </span>
+                </div>
+                <h5 class="md-title">Kelola Soal Kuis: {{ $quiz->title }}</h5>
             </div>
         </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.quizzes.students', $quiz) }}" class="md-btn-secondary" style="color:#0891b2;border-color:rgba(8,145,178,.3);background:rgba(8,145,178,.05);">
+                <i class="ti ti-users"></i> <span>Hasil &amp; Status Siswa</span>
+            </a>
+            <a href="{{ route('admin.quizzes.index') }}" class="md-btn-secondary">
+                <i class="ti ti-arrow-left"></i> <span>Kembali</span>
+            </a>
+        </div>
     </div>
-</div>
+
+    @if(session('success'))
+        <div class="alert md-alert success alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="ti ti-circle-check fs-5 me-2 flex-shrink-0"></i>
+                <div class="fw-medium">{{ session('success') }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert md-alert danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="ti ti-alert-triangle fs-5 me-2 flex-shrink-0"></i>
+                <div class="fw-medium">{{ session('error') }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- Quiz Overview Card -->
+    <div class="card md-card mb-3">
+        <div class="card-body p-3 p-md-3.5">
+            <div class="row g-3 align-items-center">
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Mata Pelajaran</span>
+                    <div class="fw-bold fs-6 text-primary mt-0.5">{{ $quiz->subject->name ?? '-' }}</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Kelas Target</span>
+                    <div class="fw-bold fs-6 text-dark mt-0.5">{{ $quiz->schoolClass->name ?? $quiz->classroom->name ?? '-' }}</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Durasi Pengerjaan</span>
+                    <div class="fw-bold fs-6 text-dark mt-0.5"><i class="ti ti-clock me-1 text-warning-emphasis"></i>{{ $quiz->formatted_duration }}</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Poin per Soal</span>
+                    <div class="fw-bold fs-6 text-success mt-0.5">{{ $quiz->points_per_question }} Poin</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <div class="row g-4">
     <!-- Left Column: Current Quiz Questions List -->
@@ -187,21 +203,21 @@
                             <div class="small text-muted">Bank Soal masih kosong.</div>
                         @endforelse
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" {{ $questionBanks->isEmpty() ? 'disabled' : '' }}>
-                        <i class="ti ti-file-import me-1"></i> Impor Soal Terpilih
+                    <button type="submit" class="md-btn-primary w-100 justify-content-center" {{ $questionBanks->isEmpty() ? 'disabled' : '' }}>
+                        <i class="ti ti-file-import"></i> <span>Impor Soal Terpilih</span>
                     </button>
                 </form>
             </div>
         </div>
 
         <!-- Multi-Question Builder Card -->
-        <div class="card shadow-sm border-0 rounded-3">
+        <div class="card md-card">
             <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom">
-                <h5 class="card-title fw-bold mb-0 text-dark">
+                <h5 class="card-title fw-bold mb-0 text-dark" style="font-size: .92rem;">
                     <i class="ti ti-cards text-success me-1"></i> Buat Soal Kuis
                 </h5>
-                <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-2xs" data-bs-toggle="modal" data-bs-target="#modalQuickPaste">
-                    <i class="ti ti-bolt text-warning"></i> Input Cepat (Teks)
+                <button type="button" class="md-btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQuickPaste" style="color:#d97706;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05);">
+                    <i class="ti ti-bolt text-warning"></i> <span>Input Cepat (Teks)</span>
                 </button>
             </div>
             <div class="card-body p-3">
@@ -215,10 +231,10 @@
 
                     <!-- Action Bar: Add Question & Submit All -->
                     <div class="d-flex flex-column gap-2 pt-2 border-top">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 d-flex align-items-center justify-content-center gap-1.5 fw-bold" onclick="addNewQuestionCard()">
-                            <i class="ti ti-plus"></i> Tambah Butir Soal Lagi
+                        <button type="button" class="md-btn-secondary w-100 justify-content-center py-2" onclick="addNewQuestionCard()">
+                            <i class="ti ti-plus"></i> <span>Tambah Butir Soal Lagi</span>
                         </button>
-                        <button type="submit" id="submitAllBtn" class="btn btn-success btn-sm w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-1.5 shadow-sm">
+                        <button type="submit" id="submitAllBtn" class="md-btn-submit w-100 justify-content-center py-2">
                             <i class="ti ti-device-floppy"></i> <span id="submitBtnText">Simpan Semua Soal (1 Butir)</span>
                         </button>
                     </div>
@@ -227,11 +243,12 @@
         </div>
     </div>
 </div>
+</div>
 
 <!-- Modal Quick Paste (Input Cepat Soal dari Teks) -->
 <div class="modal fade" id="modalQuickPaste" tabindex="-1" aria-labelledby="modalQuickPasteLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-content md-modal-content text-start">
             <div class="modal-header bg-light border-bottom px-4 py-3">
                 <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="modalQuickPasteLabel">
                     <i class="ti ti-bolt text-warning fs-4"></i> Input Cepat Soal dari Teks (Salin-Tempel Massal)
@@ -261,9 +278,9 @@
                 </div>
             </div>
             <div class="modal-footer bg-light border-top px-4 py-2.5">
-                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" onclick="parseAndInsertQuestions()">
-                    <i class="ti ti-sparkles me-1"></i> Konversi &amp; Masukkan ke Form
+                <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="md-btn-primary" onclick="parseAndInsertQuestions()">
+                    <i class="ti ti-sparkles"></i> <span>Konversi &amp; Masukkan ke Form</span>
                 </button>
             </div>
         </div>
@@ -273,22 +290,24 @@
 <!-- Modal Delete Saved Quiz Question Confirmation -->
 <div class="modal fade" id="modalDeleteQuizQuestion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
-            <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                <i class="ti ti-trash fs-2"></i>
-            </div>
-            <h5 class="fw-bold text-dark mb-1">Hapus Soal Kuis Ini?</h5>
-            <p class="text-muted small mb-4" id="deleteModalQuestionText">Soal akan dihapus dari kuis ini.</p>
-            <form id="deleteQuizQuestionForm" method="POST" action="">
-                @csrf
-                @method('DELETE')
-                <div class="d-flex gap-2 justify-content-center">
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="ti ti-trash me-1"></i> Ya, Hapus
-                    </button>
+        <div class="modal-content md-modal-content">
+            <div class="md-modal-body">
+                <div class="md-modal-icon red">
+                    <i class="ti ti-trash"></i>
                 </div>
-            </form>
+                <h5 class="md-modal-title">Hapus Soal Kuis Ini?</h5>
+                <p class="md-modal-text" id="deleteModalQuestionText">Soal akan dihapus dari kuis ini.</p>
+                <form id="deleteQuizQuestionForm" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="md-btn-danger">
+                            <i class="ti ti-trash"></i> <span>Ya, Hapus</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -296,17 +315,19 @@
 <!-- Modal Delete Builder Card Confirmation -->
 <div class="modal fade" id="modalConfirmDeleteQuizCard" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
-            <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                <i class="ti ti-trash fs-2"></i>
-            </div>
-            <h5 class="fw-bold text-dark mb-1">Hapus Kartu Soal Ini?</h5>
-            <p class="text-muted small mb-4">Kartu butir soal ini akan dihapus dari form pembuatan.</p>
-            <div class="d-flex gap-2 justify-content-center">
-                <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="btnConfirmDeleteQuizCard" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                    <i class="ti ti-trash me-1"></i> Hapus
-                </button>
+        <div class="modal-content md-modal-content">
+            <div class="md-modal-body">
+                <div class="md-modal-icon red">
+                    <i class="ti ti-trash"></i>
+                </div>
+                <h5 class="md-modal-title">Hapus Kartu Soal Ini?</h5>
+                <p class="md-modal-text">Kartu butir soal ini akan dihapus dari form pembuatan.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="btnConfirmDeleteQuizCard" class="md-btn-danger">
+                        <i class="ti ti-trash"></i> <span>Hapus</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -315,13 +336,15 @@
 <!-- Modal Alert Info -->
 <div class="modal fade" id="modalAlertQuiz" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
-            <div class="avatar avatar-lg bg-warning-subtle text-warning rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                <i class="ti ti-alert-triangle fs-2"></i>
+        <div class="modal-content md-modal-content">
+            <div class="md-modal-body">
+                <div class="md-modal-icon amber">
+                    <i class="ti ti-alert-triangle"></i>
+                </div>
+                <h5 class="md-modal-title" id="modalAlertQuizTitle">Pemberitahuan</h5>
+                <p class="md-modal-text" id="modalAlertQuizMsg">Minimal harus ada 1 butir soal dalam form.</p>
+                <button type="button" class="md-btn-primary" data-bs-dismiss="modal">Mengerti</button>
             </div>
-            <h5 class="fw-bold text-dark mb-1" id="modalAlertQuizTitle">Pemberitahuan</h5>
-            <p class="text-muted small mb-4" id="modalAlertQuizMsg">Minimal harus ada 1 butir soal dalam form.</p>
-            <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Mengerti</button>
         </div>
     </div>
 </div>

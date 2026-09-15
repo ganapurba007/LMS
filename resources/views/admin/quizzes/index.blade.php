@@ -1,139 +1,234 @@
 @extends('layouts.be.master')
-
-@section('header_title', 'Master Data — Kuis Evaluation')
+@section('header_title', 'Master Data — Kuis & Ujian Online')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold m-0">Daftar Kuis &amp; Ujian Online</h3>
-    <a href="{{ route('admin.quizzes.create') }}" class="btn btn-primary">
-        <i class="ti ti-plus me-1"></i> Buat Kuis Baru
+
+{{-- Page Header --}}
+<div class="md-page-header mb-4">
+    <div class="md-page-title">
+        <div class="md-page-icon" style="background:rgba(245,158,11,.1);color:#d97706;">
+            <i class="ti ti-help-hexagon"></i>
+        </div>
+        <div>
+            <h5 class="md-title">Kuis &amp; Ujian Online</h5>
+        </div>
+    </div>
+    <a href="{{ route('admin.quizzes.create') }}" class="md-btn-primary">
+        <i class="ti ti-plus"></i>
+        <span>Buat Kuis Baru</span>
     </a>
 </div>
 
+{{-- Flash Alert --}}
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        <i class="ti ti-check me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="md-alert success mb-4">
+        <i class="ti ti-check-circle"></i> {{ session('success') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
+    </div>
+@endif
+@if(session('error'))
+    <div class="md-alert danger mb-4">
+        <i class="ti ti-alert-triangle"></i> {{ session('error') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
     </div>
 @endif
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-vcenter table-hover card-table w-100 mb-0 data-table">
-                <thead>
-                    <tr>
-                        <th class="ps-4" style="width: 70px;">No</th>
-                        <th>Judul Kuis</th>
-                        <th>Mata Pelajaran</th>
-                        <th>Kelas Target</th>
-                        <th>Durasi &amp; Poin</th>
-                        <th>Jumlah Soal</th>
-                        <th>Batas Waktu</th>
-                        <th class="pe-4 text-end" style="width: 180px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($quizzes as $quiz)
-                        <tr>
-                            <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
-                            <td>
-                                <div class="fw-bold">{{ $quiz->title }}</div>
-                            </td>
-                            <td>
-                                <span class="badge badge-soft-primary">
-                                    {{ $quiz->subject->name ?? '-' }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge badge-soft-primary">
-                                    {{ $quiz->schoolClass->name ?? '-' }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="small fw-semibold"><i class="ti ti-clock me-1"></i> {{ $quiz->formatted_duration }}</div>
-                                <div class="small text-muted">{{ $quiz->points_per_question }} Poin/Soal</div>
-                            </td>
-                            <td>
-                                <span class="badge badge-soft-success">
-                                    {{ $quiz->questions_count === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions_count . ' Nomor (' . $quiz->total_questions_count . ' Butir)' }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="small text-danger fw-semibold">
-                                    {{ $quiz->deadline ? $quiz->deadline->format('d M Y H:i') : '-' }}
-                                </div>
-                            </td>
-                            <td class="pe-4 text-end align-middle text-nowrap">
-                                <div class="d-inline-flex align-items-center gap-2">
-                                    <a href="{{ route('admin.quizzes.students', $quiz) }}" class="btn btn-sm btn-outline-info rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" title="Hasil & Status Siswa">
-                                        <i class="ti ti-users fs-6"></i>
-                                    </a>
-                                    <a href="{{ route('admin.quizzes.show', $quiz) }}" class="btn btn-sm btn-outline-warning rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" title="Kelola Soal Kuis">
-                                        <i class="ti ti-list-check fs-6"></i>
-                                    </a>
-                                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="btn btn-sm btn-outline-primary rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" title="Edit Kuis">
-                                        <i class="ti ti-edit fs-6"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3 px-2.5 py-1.5 d-inline-flex align-items-center gap-1 fw-semibold shadow-2xs" 
-                                            onclick="openDeleteQuizModal('{{ route('admin.quizzes.destroy', $quiz) }}', '{{ addslashes($quiz->title) }}')" 
-                                            title="Hapus Kuis">
-                                        <i class="ti ti-trash fs-6"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">Belum ada kuis yang dibuat. Silakan buat kuis baru.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+{{-- Filter & Search Bar --}}
+<div class="md-card mb-4 p-3">
+    <form method="GET" action="{{ route('admin.quizzes.index') }}" class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light border-end-0 text-muted"><i class="ti ti-search"></i></span>
+                <input type="text" name="search" class="form-control form-control-sm border-start-0" placeholder="Cari judul kuis..." value="{{ $search }}">
+            </div>
         </div>
+        <div class="col-6 col-md-3">
+            <select name="subject_id" class="form-select form-select-sm select2" onchange="this.form.submit()">
+                <option value="">Semua Mata Pelajaran</option>
+                @foreach($subjects as $subj)
+                    <option value="{{ $subj->id }}" {{ (string)$subjectId === (string)$subj->id ? 'selected' : '' }}>
+                        {{ $subj->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <select name="class_id" class="form-select form-select-sm select2" onchange="this.form.submit()">
+                <option value="">Semua Kelas</option>
+                @foreach($classes as $cls)
+                    <option value="{{ $cls->id }}" {{ (string)$classId === (string)$cls->id ? 'selected' : '' }}>
+                        {{ $cls->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-1">
+            <button type="submit" class="md-btn-primary w-100 justify-content-center" style="padding:.35rem .6rem;font-size:.78rem;">
+                <i class="ti ti-filter"></i> Filter
+            </button>
+            @if($search || $subjectId || $classId)
+                <a href="{{ route('admin.quizzes.index') }}" class="md-btn-secondary" style="padding:.35rem .6rem;font-size:.78rem;" title="Reset Filter">
+                    <i class="ti ti-rotate-clockwise"></i>
+                </a>
+            @endif
+        </div>
+    </form>
+</div>
+
+{{-- Card Table --}}
+<div class="md-card">
+    <div class="md-table-wrap">
+        <table class="table table-hover md-table mb-0">
+            <thead>
+                <tr>
+                    <th class="md-th-no">No</th>
+                    <th>Judul Kuis</th>
+                    <th class="d-none d-md-table-cell">Mata Pelajaran</th>
+                    <th class="d-none d-sm-table-cell">Kelas Target</th>
+                    <th class="d-none d-lg-table-cell">Durasi &amp; Poin</th>
+                    <th class="d-none d-xl-table-cell text-center">Jumlah Soal</th>
+                    <th class="d-none d-md-table-cell">Batas Waktu</th>
+                    <th class="md-th-action">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($quizzes as $quiz)
+                    @php
+                        $no = ($quizzes->currentPage() - 1) * $quizzes->perPage() + $loop->iteration;
+                    @endphp
+                    <tr>
+                        <td class="md-td-no">{{ $no }}</td>
+
+                        {{-- Judul Kuis --}}
+                        <td>
+                            <a href="{{ route('admin.quizzes.show', $quiz) }}" class="fw-bold text-decoration-none d-block mb-1" style="color:var(--tblr-heading-color,#0f172a);font-size:.84rem;">
+                                {{ $quiz->title }}
+                            </a>
+                            <div class="d-flex align-items-center flex-wrap gap-1.5" style="font-size:.73rem;">
+                                <span class="text-muted"><i class="ti ti-clock"></i> {{ $quiz->formatted_duration }}</span>
+                                <span class="text-muted">•</span>
+                                <span class="text-muted">{{ $quiz->points_per_question }} Poin/Soal</span>
+
+                                {{-- Responsive Mobile Badges --}}
+                                <div class="d-md-none mt-1 w-100 d-flex flex-wrap gap-1">
+                                    <span class="md-badge blue">{{ $quiz->subject->name ?? '-' }}</span>
+                                    <span class="md-badge teal">{{ $quiz->schoolClass->name ?? '-' }}</span>
+                                    <span class="md-badge amber">{{ $quiz->questions_count }} Soal</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        {{-- Mata Pelajaran --}}
+                        <td class="d-none d-md-table-cell">
+                            <span class="md-badge blue">
+                                {{ $quiz->subject->name ?? '-' }}
+                            </span>
+                        </td>
+
+                        {{-- Kelas Target --}}
+                        <td class="d-none d-sm-table-cell">
+                            <span class="md-badge teal">
+                                {{ $quiz->schoolClass->name ?? '-' }}
+                            </span>
+                        </td>
+
+                        {{-- Durasi & Poin --}}
+                        <td class="d-none d-lg-table-cell">
+                            <div style="font-size:.78rem;font-weight:600;color:var(--tblr-heading-color,#0f172a);">
+                                <i class="ti ti-clock me-1 text-primary"></i> {{ $quiz->formatted_duration }}
+                            </div>
+                            <div class="text-muted small" style="font-size:.72rem;">
+                                {{ $quiz->points_per_question }} Poin/Soal
+                            </div>
+                        </td>
+
+                        {{-- Jumlah Soal --}}
+                        <td class="d-none d-xl-table-cell text-center">
+                            <span class="md-badge amber">
+                                <i class="ti ti-list-numbers"></i>
+                                {{ $quiz->questions_count === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions_count . ' No (' . $quiz->total_questions_count . ' Butir)' }}
+                            </span>
+                        </td>
+
+                        {{-- Batas Waktu --}}
+                        <td class="d-none d-md-table-cell">
+                            @if($quiz->deadline)
+                                @php $isPast = now()->greaterThan($quiz->deadline); @endphp
+                                <span class="md-badge {{ $isPast ? 'rose' : 'teal' }}">
+                                    <i class="ti ti-calendar"></i> {{ $quiz->deadline->format('d M Y H:i') }}
+                                </span>
+                            @else
+                                <span class="text-muted" style="font-size:.75rem;">-</span>
+                            @endif
+                        </td>
+
+                        {{-- Aksi --}}
+                        <td class="md-td-action">
+                            <div class="md-action-group">
+                                <a href="{{ route('admin.quizzes.students', $quiz) }}" class="md-icon-btn teal" title="Hasil & Status Siswa">
+                                    <i class="ti ti-users"></i>
+                                </a>
+                                <a href="{{ route('admin.quizzes.show', $quiz) }}" class="md-icon-btn amber" title="Kelola Butir Soal Kuis" style="color:#d97706;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.06);">
+                                    <i class="ti ti-list-check"></i>
+                                </a>
+                                <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="md-icon-btn blue" title="Edit Kuis">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+                                <button type="button" class="md-icon-btn red" title="Hapus Kuis"
+                                    onclick="openDeleteQuizModal('{{ route('admin.quizzes.destroy', $quiz) }}', '{{ addslashes($quiz->title) }}')">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" class="md-empty-row">
+                            <i class="ti ti-help-hexagon"></i>
+                            Belum ada kuis yang dibuat.
+                            <a href="{{ route('admin.quizzes.create') }}" class="md-btn-primary mt-2" style="font-size:.75rem;padding:.35rem .8rem;">
+                                <i class="ti ti-plus"></i> Buat Kuis Sekarang
+                            </a>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+
     @if($quizzes->hasPages())
-        <div class="card-footer d-flex justify-content-end py-3">
+        <div class="md-card-footer">
             {{ $quizzes->links() }}
         </div>
     @endif
 </div>
 
-<!-- Modal Konfirmasi Hapus Kuis -->
-<div class="modal fade" id="modalDeleteQuiz" tabindex="-1" aria-labelledby="modalDeleteQuizLabel" aria-hidden="true">
+{{-- Delete Modal --}}
+<div class="modal fade" id="modalDeleteQuiz" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-body text-center p-4">
-                <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                    <i class="ti ti-trash fs-2"></i>
+        <div class="md-modal-content">
+            <div class="md-modal-icon danger"><i class="ti ti-trash"></i></div>
+            <h6 class="md-modal-title">Hapus Kuis Ini?</h6>
+            <p class="md-modal-text" id="deleteModalQuizText">Kuis dan data pengerjaan siswa yang dihapus tidak dapat dikembalikan.</p>
+            <form id="deleteQuizForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="md-modal-actions">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="md-btn-danger"><i class="ti ti-trash"></i> Hapus</button>
                 </div>
-                <h5 class="fw-bold text-dark mb-1">Hapus Kuis Ini?</h5>
-                <p class="text-muted small mb-4" id="deleteModalQuizText">Kuis dan data pengerjaan siswa yang dihapus tidak dapat dikembalikan.</p>
-                <form id="deleteQuizForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="ti ti-trash me-1"></i> Ya, Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
+@include('admin._partials.master-data-styles')
+
 <script>
-    function openDeleteQuizModal(url, quizTitle) {
-        const form = document.getElementById('deleteQuizForm');
-        form.action = url;
-        const textEl = document.getElementById('deleteModalQuizText');
-        if (textEl && quizTitle) {
-            textEl.innerText = `Anda akan menghapus kuis: "${quizTitle}". Tindakan ini tidak dapat dibatalkan.`;
-        }
-        const modal = new bootstrap.Modal(document.getElementById('modalDeleteQuiz'));
-        modal.show();
-    }
+function openDeleteQuizModal(url, quizTitle) {
+    document.getElementById('deleteQuizForm').action = url;
+    document.getElementById('deleteModalQuizText').innerText = `Anda akan menghapus kuis: "${quizTitle}". Tindakan ini tidak dapat dibatalkan.`;
+    new bootstrap.Modal(document.getElementById('modalDeleteQuiz')).show();
+}
 </script>
 @endsection

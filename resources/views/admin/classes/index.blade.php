@@ -1,110 +1,111 @@
 @extends('layouts.be.master')
-
 @section('header_title', 'Master Data — Kelas')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold m-0">Daftar Kelas Pembelajaran</h3>
-    <a href="{{ route('admin.classes.create') }}" class="btn btn-primary">
-        <i class="ti ti-plus me-1"></i> Tambah Kelas Baru
+
+<div class="md-page-header mb-4">
+    <div class="md-page-title">
+        <div class="md-page-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6;">
+            <i class="ti ti-school"></i>
+        </div>
+        <div>
+            <h5 class="md-title">Daftar Kelas</h5>
+        </div>
+    </div>
+    <a href="{{ route('admin.classes.create') }}" class="md-btn-primary">
+        <i class="ti ti-plus"></i>
+        <span>Tambah Kelas</span>
     </a>
 </div>
 
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        <i class="ti ti-check me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="md-alert success mb-4">
+        <i class="ti ti-check-circle"></i> {{ session('success') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
     </div>
 @endif
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-vcenter table-hover card-table w-100 mb-0 data-table">
-                <thead>
+<div class="md-card">
+    <div class="md-table-wrap">
+        <table class="table table-hover md-table mb-0 data-table">
+            <thead>
+                <tr>
+                    <th class="md-th-no text-center">No</th>
+                    <th>Nama Kelas</th>
+                    <th>Siswa</th>
+                    <th class="md-th-action">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($classes as $class)
                     <tr>
-                        <th class="ps-4" style="width: 70px;">No</th>
-                        <th>Nama Kelas</th>
-                        <th>Jumlah Siswa Terdaftar</th>
-                        <th class="pe-4 text-end" style="width: 160px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($classes as $class)
-                        <tr>
-                            <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
-                            <td>
-                                <span class="fw-semibold">{{ $class->name }}</span>
-                            </td>
-                            <td>
-                                <span class="badge badge-soft-success">
-                                    <i class="ti ti-users me-1"></i> {{ $class->students_count }} Siswa
-                                </span>
-                            </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-inline-flex gap-2">
-                                    <a href="{{ route('admin.classes.edit', $class) }}" class="btn btn-sm btn-outline-primary" title="Edit">
-                                        <i class="ti ti-edit"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            onclick="openDeleteClassModal('{{ route('admin.classes.destroy', $class) }}', '{{ addslashes($class->name) }}')" 
-                                            title="Hapus">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
+                        <td class="md-td-no text-center">{{ $loop->iteration }}</td>
+                        <td>
+                            <div class="md-row-name">
+                                <div class="md-row-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6;">
+                                    <i class="ti ti-door"></i>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">Belum ada kelas terdaftar.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                                <span class="fw-semibold">{{ $class->name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="md-badge teal">
+                                <i class="ti ti-users"></i> {{ $class->students_count }} Siswa
+                            </span>
+                        </td>
+                        <td class="md-td-action">
+                            <div class="md-action-group">
+                                <a href="{{ route('admin.classes.edit', $class) }}" class="md-icon-btn blue" title="Edit">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+                                <button class="md-icon-btn red" title="Hapus"
+                                    onclick="openDeleteClassModal('{{ route('admin.classes.destroy', $class) }}', '{{ addslashes($class->name) }}')">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="md-empty-row">
+                            <i class="ti ti-door-off"></i>
+                            Belum ada kelas terdaftar.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
     @if($classes->hasPages())
-        <div class="card-footer d-flex justify-content-end py-3">
-            {{ $classes->links() }}
-        </div>
+        <div class="md-card-footer">{{ $classes->links() }}</div>
     @endif
 </div>
 
-<!-- Modal Konfirmasi Hapus Kelas -->
-<div class="modal fade" id="modalDeleteClass" tabindex="-1" aria-labelledby="modalDeleteClassLabel" aria-hidden="true">
+{{-- Delete Modal --}}
+<div class="modal fade" id="modalDeleteClass" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-body text-center p-4">
-                <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                    <i class="ti ti-trash fs-2"></i>
+        <div class="md-modal-content">
+            <div class="md-modal-icon danger"><i class="ti ti-trash"></i></div>
+            <h6 class="md-modal-title">Hapus Kelas Ini?</h6>
+            <p class="md-modal-text" id="deleteModalClassText">Kelas yang dihapus tidak dapat dikembalikan.</p>
+            <form id="deleteClassForm" method="POST" action="">
+                @csrf @method('DELETE')
+                <div class="md-modal-actions">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="md-btn-danger"><i class="ti ti-trash"></i> Hapus</button>
                 </div>
-                <h5 class="fw-bold text-dark mb-1">Hapus Kelas Ini?</h5>
-                <p class="text-muted small mb-4" id="deleteModalClassText">Kelas yang dihapus tidak dapat dikembalikan.</p>
-                <form id="deleteClassForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="ti ti-trash me-1"></i> Ya, Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
+@include('admin._partials.master-data-styles')
+
 <script>
-    function openDeleteClassModal(url, className) {
-        const form = document.getElementById('deleteClassForm');
-        form.action = url;
-        const textEl = document.getElementById('deleteModalClassText');
-        if (textEl && className) {
-            textEl.innerText = `Anda akan menghapus kelas: "${className}". Tindakan ini tidak dapat dibatalkan.`;
-        }
-        const modal = new bootstrap.Modal(document.getElementById('modalDeleteClass'));
-        modal.show();
-    }
+function openDeleteClassModal(url, name) {
+    document.getElementById('deleteClassForm').action = url;
+    document.getElementById('deleteModalClassText').innerText = `Anda akan menghapus kelas: "${name}". Tindakan ini tidak dapat dibatalkan.`;
+    new bootstrap.Modal(document.getElementById('modalDeleteClass')).show();
+}
 </script>
 @endsection

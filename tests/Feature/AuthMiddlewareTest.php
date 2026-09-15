@@ -52,14 +52,14 @@ class AuthMiddlewareTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_guru_login_redirects_to_student_dashboard(): void
+    public function test_guru_login_redirects_to_admin_dashboard(): void
     {
         $response = $this->post('/login', [
             'email' => 'guru@lms.com',
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/admin/dashboard');
         $this->assertAuthenticated();
     }
 

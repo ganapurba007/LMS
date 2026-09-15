@@ -538,13 +538,14 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4" style="width: 30%;">Judul Tugas</th>
-                                <th style="width: 16%;">Mata Pelajaran</th>
-                                <th style="width: 16%;">Guru Pengampu</th>
-                                <th style="width: 16%;">Batas Waktu (Deadline)</th>
-                                <th style="width: 14%;">Status</th>
-                                <th style="width: 10%;">Nilai</th>
-                                <th class="pe-4 text-end" style="width: 120px;">Aksi</th>
+                                <th class="text-center ps-3" style="width: 50px;">No</th>
+                                <th style="width: 28%;">Judul Tugas</th>
+                                <th style="width: 15%;">Mata Pelajaran</th>
+                                <th style="width: 15%;">Guru Pengampu</th>
+                                <th style="width: 15%;">Batas Waktu (Deadline)</th>
+                                <th style="width: 13%;">Status</th>
+                                <th class="text-center" style="width: 8%;">Nilai</th>
+                                <th class="text-center pe-3" style="width: 130px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="assignmentsTableBody">
@@ -554,15 +555,19 @@
                                     $isSubmitted = !is_null($sub);
                                     $isGraded = $isSubmitted && !is_null($sub->grade);
                                     $isOverdue = $asg->due_date && $asg->due_date->isPast() && !$isSubmitted;
+                                    $rowNo = ($assignments->currentPage() - 1) * $assignments->perPage() + $loop->iteration;
                                 @endphp
                                 <tr class="assignment-item-row"
                                     data-title="{{ strtolower($asg->title) }}" 
                                     data-subject="{{ strtolower($asg->subject->name ?? '') }}" 
                                     data-instructor="{{ strtolower($asg->instructor->name ?? '') }}"
                                     data-status="{{ $isGraded ? 'graded' : ($isSubmitted ? 'submitted' : 'unsubmitted') }}">
-                                    <td class="ps-4">
+                                    <td class="text-center ps-3 fw-bold text-muted" style="font-size: 0.85rem;">
+                                        {{ $rowNo }}
+                                    </td>
+                                    <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-3 text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm" style="background: linear-gradient(135deg, #059669, #10B981); width: 42px; height: 42px;">
+                                            <div class="rounded-3 text-white d-flex align-items-center justify-content-center shrink-0 shadow-sm" style="background: linear-gradient(135deg, #059669, #10B981); width: 40px; height: 40px;">
                                                 <i class="ti ti-clipboard-list fs-4"></i>
                                             </div>
                                             <div>
@@ -613,7 +618,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if($isGraded)
                                             <span class="badge bg-success px-2.5 py-1 rounded-pill fw-bold text-white fs-6">
                                                 {{ number_format($sub->grade, 1) }}
@@ -624,17 +629,25 @@
                                             <span class="text-muted small">-</span>
                                         @endif
                                     </td>
-                                    <td class="pe-4 text-end">
-                                        <a href="{{ route('student.assignments.show', $asg) }}" 
-                                           class="btn btn-sm rounded-pill px-3 py-1.5 font-bold shadow-sm d-inline-flex align-items-center gap-1 text-white hover-lift" 
-                                           style="background: {{ $isGraded ? '#059669' : ($isSubmitted ? '#0284c7' : '#3368A0') }};">
-                                            <i class="ti ti-pencil"></i> Kerjakan
-                                        </a>
+                                    <td class="text-center pe-3">
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            <a href="{{ route('student.assignments.show', $asg) }}" 
+                                               class="btn btn-sm rounded-pill px-3 py-1.5 font-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1 text-white hover-lift text-center" 
+                                               style="background: {{ $isGraded ? '#059669' : ($isSubmitted ? '#0284c7' : '#3368A0') }}; min-width: 105px;">
+                                                @if($isGraded)
+                                                    <i class="ti ti-award"></i> Lihat Nilai
+                                                @elseif($isSubmitted)
+                                                    <i class="ti ti-file-check"></i> Jawaban
+                                                @else
+                                                    <i class="ti ti-pencil"></i> Kerjakan
+                                                @endif
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="ti ti-clipboard-off fs-2 d-block mb-2 text-secondary"></i>
                                         Belum ada tugas pembelajaran untuk kelas Anda.
                                     </td>
@@ -644,6 +657,7 @@
                     </table>
                 </div>
             </div>
+
         </div>
 
         <!-- 5. Pagination Navigation -->

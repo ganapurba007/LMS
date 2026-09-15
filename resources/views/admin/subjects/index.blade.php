@@ -1,120 +1,133 @@
 @extends('layouts.be.master')
-
 @section('header_title', 'Master Data — Mata Pelajaran')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold m-0">Daftar Mata Pelajaran &amp; Guru Pengampu</h3>
-    <a href="{{ route('admin.subjects.create') }}" class="btn btn-primary">
-        <i class="ti ti-plus me-1"></i> Tambah Mata Pelajaran
+
+<div class="md-page-header mb-4">
+    <div class="md-page-title">
+        <div class="md-page-icon" style="background:rgba(8,145,178,.1);color:#0891b2;">
+            <i class="ti ti-books"></i>
+        </div>
+        <div>
+            <h5 class="md-title">Mata Pelajaran</h5>
+        </div>
+    </div>
+    <a href="{{ route('admin.subjects.create') }}" class="md-btn-primary">
+        <i class="ti ti-plus"></i>
+        <span>Tambah Mapel</span>
     </a>
 </div>
 
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-        <i class="ti ti-check me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="md-alert success mb-4">
+        <i class="ti ti-check-circle"></i> {{ session('success') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
     </div>
 @endif
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-vcenter table-hover card-table w-100 mb-0 data-table">
-                <thead>
+<div class="md-card">
+    <div class="md-table-wrap">
+        <table class="table table-hover md-table mb-0 data-table">
+            <thead>
+                <tr>
+                    <th class="md-th-no text-center">No</th>
+                    <th>Mata Pelajaran</th>
+                    <th class="d-none d-md-table-cell">Guru Pengampu</th>
+                    <th class="d-none d-lg-table-cell">Konten</th>
+                    <th class="md-th-action">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($subjects as $subject)
                     <tr>
-                        <th class="ps-4" style="width: 70px;">No</th>
-                        <th>Nama Mata Pelajaran</th>
-                        <th>Guru Pengampu</th>
-                        <th>Statistik Konten</th>
-                        <th class="pe-4 text-end" style="width: 160px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($subjects as $subject)
-                        <tr>
-                            <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
-                            <td>
-                                <span class="fw-semibold">{{ $subject->name }}</span>
-                            </td>
-                            <td>
-                                @forelse($subject->instructors as $guru)
-                                    <span class="badge badge-soft-primary mb-1 me-1">
-                                        <i class="ti ti-user me-1"></i> {{ $guru->name }}
-                                    </span>
-                                @empty
-                                    <span class="text-muted small">Belum ada guru pengampu</span>
-                                @endforelse
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    {{ $subject->materials_count }} Materi | {{ $subject->assignments_count }} Tugas | {{ $subject->quizzes_count }} Kuis
-                                </small>
-                            </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-inline-flex gap-2">
-                                    <a href="{{ route('admin.subjects.edit', $subject) }}" class="btn btn-sm btn-outline-primary" title="Edit / Alokasi Guru">
-                                        <i class="ti ti-edit"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            onclick="openDeleteSubjectModal('{{ route('admin.subjects.destroy', $subject) }}', '{{ addslashes($subject->name) }}')" 
-                                            title="Hapus">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
+                        <td class="md-td-no text-center">{{ $loop->iteration }}</td>
+                        <td>
+                            <div class="md-row-name">
+                                <div class="md-row-icon" style="background:rgba(8,145,178,.1);color:#0891b2;">
+                                    <i class="ti ti-book"></i>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Belum ada mata pelajaran.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.82rem;">{{ $subject->name }}</div>
+                                    {{-- Guru visible only on mobile --}}
+                                    <div class="d-md-none mt-1">
+                                        @forelse($subject->instructors as $guru)
+                                            <span class="md-badge blue" style="font-size:.58rem;">{{ $guru->name }}</span>
+                                        @empty
+                                            <span style="font-size:.68rem;color:var(--tblr-text-muted,#64748b);">Belum ada guru</span>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="d-none d-md-table-cell">
+                            <div style="display:flex;flex-wrap:wrap;gap:.25rem;">
+                                @forelse($subject->instructors as $guru)
+                                    <span class="md-badge blue"><i class="ti ti-user"></i> {{ $guru->name }}</span>
+                                @empty
+                                    <span style="font-size:.74rem;color:var(--tblr-text-muted,#64748b);">Belum ada guru pengampu</span>
+                                @endforelse
+                            </div>
+                        </td>
+                        <td class="d-none d-lg-table-cell">
+                            <div class="md-stat-row">
+                                <span class="md-stat"><i class="ti ti-file-text"></i> {{ $subject->materials_count }} Materi</span>
+                                <span class="md-stat"><i class="ti ti-clipboard"></i> {{ $subject->assignments_count }} Tugas</span>
+                                <span class="md-stat"><i class="ti ti-help-circle"></i> {{ $subject->quizzes_count }} Kuis</span>
+                            </div>
+                        </td>
+                        <td class="md-td-action">
+                            <div class="md-action-group">
+                                <a href="{{ route('admin.subjects.edit', $subject) }}" class="md-icon-btn blue" title="Edit / Alokasi Guru">
+                                    <i class="ti ti-edit"></i>
+                                </a>
+                                <button class="md-icon-btn red" title="Hapus"
+                                    onclick="openDeleteSubjectModal('{{ route('admin.subjects.destroy', $subject) }}', '{{ addslashes($subject->name) }}')">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="md-empty-row">
+                            <i class="ti ti-books-off"></i>
+                            Belum ada mata pelajaran terdaftar.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
     @if($subjects->hasPages())
-        <div class="card-footer d-flex justify-content-end py-3">
-            {{ $subjects->links() }}
-        </div>
+        <div class="md-card-footer">{{ $subjects->links() }}</div>
     @endif
 </div>
 
-<!-- Modal Konfirmasi Hapus Mata Pelajaran -->
-<div class="modal fade" id="modalDeleteSubject" tabindex="-1" aria-labelledby="modalDeleteSubjectLabel" aria-hidden="true">
+{{-- Delete Modal --}}
+<div class="modal fade" id="modalDeleteSubject" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-body text-center p-4">
-                <div class="avatar avatar-lg bg-danger-subtle text-danger rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                    <i class="ti ti-trash fs-2"></i>
+        <div class="md-modal-content">
+            <div class="md-modal-icon danger"><i class="ti ti-trash"></i></div>
+            <h6 class="md-modal-title">Hapus Mata Pelajaran?</h6>
+            <p class="md-modal-text" id="deleteModalSubjectText">Mata pelajaran yang dihapus tidak dapat dikembalikan.</p>
+            <form id="deleteSubjectForm" method="POST" action="">
+                @csrf @method('DELETE')
+                <div class="md-modal-actions">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="md-btn-danger"><i class="ti ti-trash"></i> Hapus</button>
                 </div>
-                <h5 class="fw-bold text-dark mb-1">Hapus Mapel Ini?</h5>
-                <p class="text-muted small mb-4" id="deleteModalSubjectText">Mata pelajaran yang dihapus tidak dapat dikembalikan.</p>
-                <form id="deleteSubjectForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
-                            <i class="ti ti-trash me-1"></i> Ya, Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
+@include('admin._partials.master-data-styles')
+
 <script>
-    function openDeleteSubjectModal(url, subjectName) {
-        const form = document.getElementById('deleteSubjectForm');
-        form.action = url;
-        const textEl = document.getElementById('deleteModalSubjectText');
-        if (textEl && subjectName) {
-            textEl.innerText = `Anda akan menghapus mata pelajaran: "${subjectName}". Tindakan ini tidak dapat dibatalkan.`;
-        }
-        const modal = new bootstrap.Modal(document.getElementById('modalDeleteSubject'));
-        modal.show();
-    }
+function openDeleteSubjectModal(url, name) {
+    document.getElementById('deleteSubjectForm').action = url;
+    document.getElementById('deleteModalSubjectText').innerText = `Anda akan menghapus mata pelajaran: "${name}". Tindakan ini tidak dapat dibatalkan.`;
+    new bootstrap.Modal(document.getElementById('modalDeleteSubject')).show();
+}
 </script>
 @endsection
