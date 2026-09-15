@@ -20,7 +20,7 @@ class MaterialController extends Controller
         $classId = $user->class_id;
 
         // Base query untuk materi kelas siswa
-        $query = Material::where('class_id', $classId)
+        $query = Material::when($classId, fn($q) => $q->where('class_id', $classId))
             ->with(['subject', 'instructor', 'schoolClass']);
 
         // Filter pencarian judul, mata pelajaran, atau guru pengampu
@@ -61,14 +61,14 @@ class MaterialController extends Controller
             ->withQueryString();
 
         // Hitung statistik progres belajar materi siswa
-        $allClassMaterialIds = Material::where('class_id', $classId)->pluck('id');
+        $allClassMaterialIds = Material::when($classId, fn($q) => $q->where('class_id', $classId))->pluck('id');
         $totalMaterials = $allClassMaterialIds->count();
         $completedCount = count(array_intersect($completedIds, $allClassMaterialIds->toArray()));
         $uncompletedCount = max(0, $totalMaterials - $completedCount);
         $progressPercent = $totalMaterials > 0 ? round(($completedCount / $totalMaterials) * 100) : 0;
 
         // Daftar mata pelajaran yang memiliki materi di kelas ini
-        $subjects = \App\Models\Subject::whereIn('id', Material::where('class_id', $classId)->pluck('subject_id')->unique())
+        $subjects = \App\Models\Subject::whereIn('id', Material::when($classId, fn($q) => $q->where('class_id', $classId))->pluck('subject_id')->unique())
             ->orderBy('name')
             ->get();
 

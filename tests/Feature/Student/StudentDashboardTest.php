@@ -41,4 +41,17 @@ class StudentDashboardTest extends TestCase
         $response = $this->get(route('dashboard'));
         $response->assertRedirect(route('login'));
     }
+
+    public function test_guru_can_view_frontend_dashboard(): void
+    {
+        $roleGuru = Role::create(['name' => 'guru']);
+        $guru = User::factory()->create([
+            'role_id' => $roleGuru->id,
+            'class_id' => null,
+        ]);
+
+        $response = $this->actingAs($guru)->get(route('dashboard'));
+        $response->assertStatus(200);
+        $response->assertSee('Admin Guru');
+    }
 }

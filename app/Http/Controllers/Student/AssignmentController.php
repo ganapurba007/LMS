@@ -16,7 +16,7 @@ class AssignmentController extends Controller
         $user = Auth::user();
         $classId = $user->class_id;
 
-        $query = Assignment::where('class_id', $classId)
+        $query = Assignment::when($classId, fn($q) => $q->where('class_id', $classId))
             ->with(['subject', 'instructor', 'schoolClass']);
 
         // Filter pencarian judul, deskripsi, mata pelajaran, atau guru
@@ -59,7 +59,7 @@ class AssignmentController extends Controller
         $submissions = $allSubmissions;
 
         // Hitung statistik penugasan kelas siswa
-        $allClassAssignments = Assignment::where('class_id', $classId)->get();
+        $allClassAssignments = Assignment::when($classId, fn($q) => $q->where('class_id', $classId))->get();
         $totalAssignments = $allClassAssignments->count();
         $submittedCount = count(array_intersect($submittedIds, $allClassAssignments->pluck('id')->toArray()));
         $unsubmittedCount = max(0, $totalAssignments - $submittedCount);

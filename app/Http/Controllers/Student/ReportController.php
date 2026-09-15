@@ -21,7 +21,7 @@ class ReportController extends Controller
         $classId = $user->class_id;
 
         // Material Progress
-        $totalMaterials = Material::where('class_id', $classId)->count();
+        $totalMaterials = Material::when($classId, fn($q) => $q->where('class_id', $classId))->count();
         $completedMaterials = MaterialProgress::where('user_id', $user->id)
             ->where('is_completed', true)
             ->count();
@@ -72,15 +72,15 @@ class ReportController extends Controller
         }
 
         // Subject Breakdown (Rekap per Mata Pelajaran)
-        $subjects = Subject::whereHas('materials', fn($q) => $q->where('class_id', $classId))
-            ->orWhereHas('assignments', fn($q) => $q->where('class_id', $classId))
-            ->orWhereHas('quizzes', fn($q) => $q->where('class_id', $classId))
+        $subjects = Subject::whereHas('materials', fn($q) => $q->when($classId, fn($sq) => $sq->where('class_id', $classId)))
+            ->orWhereHas('assignments', fn($q) => $q->when($classId, fn($sq) => $sq->where('class_id', $classId)))
+            ->orWhereHas('quizzes', fn($q) => $q->when($classId, fn($sq) => $sq->where('class_id', $classId)))
             ->orderBy('name')
             ->get();
 
         $subjectBreakdown = [];
         foreach ($subjects as $subject) {
-            $subMaterialsTotal = Material::where('class_id', $classId)->where('subject_id', $subject->id)->count();
+            $subMaterialsTotal = Material::when($classId, fn($q) => $q->where('class_id', $classId))->where('subject_id', $subject->id)->count();
             $subMaterialsCompleted = MaterialProgress::where('user_id', $user->id)
                 ->where('is_completed', true)
                 ->whereHas('material', fn($q) => $q->where('subject_id', $subject->id))

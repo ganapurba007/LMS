@@ -88,8 +88,10 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     // Master Bank Soal CRUD
     Route::resource('question-banks', QuestionBankController::class);
 
-    // Master Materi CRUD
+    // Master Materi CRUD & Diskusi
     Route::resource('materials', MaterialController::class);
+    Route::post('materials/{material}/discussions', [MaterialController::class, 'storeComment'])->name('materials.discussions');
+    Route::delete('materials/{material}/discussions/{discussion}', [MaterialController::class, 'destroyComment'])->name('materials.discussions.destroy');
 
     // Master Tugas CRUD
     Route::resource('assignments', AssignmentController::class);

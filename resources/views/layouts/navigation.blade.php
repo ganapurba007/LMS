@@ -42,7 +42,7 @@
                     Dashboard
                 </a>
 
-                @if(Auth::user() && Auth::user()->isSiswa())
+                @if(Auth::check())
                     <a href="{{ route('student.materials.index') }}" 
                        class="arsha-nav-link {{ request()->routeIs('student.materials.*') ? 'active' : '' }}">
                         Courses / Materi
@@ -427,7 +427,7 @@
                 $mobileLinks = [
                     ['href' => route('dashboard'), 'label' => 'Dashboard', 'icon' => 'ti-home', 'active' => request()->routeIs('dashboard')],
                 ];
-                if(Auth::user() && Auth::user()->isSiswa()) {
+                if(Auth::check()) {
                     $mobileLinks[] = ['href' => route('student.materials.index'),   'label' => 'Courses / Materi', 'icon' => 'ti-book-2',      'active' => request()->routeIs('student.materials.*')];
                     $mobileLinks[] = ['href' => route('student.assignments.index'), 'label' => 'Tugas Kelas',     'icon' => 'ti-file-pencil', 'active' => request()->routeIs('student.assignments.*')];
                     $mobileLinks[] = ['href' => route('student.quizzes.index'),     'label' => 'Kuis Online',     'icon' => 'ti-alarm',       'active' => request()->routeIs('student.quizzes.*')];

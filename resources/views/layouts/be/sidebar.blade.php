@@ -3,8 +3,11 @@
   <div class="sidebar-header">
     <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
       <div class="sidebar-brand-icon">
+        <img src="{{ asset('images/icon.png') }}"
+             alt="{{ config('app.name') }} Icon"
+             style="width:32px;height:32px;object-fit:contain;">
       </div>
-      <span>RuangTerra</span>
+      <span>{{ config('app.name') }}</span>
     </a>
     <button type="button" class="navbar-toggle-btn d-lg-none sidebar-toggle-btn" aria-label="Close sidebar">
       <i class="ti ti-x"></i>

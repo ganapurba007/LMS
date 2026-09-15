@@ -15,33 +15,29 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if ($user && $user->isGuru()) {
-            return redirect()->route('admin.dashboard');
-        }
-
         $classId = $user->class_id;
 
-        $upcomingAssignments = Assignment::where('class_id', $classId)
+        $upcomingAssignments = Assignment::when($classId, fn($q) => $q->where('class_id', $classId))
             ->where('due_date', '>=', now())
             ->with(['subject', 'instructor'])
             ->orderBy('due_date', 'asc')
             ->take(5)
             ->get();
 
-        $activeQuizzes = Quiz::where('class_id', $classId)
+        $activeQuizzes = Quiz::when($classId, fn($q) => $q->where('class_id', $classId))
             ->where('deadline', '>=', now())
             ->with(['subject', 'instructor'])
             ->orderBy('deadline', 'asc')
             ->take(5)
             ->get();
 
-        $materials = Material::where('class_id', $classId)
+        $materials = Material::when($classId, fn($q) => $q->where('class_id', $classId))
             ->with(['subject', 'instructor'])
             ->latest()
             ->take(5)
             ->get();
 
-        $totalClassMaterials = Material::where('class_id', $classId)->count();
+        $totalClassMaterials = Material::when($classId, fn($q) => $q->where('class_id', $classId))->count();
         $completedMaterialsCount = MaterialProgress::where('user_id', $user->id)
             ->where('is_completed', true)
             ->count();

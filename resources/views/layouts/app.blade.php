@@ -3,9 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#66A3BF">
+        <meta name="theme-color" content="#206bc4">
         <link rel="manifest" href="{{ asset('manifest.json') }}">
-        <link rel="apple-touch-icon" href="{{ asset('tabler/static/logo-small.svg') }}">
+        <link rel="icon" type="image/png" sizes="32x32"   href="{{ asset('favicon-32.png') }}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+        <link rel="apple-touch-icon"                      href="{{ asset('images/icon-192.png') }}">
 
         <title>{{ config('app.name', 'RuangTerra') }}</title>
 

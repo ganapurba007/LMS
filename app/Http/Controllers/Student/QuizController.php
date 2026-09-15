@@ -19,7 +19,7 @@ class QuizController extends Controller
         $query = Quiz::with(['subject', 'instructor', 'questions.options', 'attempts' => function ($q) use ($user) {
             $q->where('student_id', $user->id);
         }])
-        ->where('class_id', $classId);
+        ->when($classId, fn($q) => $q->where('class_id', $classId));
 
         // Filter pencarian
         if ($request->filled('search')) {
@@ -42,7 +42,7 @@ class QuizController extends Controller
         }
 
         // Ambil semua quiz kelas untuk perhitungan metrics
-        $allClassQuizzes = Quiz::where('class_id', $classId)
+        $allClassQuizzes = Quiz::when($classId, fn($q) => $q->where('class_id', $classId))
             ->with(['attempts' => function ($q) use ($user) {
                 $q->where('student_id', $user->id);
             }])
@@ -102,7 +102,7 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         $user = Auth::user();
-        if ($quiz->class_id !== $user->class_id) {
+        if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
@@ -117,7 +117,7 @@ class QuizController extends Controller
     public function start(Quiz $quiz)
     {
         $user = Auth::user();
-        if ($quiz->class_id !== $user->class_id) {
+        if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
@@ -155,7 +155,7 @@ class QuizController extends Controller
     public function attempt(Quiz $quiz)
     {
         $user = Auth::user();
-        if ($quiz->class_id !== $user->class_id) {
+        if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
@@ -243,7 +243,7 @@ class QuizController extends Controller
     public function saveAnswer(Request $request, Quiz $quiz)
     {
         $user = Auth::user();
-        if ($quiz->class_id !== $user->class_id) {
+        if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -290,7 +290,7 @@ class QuizController extends Controller
     public function submit(Request $request, Quiz $quiz)
     {
         $user = Auth::user();
-        if ($quiz->class_id !== $user->class_id) {
+        if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
@@ -388,7 +388,7 @@ class QuizController extends Controller
     public function result(Quiz $quiz)
     {
         $user = Auth::user();
-        if ($quiz->class_id !== $user->class_id) {
+        if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 

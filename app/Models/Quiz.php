@@ -56,6 +56,14 @@ class Quiz extends Model
     }
 
     /**
+     * Alias for attempts() relation
+     */
+    public function quizAttempts(): HasMany
+    {
+        return $this->attempts();
+    }
+
+    /**
      * Total scorable items / question units.
      * Multiple Choice & True/False count as 1 item.
      * Matching (Menjodohkan) counts as 1 item per option/pair.

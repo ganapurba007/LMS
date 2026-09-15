@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\DiscussionCommentSent;
 use App\Events\MaterialCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use App\Models\MaterialDiscussion;
+use App\Models\MaterialProgress;
 use App\Models\Notification;
 use App\Models\SchoolClass;
 use App\Models\Subject;
@@ -12,16 +15,47 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MaterialController extends Controller
 {
     public function index()
     {
         $materials = Material::with(['subject', 'schoolClass', 'instructor'])
+            ->withCount('discussions')
             ->latest()
             ->paginate(10);
 
         return view('admin.materials.index', compact('materials'));
+    }
+
+    public function show(Material $material)
+    {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
+        $material->load([
+            'subject',
+            'schoolClass',
+            'instructor',
+            'discussions',
+            'rootDiscussions' => function ($q) {
+                $q->with(['user.role', 'replies.user.role'])->latest();
+            },
+        ]);
+
+        $totalStudents = User::where('class_id', $material->class_id)
+            ->whereHas('role', function ($q) {
+                $q->where('name', 'siswa');
+            })->count();
+
+        $completedStudentsCount = MaterialProgress::where('material_id', $material->id)
+            ->where('is_completed', true)
+            ->count();
+
+        return view('admin.materials.show', compact('material', 'totalStudents', 'completedStudentsCount'));
     }
 
     public function create()
@@ -166,4 +200,95 @@ class MaterialController extends Controller
         return redirect()->route('admin.materials.index')
             ->with('success', 'Materi pembelajaran berhasil dihapus.');
     }
+
+    public function storeComment(Request $request, Material $material)
+    {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
+        $request->validate([
+            'comment' => ['required', 'string', 'max:1000'],
+            'parent_id' => ['nullable', 'exists:material_discussions,id'],
+        ]);
+
+        $parent = null;
+        $parentId = null;
+        if ($request->filled('parent_id')) {
+            $parent = MaterialDiscussion::find($request->parent_id);
+            if ($parent && $parent->material_id === $material->id) {
+                $parentId = $parent->parent_id ?? $parent->id;
+            } else {
+                $parent = null;
+            }
+        }
+
+        $discussion = MaterialDiscussion::create([
+            'material_id' => $material->id,
+            'parent_id' => $parentId,
+            'user_id' => $user->id,
+            'comment' => $request->comment,
+        ]);
+
+        event(new DiscussionCommentSent($discussion));
+
+        $commentSnippet = Str::limit($request->comment, 60);
+        $studentTargetUrl = route('student.materials.show', $material) . '#discussion-item-' . $discussion->id;
+        $notifiedUserIds = [$user->id];
+
+        // 1. Notifikasi ke pembuat komentar yang dibalas oleh guru
+        if ($parent && $parent->user_id !== $user->id) {
+            Notification::create([
+                'user_id' => $parent->user_id,
+                'type' => 'comment',
+                'title' => 'Balasan Guru: ' . $material->title,
+                'message' => 'Guru ' . $user->name . ' membalas komentar Anda di materi "' . $material->title . '": "' . $commentSnippet . '"',
+                'related_url' => $studentTargetUrl,
+                'is_read' => false,
+            ]);
+            $notifiedUserIds[] = $parent->user_id;
+        }
+
+        // 2. Notifikasi ke seluruh siswa peserta diskusi lainnya
+        $previousParticipantIds = MaterialDiscussion::where('material_id', $material->id)
+            ->whereNotIn('user_id', $notifiedUserIds)
+            ->pluck('user_id')
+            ->unique();
+
+        foreach ($previousParticipantIds as $participantId) {
+            Notification::create([
+                'user_id' => $participantId,
+                'type' => 'comment',
+                'title' => 'Balasan Guru: ' . $material->title,
+                'message' => 'Guru ' . $user->name . ' memberikan tanggapan di diskusi materi "' . $material->title . '": "' . $commentSnippet . '"',
+                'related_url' => $studentTargetUrl,
+                'is_read' => false,
+            ]);
+        }
+
+        $flashMsg = $parentId ? 'Tanggapan/balasan guru berhasil dikirim ke siswa.' : 'Pesan diskusi guru berhasil diterbitkan.';
+
+        return redirect()->route('admin.materials.show', $material)
+            ->with('success', $flashMsg);
+    }
+
+    public function destroyComment(Material $material, MaterialDiscussion $discussion)
+    {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
+        if ($discussion->material_id !== $material->id) {
+            abort(404);
+        }
+
+        // Hapus balasan jika komentar adalah parent
+        $discussion->replies()->delete();
+        $discussion->delete();
+
+        return back()->with('success', 'Komentar diskusi berhasil dihapus.');
+    }
 }
+

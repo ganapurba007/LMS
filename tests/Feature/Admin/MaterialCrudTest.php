@@ -193,4 +193,100 @@ class MaterialCrudTest extends TestCase
         $response = $this->actingAs($this->siswa)->get(route('admin.materials.index'));
         $response->assertRedirect(route('dashboard'));
     }
+
+    public function test_guru_can_view_material_show_page_and_discussions(): void
+    {
+        $material = Material::create([
+            'title' => 'Materi Diskusi Guru',
+            'content_type' => 'text',
+            'content' => 'Silakan diskusikan materi ini bersama.',
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+            'order' => 1,
+        ]);
+
+        \App\Models\MaterialDiscussion::create([
+            'material_id' => $material->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Pak guru, saya ingin bertanya tentang konsep aljabar ini.',
+        ]);
+
+        $response = $this->actingAs($this->guru)->get(route('admin.materials.show', $material));
+        $response->assertStatus(200);
+        $response->assertSee('Materi Diskusi Guru');
+        $response->assertSee('Ruang Diskusi &amp; Tanya Jawab', false);
+        $response->assertSee('Pak guru, saya ingin bertanya tentang konsep aljabar ini.');
+    }
+
+    public function test_guru_can_reply_to_student_discussion_comment_and_dispatches_notification(): void
+    {
+        Event::fake([\App\Events\DiscussionCommentSent::class]);
+
+        $material = Material::create([
+            'title' => 'Materi Aljabar Lanjutan',
+            'content_type' => 'text',
+            'content' => 'Materi aljabar lanjutan.',
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+            'order' => 1,
+        ]);
+
+        $studentComment = \App\Models\MaterialDiscussion::create([
+            'material_id' => $material->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Apakah rumus ini berlaku untuk semua variabel?',
+        ]);
+
+        $replyResponse = $this->actingAs($this->guru)->post(route('admin.materials.discussions', $material), [
+            'comment' => 'Benar, rumus ini berlaku umum untuk semua variabel real.',
+            'parent_id' => $studentComment->id,
+        ]);
+
+        $replyResponse->assertRedirect(route('admin.materials.show', $material));
+
+        $this->assertDatabaseHas('material_discussions', [
+            'material_id' => $material->id,
+            'parent_id' => $studentComment->id,
+            'user_id' => $this->guru->id,
+            'comment' => 'Benar, rumus ini berlaku umum untuk semua variabel real.',
+        ]);
+
+        Event::assertDispatched(\App\Events\DiscussionCommentSent::class);
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->siswa->id,
+            'type' => 'comment',
+            'title' => 'Balasan Guru: ' . $material->title,
+        ]);
+    }
+
+    public function test_guru_can_delete_discussion_comment(): void
+    {
+        $material = Material::create([
+            'title' => 'Materi Diskusi Moderasi',
+            'content_type' => 'text',
+            'content' => 'Materi untuk pengujian moderasi.',
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+            'order' => 1,
+        ]);
+
+        $studentComment = \App\Models\MaterialDiscussion::create([
+            'material_id' => $material->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Komentar spam yang melanggar aturan.',
+        ]);
+
+        $deleteResponse = $this->actingAs($this->guru)->delete(
+            route('admin.materials.discussions.destroy', [$material, $studentComment])
+        );
+
+        $deleteResponse->assertSessionHas('success');
+        $this->assertDatabaseMissing('material_discussions', [
+            'id' => $studentComment->id,
+        ]);
+    }
 }
