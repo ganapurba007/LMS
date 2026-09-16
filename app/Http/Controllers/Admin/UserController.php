@@ -52,17 +52,35 @@ class UserController extends Controller
             'nip' => ['nullable', 'string', 'max:50', 'unique:users,nip,' . $user->id],
             'role_id' => ['required', 'exists:roles,id'],
             'class_id' => ['nullable', 'exists:classes,id'],
+            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email ini sudah digunakan oleh akun lain.',
+            'nip.unique' => 'NIP/NISN ini sudah digunakan oleh akun lain.',
+            'role_id.required' => 'Role pengguna wajib dipilih.',
+            'role_id.exists' => 'Role yang dipilih tidak valid.',
+            'class_id.exists' => 'Kelas yang dipilih tidak valid.',
+            'password.min' => 'Password minimal harus terdiri dari 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 
-        $user->update([
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
-            'nip' => $request->nip,
+            'nip' => $request->filled('nip') ? trim($request->nip) : null,
             'role_id' => $request->role_id,
-            'class_id' => $request->class_id,
-        ]);
+            'class_id' => $request->filled('class_id') ? $request->class_id : null,
+        ];
 
-        return redirect()->route('admin.users.index')->with('success', 'Data user berhasil diperbarui.');
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        $user->update($updateData);
+
+        return redirect()->route('admin.users.index')->with('success', 'Data user ' . $user->name . ' berhasil diperbarui.');
     }
 
     public function resetPassword(Request $request, User $user): RedirectResponse|\Illuminate\Http\JsonResponse

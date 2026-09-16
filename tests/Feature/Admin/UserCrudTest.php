@@ -134,4 +134,41 @@ class UserCrudTest extends TestCase
         $siswa->refresh();
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check($newPassword, $siswa->password));
     }
+
+    public function test_guru_can_update_user_password_manually(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+        $siswa = User::where('email', 'siswa1@lms.com')->first();
+
+        $response = $this->actingAs($guru)->put("/admin/users/{$siswa->id}", [
+            'name' => 'Budi Santoso',
+            'email' => 'siswa1@lms.com',
+            'nip' => '',
+            'role_id' => $siswa->role_id,
+            'class_id' => $siswa->class_id,
+            'password' => 'PasswordBaru123',
+            'password_confirmation' => 'PasswordBaru123',
+        ]);
+
+        $response->assertRedirect('/admin/users');
+        $siswa->refresh();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('PasswordBaru123', $siswa->password));
+        $this->assertNull($siswa->nip);
+    }
+
+    public function test_guru_cannot_update_user_with_mismatched_password_confirmation(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+        $siswa = User::where('email', 'siswa1@lms.com')->first();
+
+        $response = $this->actingAs($guru)->put("/admin/users/{$siswa->id}", [
+            'name' => 'Budi Santoso',
+            'email' => 'siswa1@lms.com',
+            'role_id' => $siswa->role_id,
+            'password' => 'PasswordBaru123',
+            'password_confirmation' => 'BedaPassword456',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+    }
 }

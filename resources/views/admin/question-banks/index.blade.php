@@ -159,11 +159,29 @@
                 @empty
                     <tr>
                         <td colspan="5" class="md-empty-row">
-                            <i class="ti ti-database-off"></i>
-                            Bank soal masih kosong.
-                            <a href="{{ route('admin.question-banks.create') }}" class="md-btn-primary mt-2" style="font-size:.75rem;padding:.35rem .8rem;">
-                                <i class="ti ti-plus"></i> Buat Soal Sekarang
-                            </a>
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap teal">
+                                    <i class="ti ti-database-off"></i>
+                                </div>
+                                <div class="md-empty-title">Bank Soal Masih Kosong</div>
+                                <div class="md-empty-desc">
+                                    @if(request('search') || request('subject_id') || request('type'))
+                                        Tidak ada butir soal yang sesuai dengan filter atau kata kunci pencarian Anda.
+                                    @else
+                                        Kumpulkan bank soal terpusat (pilihan ganda, benar-salah, menjodohkan) yang siap diimpor ke kuis kapan saja.
+                                    @endif
+                                </div>
+                                <div class="md-empty-action">
+                                    @if(request('search') || request('subject_id') || request('type'))
+                                        <a href="{{ route('admin.question-banks.index') }}" class="md-btn-secondary me-2" style="font-size:.78rem;padding:.35rem .8rem;">
+                                            <i class="ti ti-x"></i> Reset Filter
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('admin.question-banks.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                        <i class="ti ti-plus"></i> Tambah Butir Soal Baru
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

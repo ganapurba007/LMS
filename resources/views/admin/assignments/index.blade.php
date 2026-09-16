@@ -105,8 +105,20 @@
                     @empty
                         <tr>
                             <td colspan="7" class="md-empty-row">
-                                <i class="ti ti-clipboard-off"></i>
-                                Belum ada tugas siswa yang dibuat.
+                                <div class="md-empty-state">
+                                    <div class="md-empty-icon-wrap amber">
+                                        <i class="ti ti-clipboard-off"></i>
+                                    </div>
+                                    <div class="md-empty-title">Belum Ada Tugas Siswa</div>
+                                    <div class="md-empty-desc">
+                                        Buat penugasan kelas lengkap dengan tenggat waktu pengumpulan untuk mengevaluasi pemahaman siswa.
+                                    </div>
+                                    <div class="md-empty-action">
+                                        <a href="{{ route('admin.assignments.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                            <i class="ti ti-plus"></i> Buat Tugas Baru
+                                        </a>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse

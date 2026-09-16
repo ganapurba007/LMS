@@ -68,8 +68,20 @@
                 @empty
                     <tr>
                         <td colspan="4" class="md-empty-row">
-                            <i class="ti ti-door-off"></i>
-                            Belum ada kelas terdaftar.
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap amber">
+                                    <i class="ti ti-door-off"></i>
+                                </div>
+                                <div class="md-empty-title">Belum Ada Kelas Terdaftar</div>
+                                <div class="md-empty-desc">
+                                    Tambahkan kelas rombel pembelajaran (contoh: X-IPA-1, XI-IPS-2) untuk mengelompokkan siswa dan materi.
+                                </div>
+                                <div class="md-empty-action">
+                                    <a href="{{ route('admin.classes.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                        <i class="ti ti-plus"></i> Tambah Kelas Baru
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

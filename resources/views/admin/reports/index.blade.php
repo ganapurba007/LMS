@@ -222,8 +222,26 @@
                 @empty
                     <tr>
                         <td colspan="6" class="md-empty-row">
-                            <i class="ti ti-users-minus"></i>
-                            Tidak ditemukan siswa pada filter kelas atau mata pelajaran yang dipilih.
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap blue">
+                                    <i class="ti ti-chart-bar-off"></i>
+                                </div>
+                                <div class="md-empty-title">Tidak Ditemukan Data Nilai Siswa</div>
+                                <div class="md-empty-desc">
+                                    @if(request('class_id') || request('subject_id') || request('search'))
+                                        Tidak ada data rekapitulasi nilai siswa yang cocok dengan filter kelas atau mata pelajaran yang dipilih.
+                                    @else
+                                        Pilih kelas dan mata pelajaran pada filter di atas untuk melihat rekapitulasi nilai tugas dan kuis siswa.
+                                    @endif
+                                </div>
+                                @if(request('class_id') || request('subject_id') || request('search'))
+                                    <div class="md-empty-action">
+                                        <a href="{{ route('admin.reports.index') }}" class="md-btn-secondary" style="font-size:.78rem;padding:.35rem .8rem;">
+                                            <i class="ti ti-x"></i> Reset Filter
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforelse

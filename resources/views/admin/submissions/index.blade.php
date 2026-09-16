@@ -171,8 +171,26 @@
                     @empty
                         <tr>
                             <td colspan="7" class="md-empty-row">
-                                <i class="ti ti-file-off"></i>
-                                Belum ada pengumpulan tugas yang ditemukan.
+                                <div class="md-empty-state">
+                                    <div class="md-empty-icon-wrap teal">
+                                        <i class="ti ti-file-off"></i>
+                                    </div>
+                                    <div class="md-empty-title">Belum Ada Pengumpulan Tugas</div>
+                                    <div class="md-empty-desc">
+                                        @if(request('search') || request('assignment_id') || request('class_id') || request('status'))
+                                            Tidak ada pengumpulan tugas siswa yang cocok dengan filter yang dipilih.
+                                        @else
+                                            Pengumpulan jawaban dan berkas tugas dari siswa akan tercatat di sini untuk dikoreksi dan dinilai.
+                                        @endif
+                                    </div>
+                                    @if(request('search') || request('assignment_id') || request('class_id') || request('status'))
+                                        <div class="md-empty-action">
+                                            <a href="{{ route('admin.submissions.index') }}" class="md-btn-secondary" style="font-size:.78rem;padding:.35rem .8rem;">
+                                                <i class="ti ti-x"></i> Reset Filter
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforelse

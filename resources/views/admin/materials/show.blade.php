@@ -326,10 +326,12 @@
 
                         </div>
                     @empty
-                        <div class="md-empty-row py-4">
-                            <i class="ti ti-messages-off"></i>
-                            Belum ada pesan diskusi pada materi ini.
-                            <div class="text-muted mt-1" style="font-size:.75rem;">Siswa dapat bertanya dan Anda dapat menanggapi secara langsung di forum ini.</div>
+                        <div class="md-empty-state py-4">
+                            <div class="md-empty-icon-wrap blue" style="width: 50px; height: 50px; font-size: 1.4rem;">
+                                <i class="ti ti-messages-off"></i>
+                            </div>
+                            <div class="md-empty-title" style="font-size: 0.92rem;">Belum Ada Diskusi</div>
+                            <div class="md-empty-desc">Belum ada pertanyaan atau diskusi dari siswa pada materi ini.</div>
                         </div>
                     @endforelse
                 </div>

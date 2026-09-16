@@ -90,8 +90,20 @@
                 @empty
                     <tr>
                         <td colspan="5" class="md-empty-row">
-                            <i class="ti ti-books-off"></i>
-                            Belum ada mata pelajaran terdaftar.
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap blue">
+                                    <i class="ti ti-books-off"></i>
+                                </div>
+                                <div class="md-empty-title">Belum Ada Mata Pelajaran</div>
+                                <div class="md-empty-desc">
+                                    Daftarkan mata pelajaran dan alokasikan guru pengampu untuk mengelola materi dan kuis kelas.
+                                </div>
+                                <div class="md-empty-action">
+                                    <a href="{{ route('admin.subjects.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                        <i class="ti ti-plus"></i> Tambah Mata Pelajaran
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

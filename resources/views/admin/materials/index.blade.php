@@ -183,11 +183,29 @@
                 @empty
                     <tr>
                         <td colspan="7" class="md-empty-row">
-                            <i class="ti ti-books-off"></i>
-                            Materi pembelajaran belum tersedia.
-                            <a href="{{ route('admin.materials.create') }}" class="md-btn-primary mt-2" style="font-size:.75rem;padding:.35rem .8rem;">
-                                <i class="ti ti-plus"></i> Tambah Materi Pertama
-                            </a>
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap teal">
+                                    <i class="ti ti-books-off"></i>
+                                </div>
+                                <div class="md-empty-title">Belum Ada Materi Pembelajaran</div>
+                                <div class="md-empty-desc">
+                                    @if(request('search') || request('subject_id') || request('class_id'))
+                                        Tidak ada materi pembelajaran yang cocok dengan filter pencarian yang Anda pilih.
+                                    @else
+                                        Mulai bagikan modul bacaan, dokumen lampiran PDF, atau tautan video interaktif kepada siswa.
+                                    @endif
+                                </div>
+                                <div class="md-empty-action">
+                                    @if(request('search') || request('subject_id') || request('class_id'))
+                                        <a href="{{ route('admin.materials.index') }}" class="md-btn-secondary me-2" style="font-size:.78rem;padding:.35rem .8rem;">
+                                            <i class="ti ti-x"></i> Reset Filter
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('admin.materials.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                        <i class="ti ti-plus"></i> Tambah Materi Pertama
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

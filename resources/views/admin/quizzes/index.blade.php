@@ -184,11 +184,29 @@
                 @empty
                     <tr>
                         <td colspan="8" class="md-empty-row">
-                            <i class="ti ti-help-hexagon"></i>
-                            Belum ada kuis yang dibuat.
-                            <a href="{{ route('admin.quizzes.create') }}" class="md-btn-primary mt-2" style="font-size:.75rem;padding:.35rem .8rem;">
-                                <i class="ti ti-plus"></i> Buat Kuis Sekarang
-                            </a>
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap purple">
+                                    <i class="ti ti-help-hexagon"></i>
+                                </div>
+                                <div class="md-empty-title">Belum Ada Kuis Ujian</div>
+                                <div class="md-empty-desc">
+                                    @if(request('search') || request('subject_id') || request('class_id'))
+                                        Tidak ada kuis yang cocok dengan filter pencarian Anda.
+                                    @else
+                                        Buat paket soal kuis pilihan ganda, benar-salah, atau menjodohkan dengan batasan waktu ujian otomatis.
+                                    @endif
+                                </div>
+                                <div class="md-empty-action">
+                                    @if(request('search') || request('subject_id') || request('class_id'))
+                                        <a href="{{ route('admin.quizzes.index') }}" class="md-btn-secondary me-2" style="font-size:.78rem;padding:.35rem .8rem;">
+                                            <i class="ti ti-x"></i> Reset Filter
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('admin.quizzes.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                        <i class="ti ti-plus"></i> Buat Kuis Pertama
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

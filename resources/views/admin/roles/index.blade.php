@@ -78,8 +78,20 @@
                 @empty
                     <tr>
                         <td colspan="4" class="md-empty-row">
-                            <i class="ti ti-shield-off"></i>
-                            Belum ada role terdaftar.
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap rose">
+                                    <i class="ti ti-shield-off"></i>
+                                </div>
+                                <div class="md-empty-title">Belum Ada Peran Pengguna</div>
+                                <div class="md-empty-desc">
+                                    Kelola hak akses sistem melalui pengelompokan peran (*Role*) seperti Guru atau Siswa.
+                                </div>
+                                <div class="md-empty-action">
+                                    <a href="{{ route('admin.roles.create') }}" class="md-btn-primary" style="font-size:.78rem;padding:.35rem .85rem;">
+                                        <i class="ti ti-plus"></i> Tambah Role Baru
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

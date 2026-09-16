@@ -138,12 +138,59 @@ table.md-table tbody td.md-td-action { text-align: center !important; padding: .
     width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center; font-size: .82rem;
 }
+/* ── EMPTY STATE ── */
 .md-empty-row {
-    text-align: center; padding: 2.5rem 1rem !important;
-    color: var(--tblr-text-muted, #64748b); font-size: .82rem;
-    display: flex; flex-direction: column; align-items: center; gap: .4rem;
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 3.5rem 1.5rem !important;
+    background: transparent !important;
 }
-.md-empty-row i { font-size: 1.5rem; opacity: .4; }
+.md-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 440px;
+    margin: 0 auto;
+    text-align: center;
+}
+.md-empty-icon-wrap {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.85rem;
+    margin-bottom: 0.85rem;
+    transition: transform .2s ease;
+}
+.md-empty-icon-wrap.blue   { background: rgba(32, 107, 196, 0.08); color: #206bc4; border: 1px solid rgba(32, 107, 196, 0.15); }
+.md-empty-icon-wrap.teal   { background: rgba(12, 166, 120, 0.08); color: #0ca678; border: 1px solid rgba(12, 166, 120, 0.15); }
+.md-empty-icon-wrap.amber  { background: rgba(245, 158, 11, 0.08); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.15); }
+.md-empty-icon-wrap.purple { background: rgba(139, 92, 246, 0.08); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.15); }
+.md-empty-icon-wrap.rose   { background: rgba(239, 68, 68, 0.08);  color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
+.md-empty-icon-wrap.muted  { background: rgba(100, 116, 139, 0.08);color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
+
+.md-empty-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--tblr-heading-color, #1e293b);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.2px;
+}
+.md-empty-desc {
+    font-size: 0.83rem;
+    color: var(--tblr-text-muted, #64748b);
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+}
+.md-empty-desc:last-child {
+    margin-bottom: 0;
+}
+.md-empty-action {
+    margin-top: 0.4rem;
+}
 
 /* ── BADGES ── */
 .md-badge {

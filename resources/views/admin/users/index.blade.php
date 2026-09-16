@@ -88,8 +88,26 @@
                 @empty
                     <tr>
                         <td colspan="6" class="md-empty-row">
-                            <i class="ti ti-users-off"></i>
-                            Tidak ada pengguna ditemukan.
+                            <div class="md-empty-state">
+                                <div class="md-empty-icon-wrap blue">
+                                    <i class="ti ti-users-off"></i>
+                                </div>
+                                <div class="md-empty-title">Tidak Ada Pengguna Ditemukan</div>
+                                <div class="md-empty-desc">
+                                    @if(request('search') || request('role_id'))
+                                        Tidak ada data akun pengguna yang cocok dengan kriteria pencarian atau filter yang dipilih.
+                                    @else
+                                        Belum ada data pengguna yang terdaftar di dalam sistem LMS.
+                                    @endif
+                                </div>
+                                @if(request('search') || request('role_id'))
+                                    <div class="md-empty-action">
+                                        <a href="{{ route('admin.users.index') }}" class="md-btn-secondary" style="font-size:.78rem;padding:.35rem .8rem;">
+                                            <i class="ti ti-x"></i> Reset Filter
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforelse

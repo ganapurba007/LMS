@@ -238,11 +238,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="7" class="md-empty-row">
                                     <div class="md-empty-state">
-                                        <i class="ti ti-users-minus md-empty-icon"></i>
-                                        <div class="md-empty-title">Belum Ada Siswa</div>
-                                        <div class="md-empty-desc">Belum ada siswa terdaftar di kelas {{ $quiz->schoolClass->name ?? '' }}.</div>
+                                        <div class="md-empty-icon-wrap purple">
+                                            <i class="ti ti-users-minus"></i>
+                                        </div>
+                                        <div class="md-empty-title">Belum Ada Siswa Terdaftar</div>
+                                        <div class="md-empty-desc">Belum ada siswa yang terdaftar pada kelas <strong>{{ $quiz->schoolClass->name ?? 'ini' }}</strong>.</div>
                                     </div>
                                 </td>
                             </tr>
