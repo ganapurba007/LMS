@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\MaterialDiscussion;
 use App\Models\MaterialProgress;
 use App\Models\Notification;
+use App\Models\Role;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\User;
@@ -28,11 +29,17 @@ class MaterialController extends Controller
         $subjectId = $request->query('subject_id');
         $classId = $request->query('class_id');
 
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        $hasSubjectRestriction = $userSubjects->isNotEmpty();
+
         $query = Material::with(['subject', 'schoolClass', 'instructor'])
             ->withCount('discussions');
 
-        if ($user->subjects()->exists()) {
-            $allowedSubjectIds = $user->subjects()->pluck('subjects.id');
+        if ($hasSubjectRestriction) {
+            $allowedSubjectIds = $userSubjects->pluck('id');
             $query->whereIn('subject_id', $allowedSubjectIds);
         }
 
@@ -51,7 +58,7 @@ class MaterialController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $subjects = $hasSubjectRestriction ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.materials.index', compact('materials', 'subjects', 'classes', 'search', 'subjectId', 'classId'));
@@ -60,19 +67,40 @@ class MaterialController extends Controller
     public function show(Material $material): View
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $material->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke materi ini.');
         }
 
+        // Load relations without nested .role — roles are assigned below via setRelation()
         $material->load([
             'subject',
             'schoolClass',
             'instructor',
-            'discussions',
             'rootDiscussions' => function ($q) {
-                $q->with(['user.role', 'replies.user.role'])->latest();
+                $q->with(['user', 'replies.user'])->latest();
             },
         ]);
+        $material->loadCount('discussions');
+
+        // Preload ALL roles once (roles table is tiny) and distribute to every
+        // discussion user via setRelation() — eliminates duplicate role queries.
+        $rolesMap = Role::all()->keyBy('id');
+
+        $material->rootDiscussions->each(function ($disc) use ($rolesMap) {
+            if ($disc->user) {
+                $disc->user->setRelation('role', $rolesMap->get($disc->user->role_id));
+            }
+            $disc->replies->each(function ($reply) use ($rolesMap) {
+                if ($reply->user) {
+                    $reply->user->setRelation('role', $rolesMap->get($reply->user->role_id));
+                }
+            });
+        });
 
         $totalStudents = User::where('class_id', $material->class_id)
             ->whereHas('role', function ($q) {
@@ -89,7 +117,8 @@ class MaterialController extends Controller
     public function create(): View
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $userSubjects = $user ? $user->subjects : collect();
+        $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.materials.create', compact('subjects', 'classes'));
@@ -166,11 +195,16 @@ class MaterialController extends Controller
     public function edit(Material $material): View
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $material->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke materi ini.');
         }
 
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.materials.edit', compact('material', 'subjects', 'classes'));

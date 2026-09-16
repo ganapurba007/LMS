@@ -34,10 +34,7 @@
                 <i class="ti ti-clipboard-list"></i>
             </div>
             <div class="d-flex justify-content-between align-items-center flex-grow-1">
-                <h6 class="md-form-head-title mb-0">Informasi Tugas ID #{{ $assignment->id }}</h6>
-                <span class="md-badge teal">
-                    <i class="ti ti-users"></i> {{ $assignment->submissions->count() }} Pengumpulan
-                </span>
+                <h6 class="md-form-head-title mb-0">Informasi Tugas</h6>
             </div>
         </div>
 

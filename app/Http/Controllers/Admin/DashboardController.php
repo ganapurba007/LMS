@@ -19,37 +19,45 @@ class DashboardController extends Controller
     /**
      * Display the Admin / Guru dashboard with comprehensive statistics,
      * recent activity, and latest comments from the material discussion forum.
+     *
+     * Subjects & classes are loaded ONCE and distributed to all collections
+     * via setRelation() to eliminate duplicate queries.
      */
     public function index()
     {
         $user = Auth::user();
-        $isRestrictedGuru = $user->subjects()->exists();
-        $assignedSubjectIds = $isRestrictedGuru ? $user->subjects->pluck('id') : collect();
+        if ($user) {
+            $user->loadMissing('role');
+        }
 
-        // 1. Core Summary Metrics
-        $totalClasses = SchoolClass::count();
-        $totalStudents = User::whereHas('role', fn($q) => $q->where('name', 'siswa'))->count();
-        $totalTeachers = User::whereHas('role', fn($q) => $q->where('name', 'guru'))->count();
-        $totalSubjects = $isRestrictedGuru ? $user->subjects()->count() : Subject::count();
+        // 1. User subjects & restriction status (Single Query)
+        $mySubjects = $user ? $user->subjects()->withCount('materials')->get() : collect();
+        $isRestrictedGuru = $mySubjects->isNotEmpty();
+        $assignedSubjectIds = $isRestrictedGuru ? $mySubjects->pluck('id') : collect();
 
-        // 2. Materials
-        $materialQuery = Material::query();
+        // 2. Core Summary Metrics
+        $totalClasses   = SchoolClass::count();
+        $totalStudents  = User::whereHas('role', fn($q) => $q->where('name', 'siswa'))->count();
+        $totalTeachers  = User::whereHas('role', fn($q) => $q->where('name', 'guru'))->count();
+        $totalSubjects  = $isRestrictedGuru ? $mySubjects->count() : Subject::count();
+
+        // 3. Materials (no subject/class eager load here — handled below)
+        $materialBaseQuery = Material::query();
         if ($isRestrictedGuru) {
-            $materialQuery->where(function ($q) use ($assignedSubjectIds, $user) {
+            $materialBaseQuery->where(function ($q) use ($assignedSubjectIds, $user) {
                 $q->whereIn('subject_id', $assignedSubjectIds)
                   ->orWhere('instructor_id', $user->id);
             });
         }
-        $totalMaterials = (clone $materialQuery)->count();
-        $recentMaterials = (clone $materialQuery)
-            ->with(['subject', 'schoolClass', 'instructor'])
+        $totalMaterials  = (clone $materialBaseQuery)->count();
+        $recentMaterials = (clone $materialBaseQuery)
             ->withCount('discussions')
             ->latest()
             ->take(5)
             ->get();
 
-        // 3. Submissions needing grading
-        $submissionQuery = AssignmentSubmission::with(['assignment.subject', 'assignment.schoolClass', 'student.schoolClass'])
+        // 4. Submissions needing grading (no nested subject/class eager load here)
+        $submissionBaseQuery = AssignmentSubmission::query()
             ->whereHas('assignment', function ($query) use ($isRestrictedGuru, $assignedSubjectIds, $user) {
                 if ($isRestrictedGuru) {
                     $query->where(function ($q) use ($assignedSubjectIds, $user) {
@@ -61,15 +69,16 @@ class DashboardController extends Controller
                 }
             });
 
-        $ungradedSubmissions = (clone $submissionQuery)->whereNull('grade')->count();
-        $recentUngradedSubmissions = (clone $submissionQuery)
+        $ungradedSubmissions        = (clone $submissionBaseQuery)->whereNull('grade')->count();
+        $recentUngradedSubmissions  = (clone $submissionBaseQuery)
             ->whereNull('grade')
+            ->with(['assignment', 'student'])   // only base relations; subject/class set below
             ->latest()
             ->take(5)
             ->get();
 
-        // 4. Quizzes
-        $quizQuery = Quiz::with(['subject', 'schoolClass'])
+        // 5. Quizzes (no schoolClass eager load here — handled below)
+        $quizBaseQuery = Quiz::query()
             ->where(function ($query) use ($isRestrictedGuru, $assignedSubjectIds, $user) {
                 if ($isRestrictedGuru) {
                     $query->whereIn('subject_id', $assignedSubjectIds)
@@ -79,65 +88,111 @@ class DashboardController extends Controller
                 }
             });
 
-        $activeQuizzes = (clone $quizQuery)
+        $activeQuizzes = (clone $quizBaseQuery)
             ->where(function ($query) {
                 $query->whereNull('deadline')
                       ->orWhere('deadline', '>=', now());
             })->count();
 
-        $recentQuizzes = (clone $quizQuery)
+        $recentQuizzes = (clone $quizBaseQuery)
             ->withCount(['questions', 'attempts'])
             ->latest()
             ->take(5)
             ->get();
 
-        // 5. Active Assignments
-        $assignmentQuery = Assignment::where(function ($query) use ($isRestrictedGuru, $assignedSubjectIds, $user) {
-            if ($isRestrictedGuru) {
-                $query->whereIn('subject_id', $assignedSubjectIds)
-                      ->orWhere('instructor_id', $user->id);
-            } else {
-                $query->where('instructor_id', $user->id);
-            }
-        });
+        // 6. Active Assignments (no subject/class eager load here — handled below)
+        $assignmentBaseQuery = Assignment::query()
+            ->where(function ($query) use ($isRestrictedGuru, $assignedSubjectIds, $user) {
+                if ($isRestrictedGuru) {
+                    $query->whereIn('subject_id', $assignedSubjectIds)
+                          ->orWhere('instructor_id', $user->id);
+                } else {
+                    $query->where('instructor_id', $user->id);
+                }
+            });
 
-        $activeAssignments = (clone $assignmentQuery)
+        $activeAssignments = (clone $assignmentBaseQuery)
             ->where(function ($query) {
                 $query->whereNull('due_date')
                       ->orWhere('due_date', '>=', now());
             })->count();
 
-        $recentAssignments = (clone $assignmentQuery)
-            ->with(['subject', 'schoolClass'])
+        $recentAssignments = (clone $assignmentBaseQuery)
             ->withCount('submissions')
             ->latest()
             ->take(5)
             ->get();
 
-        // 6. Latest Discussion Comments (Ruang Diskusi Materi) - 5 Komentar Terakhir (dari Siswa)
-        $discussionQuery = MaterialDiscussion::with([
-            'user.role',
-            'material.subject',
-            'material.schoolClass',
-            'parent.user'
-        ]);
-
+        // 7. Latest Discussion Comments (Ruang Diskusi Materi)
+        $discussionBaseQuery = MaterialDiscussion::query();
         if ($isRestrictedGuru) {
-            $discussionQuery->whereHas('material', function ($q) use ($assignedSubjectIds, $user) {
+            $discussionBaseQuery->whereHas('material', function ($q) use ($assignedSubjectIds, $user) {
                 $q->whereIn('subject_id', $assignedSubjectIds)
                   ->orWhere('instructor_id', $user->id);
             });
         }
-
-        $totalDiscussions = (clone $discussionQuery)->count();
-        $recentDiscussions = (clone $discussionQuery)
+        $totalDiscussions  = (clone $discussionBaseQuery)->count();
+        $recentDiscussions = (clone $discussionBaseQuery)
             ->whereHas('user.role', fn($q) => $q->where('name', 'siswa'))
+            ->with(['user', 'material'])
             ->latest()
             ->take(5)
             ->get();
 
-        // 7. Assigned subjects for teacher overview
-        $mySubjects = $user->subjects()->withCount('materials')->get();
+        // ─────────────────────────────────────────────────────────────────
+        // DEDUPLICATION: Collect all unique IDs across every collection,
+        // then load Subject & SchoolClass exactly ONCE each, and distribute
+        // via setRelation() — eliminating all duplicate queries.
+        // ─────────────────────────────────────────────────────────────────
+
+        $allSubjectIds = collect()
+            ->merge($recentMaterials->pluck('subject_id'))
+            ->merge($recentAssignments->pluck('subject_id'))
+            ->merge($recentUngradedSubmissions->map(fn($s) => optional($s->assignment)->subject_id))
+            ->filter()->unique()->values();
+
+        $allClassIds = collect()
+            ->merge($recentMaterials->pluck('class_id'))
+            ->merge($recentAssignments->pluck('class_id'))
+            ->merge($recentQuizzes->pluck('class_id'))
+            ->merge($recentUngradedSubmissions->map(fn($s) => optional($s->student)->class_id))
+            ->filter()->unique()->values();
+
+        // Single query each — no more duplicates
+        $subjectsMap = $allSubjectIds->isNotEmpty()
+            ? Subject::whereIn('id', $allSubjectIds)->get()->keyBy('id')
+            : collect();
+
+        $classesMap = $allClassIds->isNotEmpty()
+            ? SchoolClass::whereIn('id', $allClassIds)->get()->keyBy('id')
+            : collect();
+
+        // Assign to recentMaterials
+        $recentMaterials->each(function ($mat) use ($subjectsMap, $classesMap) {
+            $mat->setRelation('subject', $subjectsMap->get($mat->subject_id));
+            $mat->setRelation('schoolClass', $classesMap->get($mat->class_id));
+        });
+
+        // Assign to recentAssignments
+        $recentAssignments->each(function ($a) use ($subjectsMap, $classesMap) {
+            $a->setRelation('subject', $subjectsMap->get($a->subject_id));
+            $a->setRelation('schoolClass', $classesMap->get($a->class_id));
+        });
+
+        // Assign to recentQuizzes
+        $recentQuizzes->each(function ($q) use ($classesMap) {
+            $q->setRelation('schoolClass', $classesMap->get($q->class_id));
+        });
+
+        // Assign nested relations on recentUngradedSubmissions
+        $recentUngradedSubmissions->each(function ($sub) use ($subjectsMap, $classesMap) {
+            if ($sub->assignment) {
+                $sub->assignment->setRelation('subject', $subjectsMap->get($sub->assignment->subject_id));
+            }
+            if ($sub->student) {
+                $sub->student->setRelation('schoolClass', $classesMap->get($sub->student->class_id));
+            }
+        });
 
         return view('admin.dashboard', compact(
             'totalClasses',

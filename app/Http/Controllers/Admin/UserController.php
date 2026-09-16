@@ -8,6 +8,8 @@ use App\Models\SchoolClass;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -61,5 +63,36 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Data user berhasil diperbarui.');
+    }
+
+    public function resetPassword(Request $request, User $user): RedirectResponse|\Illuminate\Http\JsonResponse
+    {
+        $firstName = preg_replace('/[^a-zA-Z0-9]/', '', explode(' ', trim($user->name))[0] ?? '');
+        $namePrefix = !empty($firstName) ? Str::ucfirst(Str::lower($firstName)) : 'User';
+
+        $nipDigits = $user->nip ? preg_replace('/[^0-9]/', '', $user->nip) : '';
+        $nipSuffix = !empty($nipDigits) ? substr($nipDigits, -4) : (string) random_int(1000, 9999);
+
+        $randomChars = Str::lower(Str::random(4));
+
+        $newPassword = $namePrefix . $nipSuffix . '@' . $randomChars;
+
+        $user->forceFill([
+            'password' => $newPassword,
+        ])->save();
+
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password untuk ' . $user->name . ' berhasil direset.',
+                'user_name' => $user->name,
+                'new_password' => $newPassword,
+            ]);
+        }
+
+        return redirect()->back(fallback: route('admin.users.index'))
+            ->with('success', 'Password untuk ' . $user->name . ' berhasil direset menjadi: ' . $newPassword)
+            ->with('reset_user_name', $user->name)
+            ->with('reset_new_password', $newPassword);
     }
 }

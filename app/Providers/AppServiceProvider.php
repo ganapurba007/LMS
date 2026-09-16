@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,5 +22,22 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Carbon\Carbon::setLocale('id');
+
+        ResetPassword::toMailUsing(function ($notifiable, $token) {
+            $url = route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ]);
+
+            $expire = config('auth.passwords.' . config('auth.defaults.passwords') . '.expire', 60);
+
+            return (new MailMessage)
+                ->subject('Permintaan Reset Kata Sandi — ' . config('app.name', 'RuangTerra'))
+                ->view('emails.reset-password', [
+                    'user' => $notifiable,
+                    'url' => $url,
+                    'count' => $expire,
+                ]);
+        });
     }
 }

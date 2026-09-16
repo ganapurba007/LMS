@@ -88,4 +88,50 @@ class UserCrudTest extends TestCase
 
         $response->assertRedirect('/dashboard');
     }
+
+    public function test_guru_can_reset_user_password_with_generated_password(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+        $siswa = User::where('email', 'siswa1@lms.com')->first();
+        $oldPasswordHash = $siswa->password;
+
+        $response = $this->actingAs($guru)->post("/admin/users/{$siswa->id}/reset-password");
+
+        $response->assertRedirect();
+        $response->assertSessionHas('reset_new_password');
+        $newPassword = session('reset_new_password');
+        $this->assertNotEmpty($newPassword);
+
+        $siswa->refresh();
+        $this->assertNotEquals($oldPasswordHash, $siswa->password);
+
+        // Verify that the user can actually authenticate with the new password
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($newPassword, $siswa->password));
+        $this->assertTrue(\Illuminate\Support\Facades\Auth::attempt([
+            'email' => $siswa->email,
+            'password' => $newPassword,
+        ]));
+    }
+
+    public function test_guru_can_reset_user_password_via_json_request(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+        $siswa = User::where('email', 'siswa2@lms.com')->first();
+
+        $response = $this->actingAs($guru)->postJson("/admin/users/{$siswa->id}/reset-password");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'user_name',
+            'new_password',
+        ]);
+
+        $newPassword = $response->json('new_password');
+        $this->assertNotEmpty($newPassword);
+
+        $siswa->refresh();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($newPassword, $siswa->password));
+    }
 }

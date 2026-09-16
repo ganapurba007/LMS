@@ -23,6 +23,11 @@ class ReportController extends Controller
     public function index(): View|RedirectResponse
     {
         $user = Auth::user();
+        $userClass = null;
+        if ($user) {
+            $user->loadMissing('schoolClass');
+            $userClass = $user->schoolClass;
+        }
 
         // Validasi akses khusus siswa
         if ($user->isGuru()) {
@@ -39,19 +44,37 @@ class ReportController extends Controller
         $materialProgressPercent = $totalMaterials > 0 ? round(($completedMaterials / $totalMaterials) * 100, 1) : 0;
 
         // 2. Rekapitulasi Tugas Siswa
-        $submissions = AssignmentSubmission::with(['assignment.subject', 'assignment.schoolClass'])
+        $submissions = AssignmentSubmission::with('assignment.subject')
             ->where('student_id', $user->id)
             ->latest('submitted_at')
             ->get();
+
+        if ($userClass) {
+            $submissions->each(function ($sub) use ($userClass) {
+                if ($sub->assignment && $sub->assignment->class_id === $userClass->id) {
+                    $sub->assignment->setRelation('schoolClass', $userClass);
+                }
+            });
+        }
+
         $gradedSubmissions = $submissions->whereNotNull('grade');
         $avgAssignmentScore = $gradedSubmissions->count() > 0 ? round($gradedSubmissions->avg('grade'), 1) : 0;
 
         // 3. Rekapitulasi Kuis & Ujian
-        $quizAttempts = QuizAttempt::with(['quiz.subject', 'quiz.schoolClass'])
+        $quizAttempts = QuizAttempt::with('quiz.subject')
             ->where('student_id', $user->id)
             ->whereNotNull('submitted_at')
             ->latest('submitted_at')
             ->get();
+
+        if ($userClass) {
+            $quizAttempts->each(function ($att) use ($userClass) {
+                if ($att->quiz && $att->quiz->class_id === $userClass->id) {
+                    $att->quiz->setRelation('schoolClass', $userClass);
+                }
+            });
+        }
+
         $avgQuizScore = $quizAttempts->count() > 0 ? round($quizAttempts->avg('score'), 1) : 0;
 
         // 4. Indeks Prestasi Gabungan (Overall Score)
@@ -89,17 +112,23 @@ class ReportController extends Controller
             ->orderBy('name')
             ->get();
 
+        $materialsCountMap = Material::when($classId, fn($q) => $q->where('class_id', $classId))
+            ->selectRaw('subject_id, COUNT(*) as aggregate')
+            ->groupBy('subject_id')
+            ->pluck('aggregate', 'subject_id');
+
+        $completedMaterialsCountMap = MaterialProgress::where('user_id', $user->id)
+            ->where('is_completed', true)
+            ->whereHas('material', fn($q) => $q->when($classId, fn($sq) => $sq->where('class_id', $classId)))
+            ->join('materials', 'material_progress.material_id', '=', 'materials.id')
+            ->selectRaw('materials.subject_id, COUNT(*) as aggregate')
+            ->groupBy('materials.subject_id')
+            ->pluck('aggregate', 'materials.subject_id');
+
         $subjectBreakdown = [];
         foreach ($subjects as $subject) {
-            $subMaterialsTotal = Material::when($classId, fn($q) => $q->where('class_id', $classId))
-                ->where('subject_id', $subject->id)
-                ->count();
-            
-            $subMaterialsCompleted = MaterialProgress::where('user_id', $user->id)
-                ->where('is_completed', true)
-                ->whereHas('material', fn($q) => $q->where('subject_id', $subject->id))
-                ->count();
-            
+            $subMaterialsTotal = $materialsCountMap->get($subject->id, 0);
+            $subMaterialsCompleted = $completedMaterialsCountMap->get($subject->id, 0);
             $subMatProgress = $subMaterialsTotal > 0 ? round(($subMaterialsCompleted / $subMaterialsTotal) * 100) : 0;
 
             $subAssignments = $submissions->filter(fn($s) => $s->assignment && $s->assignment->subject_id === $subject->id && !is_null($s->grade));

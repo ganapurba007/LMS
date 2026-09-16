@@ -70,4 +70,48 @@ class PasswordResetTest extends TestCase
             return true;
         });
     }
+
+    public function test_password_reset_fails_with_invalid_token_and_displays_indonesian_error(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post('/reset-password', [
+            'token' => 'invalid-token-12345',
+            'email' => $user->email,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertSessionHasErrors(['email']);
+        $this->assertEquals(
+            'Tautan atau token reset kata sandi ini sudah tidak valid atau sudah kedaluwarsa. Silakan ajukan permintaan tautan reset baru.',
+            session('errors')->first('email')
+        );
+    }
+
+    public function test_guru_is_redirected_to_admin_login_after_password_reset(): void
+    {
+        Notification::fake();
+
+        $roleGuru = \App\Models\Role::firstOrCreate(['name' => 'guru'], ['display_name' => 'Guru']);
+        $guru = User::factory()->create(['role_id' => $roleGuru->id]);
+
+        $this->post('/forgot-password', ['email' => $guru->email]);
+
+        Notification::assertSentTo($guru, ResetPassword::class, function ($notification) use ($guru) {
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $guru->email,
+                'password' => 'newsecret123',
+                'password_confirmation' => 'newsecret123',
+            ]);
+
+            $response
+                ->assertSessionHasNoErrors()
+                ->assertRedirect(route('admin.login'))
+                ->assertSessionHas('status', 'Kata sandi Anda berhasil diperbarui! Silakan masuk menggunakan kata sandi baru Anda.');
+
+            return true;
+        });
+    }
 }

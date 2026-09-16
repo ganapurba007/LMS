@@ -36,116 +36,97 @@ class Notification extends Model
      */
     public function getResolvedUrlAttribute(): string
     {
-        $user = $this->user ?? auth()->user();
+        $url = $this->related_url;
+        if (empty($url)) {
+            $user = auth()->user();
+            return ($user && $user->isGuru()) ? route('admin.dashboard') : route('dashboard');
+        }
 
-        // 1. Tangani notifikasi tugas siswa
+        $parsed = parse_url($url);
+        $path = $parsed['path'] ?? '';
+
+        // If path contains specific ID (e.g. /student/assignments/1 or /student/materials/1 or /student/quizzes/4)
+        if (preg_match('#/(student|admin)/[a-z]+/\d+#i', $path, $matches)) {
+            $cleanPath = ltrim($matches[0], '/');
+            $fullUrl = url($cleanPath);
+            if (isset($parsed['query'])) {
+                $fullUrl .= '?' . $parsed['query'];
+            }
+            if (isset($parsed['fragment'])) {
+                $fullUrl .= '#' . $parsed['fragment'];
+            }
+            return $fullUrl;
+        }
+
+        // Fast fallback resolution if URL is generic (e.g. /student/assignments)
+        $user = auth()->user();
+
         if ($this->type === 'new_assignment' && $user && $user->isSiswa()) {
-            if ($this->related_url && preg_match('#/assignments/(\d+)#', $this->related_url, $matches)) {
-                $assignment = Assignment::where('id', $matches[1])
-                    ->where('class_id', $user->class_id)
-                    ->first();
-                if ($assignment) {
-                    return route('student.assignments.show', $assignment);
-                }
+            if (preg_match('#/assignments/(\d+)#', $url, $m)) {
+                return route('student.assignments.show', $m[1]);
             }
-
-            $latestAssignment = Assignment::where('class_id', $user->class_id)->latest()->first();
-            if ($latestAssignment) {
-                return route('student.assignments.show', $latestAssignment);
+            $latestId = Assignment::where('class_id', $user->class_id)->latest('id')->value('id');
+            if ($latestId) {
+                return route('student.assignments.show', $latestId);
             }
-
             return route('student.assignments.index');
         }
 
-        // 2. Tangani notifikasi materi siswa
         if ($this->type === 'new_material' && $user && $user->isSiswa()) {
-            if ($this->related_url && preg_match('#/materials/(\d+)#', $this->related_url, $matches)) {
-                $material = Material::where('id', $matches[1])
-                    ->where('class_id', $user->class_id)
-                    ->first();
-                if ($material) {
-                    return route('student.materials.show', $material);
-                }
+            if (preg_match('#/materials/(\d+)#', $url, $m)) {
+                return route('student.materials.show', $m[1]);
             }
-
-            $latestMaterial = Material::where('class_id', $user->class_id)->latest()->first();
-            if ($latestMaterial) {
-                return route('student.materials.show', $latestMaterial);
+            $latestId = Material::where('class_id', $user->class_id)->latest('id')->value('id');
+            if ($latestId) {
+                return route('student.materials.show', $latestId);
             }
-
             return route('student.materials.index');
         }
 
-        // 3. Tangani notifikasi kuis siswa
         if ($this->type === 'new_quiz' && $user && $user->isSiswa()) {
-            if ($this->related_url && preg_match('#/quizzes/(\d+)#', $this->related_url, $matches)) {
-                $quiz = Quiz::where('id', $matches[1])
-                    ->where('class_id', $user->class_id)
-                    ->first();
-                if ($quiz) {
-                    return route('student.quizzes.show', $quiz);
-                }
+            if (preg_match('#/quizzes/(\d+)#', $url, $m)) {
+                return route('student.quizzes.show', $m[1]);
             }
-
-            $latestQuiz = Quiz::where('class_id', $user->class_id)->latest()->first();
-            if ($latestQuiz) {
-                return route('student.quizzes.show', $latestQuiz);
+            $latestId = Quiz::where('class_id', $user->class_id)->latest('id')->value('id');
+            if ($latestId) {
+                return route('student.quizzes.show', $latestId);
             }
-
             return route('student.quizzes.index');
         }
 
-        // 4. Tangani notifikasi diskusi / komentar materi
         if ($this->type === 'comment') {
             $fragment = '#discussion-list';
-            if ($this->related_url && preg_match('/(#discussion-[a-zA-Z0-9_-]+)/', $this->related_url, $fragMatches)) {
+            if (preg_match('/(#discussion-[a-zA-Z0-9_-]+)/', $url, $fragMatches)) {
                 $fragment = $fragMatches[1];
             }
-
-            if ($this->related_url && preg_match('#/materials/(\d+)#', $this->related_url, $matches)) {
-                $material = Material::where('id', $matches[1])->first();
-                if ($material) {
-                    return route('student.materials.show', $material) . $fragment;
-                }
+            if (preg_match('#/materials/(\d+)#', $url, $m)) {
+                return route('student.materials.show', $m[1]) . $fragment;
             }
-
-            $latestMaterial = ($user && $user->isSiswa())
-                ? Material::where('class_id', $user->class_id)->latest()->first()
-                : Material::latest()->first();
-
-            if ($latestMaterial) {
-                return route('student.materials.show', $latestMaterial) . $fragment;
+            $latestId = ($user && $user->isSiswa())
+                ? Material::where('class_id', $user->class_id)->latest('id')->value('id')
+                : Material::latest('id')->value('id');
+            if ($latestId) {
+                return route('student.materials.show', $latestId) . $fragment;
             }
-
             return route('student.materials.index');
         }
 
-        // 4. Tangani URL umum dengan menyesuaikan host aplikasi saat ini
-        if ($this->related_url) {
-            $parsed = parse_url($this->related_url);
-            if (isset($parsed['path'])) {
-                $path = $parsed['path'];
-                if (preg_match('#/(student|admin)/.*#', $path, $matches)) {
-                    $cleanPath = ltrim($matches[0], '/');
-                    $url = url($cleanPath);
-                    if (isset($parsed['query'])) {
-                        $url .= '?' . $parsed['query'];
-                    }
-                    return $url;
-                }
+        if (preg_match('#/(student|admin)/.*#', $path, $matches)) {
+            $cleanPath = ltrim($matches[0], '/');
+            $fullUrl = url($cleanPath);
+            if (isset($parsed['query'])) {
+                $fullUrl .= '?' . $parsed['query'];
             }
-
-            if (str_starts_with($this->related_url, '/')) {
-                return url(ltrim($this->related_url, '/'));
+            if (isset($parsed['fragment'])) {
+                $fullUrl .= '#' . $parsed['fragment'];
             }
-
-            if (!str_starts_with($this->related_url, 'http://') && !str_starts_with($this->related_url, 'https://')) {
-                return url($this->related_url);
-            }
-
-            return $this->related_url;
+            return $fullUrl;
         }
 
-        return $user && $user->isGuru() ? route('admin.dashboard') : route('dashboard');
+        if (str_starts_with($url, '/')) {
+            return url(ltrim($url, '/'));
+        }
+
+        return $url;
     }
 }

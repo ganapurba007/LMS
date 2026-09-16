@@ -14,30 +14,31 @@ class QuizController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $userClass = null;
+        if ($user) {
+            $user->loadMissing('schoolClass');
+            $userClass = $user->schoolClass;
+        }
+
+        // Load all attempts for the current user once to eliminate duplicate queries
+        $userAttemptsMap = QuizAttempt::where('student_id', $user->id)
+            ->get()
+            ->keyBy('quiz_id');
 
         if ($user->isGuru()) {
-            $query = Quiz::with(['subject', 'instructor', 'questions.options', 'attempts' => function ($q) use ($user) {
-                $q->where('student_id', $user->id);
-            }])
-            ->where('instructor_id', $user->id);
-
-            $allClassQuizzes = Quiz::where('instructor_id', $user->id)
-                ->with(['attempts' => function ($q) use ($user) {
-                    $q->where('student_id', $user->id);
-                }])
-                ->get();
+            $baseQuery = Quiz::where('instructor_id', $user->id);
         } else {
-            $query = Quiz::with(['subject', 'instructor', 'questions.options', 'attempts' => function ($q) use ($user) {
-                $q->where('student_id', $user->id);
-            }])
-            ->where('class_id', $user->class_id);
-
-            $allClassQuizzes = Quiz::where('class_id', $user->class_id)
-                ->with(['attempts' => function ($q) use ($user) {
-                    $q->where('student_id', $user->id);
-                }])
-                ->get();
+            $baseQuery = Quiz::where('class_id', $user->class_id);
         }
+
+        $allClassQuizzes = (clone $baseQuery)->with(['subject', 'instructor', 'questions.options'])->get();
+        $allClassQuizzes->each(function ($q) use ($userAttemptsMap, $userClass) {
+            $att = $userAttemptsMap->get($q->id);
+            $q->setRelation('attempts', $att ? collect([$att]) : collect());
+            if ($userClass && $q->class_id === $userClass->id) {
+                $q->setRelation('schoolClass', $userClass);
+            }
+        });
 
         $totalQuizzes = $allClassQuizzes->count();
         $completedCount = 0;
@@ -61,6 +62,8 @@ class QuizController extends Controller
             }
         }
 
+        $query = (clone $baseQuery)->with(['subject', 'instructor', 'questions.options']);
+
         // Filter status
         if ($request->input('status') === 'completed') {
             $query->whereIn('id', $completedQuizIds);
@@ -71,6 +74,13 @@ class QuizController extends Controller
         }
 
         $quizzes = $query->latest()->paginate(12)->withQueryString();
+        $quizzes->each(function ($q) use ($userAttemptsMap, $userClass) {
+            $att = $userAttemptsMap->get($q->id);
+            $q->setRelation('attempts', $att ? collect([$att]) : collect());
+            if ($userClass && $q->class_id === $userClass->id) {
+                $q->setRelation('schoolClass', $userClass);
+            }
+        });
 
         $progressPercent = $totalQuizzes > 0 ? round(($completedCount / $totalQuizzes) * 100) : 0;
 
@@ -93,6 +103,11 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         $user = Auth::user();
+        $userClass = null;
+        if ($user) {
+            $user->loadMissing('schoolClass');
+            $userClass = $user->schoolClass;
+        }
         if ($user->isGuru() && $quiz->instructor_id !== $user->id) {
             abort(403, 'Kuis ini bukan milik Anda.');
         }
@@ -101,6 +116,11 @@ class QuizController extends Controller
         }
 
         $quiz->load(['subject', 'instructor', 'questions.options']);
+        if ($userClass && $quiz->class_id === $userClass->id) {
+            $quiz->setRelation('schoolClass', $userClass);
+        } else {
+            $quiz->loadMissing('schoolClass');
+        }
         $attempt = QuizAttempt::where('quiz_id', $quiz->id)
             ->where('student_id', $user->id)
             ->first();
@@ -168,12 +188,24 @@ class QuizController extends Controller
     public function attempt(Quiz $quiz)
     {
         $user = Auth::user();
+        $userClass = null;
+        if ($user) {
+            $user->loadMissing('schoolClass');
+            $userClass = $user->schoolClass;
+        }
         if ($user->isGuru()) {
             return redirect()->route('student.quizzes.show', $quiz)
                 ->with('error', 'Guru tidak dapat mengikuti atau mengerjakan kuis.');
         }
         if ($user->isSiswa() && $quiz->class_id !== $user->class_id) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
+        }
+
+        $quiz->loadMissing(['subject', 'instructor']);
+        if ($userClass && $quiz->class_id === $userClass->id) {
+            $quiz->setRelation('schoolClass', $userClass);
+        } else {
+            $quiz->loadMissing('schoolClass');
         }
 
         if ($quiz->questions()->count() === 0) {
@@ -198,6 +230,7 @@ class QuizController extends Controller
             $attempt->refresh();
         }
 
+        $attempt->setRelation('quiz', $quiz);
         $orderedQuestions = $attempt->getOrderedQuestions();
         $quiz->setRelation('questions', $orderedQuestions);
 
@@ -412,6 +445,11 @@ class QuizController extends Controller
     public function result(Quiz $quiz)
     {
         $user = Auth::user();
+        $userClass = null;
+        if ($user) {
+            $user->loadMissing('schoolClass');
+            $userClass = $user->schoolClass;
+        }
         if ($user->isGuru() && $quiz->instructor_id !== $user->id) {
             abort(403, 'Kuis ini bukan milik Anda.');
         }
@@ -419,7 +457,14 @@ class QuizController extends Controller
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
-        $attempt = QuizAttempt::with(['answers.selectedOption', 'answers.quizQuestion.options'])
+        $quiz->loadMissing(['subject', 'instructor']);
+        if ($userClass && $quiz->class_id === $userClass->id) {
+            $quiz->setRelation('schoolClass', $userClass);
+        } else {
+            $quiz->loadMissing('schoolClass');
+        }
+
+        $attempt = QuizAttempt::with('answers')
             ->where('quiz_id', $quiz->id)
             ->where('student_id', $user->id)
             ->firstOrFail();
@@ -428,6 +473,7 @@ class QuizController extends Controller
             return redirect()->route('student.quizzes.attempt', $quiz);
         }
 
+        $attempt->setRelation('quiz', $quiz);
         $orderedQuestions = $attempt->getOrderedQuestions();
         $quiz->setRelation('questions', $orderedQuestions);
         $answersMap = $attempt->answers->keyBy('quiz_question_id');

@@ -65,6 +65,13 @@
     transition: all .18s ease;
 }
 .md-btn-submit:hover { background: var(--tblr-primary-hover, #1a569d); }
+.md-btn-warning {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .45rem 1.1rem; border-radius: 8px; font-size: .8rem; font-weight: 600;
+    background: #d97706; color: #fff; border: none; cursor: pointer;
+    transition: all .18s ease; white-space: nowrap; text-decoration: none;
+}
+.md-btn-warning:hover { background: #b45309; color: #fff; }
 
 /* ── FLASH ALERTS ── */
 .md-alert {
@@ -167,6 +174,8 @@ table.md-table tbody td.md-td-action { text-align: center !important; padding: .
 .md-icon-btn.red:hover   { background: #ef4444; color: #fff; border-color: #ef4444; }
 .md-icon-btn.green { color: #0ca678; border-color: rgba(12,166,120,.2);  background: rgba(12,166,120,.06); }
 .md-icon-btn.green:hover { background: #0ca678; color: #fff; border-color: #0ca678; }
+.md-icon-btn.amber { color: #d97706; border-color: rgba(245,158,11,.2);  background: rgba(245,158,11,.06); }
+.md-icon-btn.amber:hover { background: #d97706; color: #fff; border-color: #d97706; }
 
 
 /* ── MODAL ── */
@@ -175,6 +184,8 @@ table.md-table tbody td.md-td-action { text-align: center !important; padding: .
     border: 1px solid var(--tblr-border-color, #e2e8f0);
     border-radius: 14px; padding: 1.75rem 1.5rem; text-align: center;
     box-shadow: 0 20px 60px rgba(0,0,0,.12);
+    pointer-events: auto;
+    position: relative;
 }
 .md-modal-icon {
     width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 1rem;

@@ -47,9 +47,8 @@ class ReportTest extends TestCase
     {
         $response = $this->actingAs($this->guru)->get(route('admin.reports.export-csv'));
         $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
-        $this->assertStringContainsString('Nama Siswa', $response->streamedContent());
-        $this->assertStringContainsString($this->siswa->name, $response->streamedContent());
+        $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->assertStringContainsString('Rekap_Nilai_', $response->headers->get('Content-Disposition'));
     }
 
     public function test_siswa_cannot_access_reports(): void

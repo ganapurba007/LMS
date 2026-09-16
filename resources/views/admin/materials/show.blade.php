@@ -75,7 +75,7 @@
             <div>
                 <div class="text-muted" style="font-size:.72rem;font-weight:600;">Total Diskusi</div>
                 <div class="fw-bold text-info" style="font-size:1.05rem;">
-                    {{ $material->discussions->count() }} <span class="text-muted fw-normal" style="font-size:.72rem;">Pesan</span>
+                    {{ $material->discussions_count }} <span class="text-muted fw-normal" style="font-size:.72rem;">Pesan</span>
                 </div>
             </div>
         </div>
@@ -179,7 +179,7 @@
                 <div class="d-flex justify-content-between align-items-center flex-grow-1">
                     <h6 class="md-form-head-title mb-0">Ruang Diskusi &amp; Tanya Jawab Kelas</h6>
                     <span class="md-badge blue">
-                        {{ $material->discussions->count() }} Pesan
+                        {{ $material->discussions_count }} Pesan
                     </span>
                 </div>
             </div>

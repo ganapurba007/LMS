@@ -27,15 +27,26 @@ class AssignmentSubmissionController extends Controller
         $classId = $request->query('class_id');
         $status = $request->query('status'); // 'graded', 'ungraded', or null
 
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        $isRestrictedGuru = $userSubjects->isNotEmpty();
+        $allowedSubjectIds = $isRestrictedGuru ? $userSubjects->pluck('id') : collect();
+
+        $subjects = Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+
+        $subjectsMap = $subjects->keyBy('id');
+        $classesMap = $classes->keyBy('id');
+
         $query = AssignmentSubmission::with([
-            'assignment.subject',
-            'assignment.schoolClass',
+            'assignment',
             'student',
         ]);
 
         // Filter jika guru hanya mengajar mata pelajaran tertentu
-        if ($user->subjects()->exists()) {
-            $allowedSubjectIds = $user->subjects()->pluck('subjects.id');
+        if ($isRestrictedGuru) {
             $query->whereHas('assignment', function ($q) use ($allowedSubjectIds) {
                 $q->whereIn('subject_id', $allowedSubjectIds);
             });
@@ -76,13 +87,25 @@ class AssignmentSubmissionController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $submissions->each(function ($sub) use ($subjectsMap, $classesMap) {
+            if ($sub->assignment) {
+                $sub->assignment->setRelation('subject', $subjectsMap->get($sub->assignment->subject_id));
+                $sub->assignment->setRelation('schoolClass', $classesMap->get($sub->assignment->class_id));
+            }
+            if ($sub->student) {
+                $sub->student->setRelation('schoolClass', $classesMap->get($sub->student->class_id));
+            }
+        });
+
         // Data filter assignments & classes
-        $assignmentsQuery = Assignment::with(['subject', 'schoolClass']);
-        if ($user->subjects()->exists()) {
-            $assignmentsQuery->whereIn('subject_id', $user->subjects()->pluck('subjects.id'));
+        $assignmentsQuery = Assignment::query();
+        if ($isRestrictedGuru) {
+            $assignmentsQuery->whereIn('subject_id', $allowedSubjectIds);
         }
         $assignments = $assignmentsQuery->latest('id')->get();
-        $classes = SchoolClass::orderBy('name')->get();
+        $assignments->each(function ($a) use ($classesMap) {
+            $a->setRelation('schoolClass', $classesMap->get($a->class_id));
+        });
 
         return view('admin.submissions.index', compact(
             'submissions',
@@ -101,13 +124,20 @@ class AssignmentSubmissionController extends Controller
     public function show(AssignmentSubmission $submission): View
     {
         $user = Auth::user();
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
 
         // Otorisasi jika guru memiliki mata pelajaran terbatas
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $submission->assignment->subject_id)->exists()) {
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $submission->assignment->subject_id)) {
             abort(403, 'Anda tidak berhak mengakses pengumpulan tugas mata pelajaran ini.');
         }
 
         $submission->load(['assignment.subject', 'assignment.schoolClass', 'student']);
+        if ($submission->student && $submission->assignment?->schoolClass) {
+            $submission->student->setRelation('schoolClass', $submission->assignment->schoolClass);
+        }
 
         return view('admin.submissions.show', compact('submission'));
     }
@@ -129,7 +159,11 @@ class AssignmentSubmissionController extends Controller
         ]);
 
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $submission->assignment->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $submission->assignment->subject_id)) {
             return back()->withErrors(['grade' => 'Anda tidak berhak menilai tugas untuk mata pelajaran ini.'])->withInput();
         }
 

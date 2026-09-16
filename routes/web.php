@@ -79,6 +79,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     Route::resource('roles', RoleController::class);
 
     // Master User (List & Assign Role)
+    Route::match(['get', 'post'], 'users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::resource('users', UserController::class)->only(['index', 'edit', 'update']);
 
     // Master Mata Pelajaran CRUD

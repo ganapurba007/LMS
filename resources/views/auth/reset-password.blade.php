@@ -12,11 +12,41 @@
                 </p>
             </div>
 
+            @if (session('status'))
+                <div class="alert alert-success border-0 shadow-sm rounded-3 small mb-4" role="alert">
+                    <i class="ti ti-circle-check me-1"></i> {{ session('status') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger border-0 shadow-sm rounded-3 small mb-4" role="alert">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="ti ti-alert-triangle fs-4 text-danger flex-shrink-0 mt-0.5"></i>
+                        <div class="w-100">
+                            <strong class="d-block mb-1">Gagal Menyimpan Kata Sandi:</strong>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            @if ($errors->has('email') && (str_contains(implode(' ', $errors->get('email')), 'kedaluwarsa') || str_contains(implode(' ', $errors->get('email')), 'tidak valid')))
+                                <div class="mt-3 pt-2 border-top border-danger border-opacity-25 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <span class="text-muted small">Tautan ini sudah usang atau pernah dipakai.</span>
+                                    <a href="{{ route('password.request') }}" class="btn btn-sm btn-danger fw-semibold px-3 py-1 shadow-sm">
+                                        <i class="ti ti-refresh me-1"></i> Ajukan Tautan Baru
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('password.store') }}">
                 @csrf
 
                 <!-- Password Reset Token -->
-                <input type="hidden" name="token" value="{{ $request->route('token') }}">
+                <input type="hidden" name="token" value="{{ $request->route('token') ?? $request->token ?? old('token') }}">
 
                 <!-- Email Address -->
                 <div class="mb-3">

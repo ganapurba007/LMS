@@ -55,7 +55,11 @@ class QuizAttempt extends Model
             return collect();
         }
 
-        $quiz->loadMissing(['questions.options']);
+        if ($quiz->relationLoaded('questions')) {
+            $quiz->questions->loadMissing('options');
+        } else {
+            $quiz->load('questions.options');
+        }
 
         $shuffledQuestions = $quiz->questions->sortBy(function ($q) {
             return md5($this->id . '_question_' . $q->id);

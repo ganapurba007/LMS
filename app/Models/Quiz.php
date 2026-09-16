@@ -70,7 +70,11 @@ class Quiz extends Model
      */
     public function getTotalQuestionsCountAttribute(): int
     {
-        $this->loadMissing('questions.options');
+        if ($this->relationLoaded('questions')) {
+            $this->questions->loadMissing('options');
+        } else {
+            $this->load('questions.options');
+        }
         $count = 0;
         foreach ($this->questions as $q) {
             if ($q->isMatching()) {
@@ -95,7 +99,9 @@ class Quiz extends Model
      */
     public function getQuestionTypesSummaryAttribute(): string
     {
-        $this->loadMissing('questions');
+        if (!$this->relationLoaded('questions')) {
+            $this->load('questions');
+        }
         if ($this->questions->isEmpty()) {
             return 'Pilihan Ganda';
         }

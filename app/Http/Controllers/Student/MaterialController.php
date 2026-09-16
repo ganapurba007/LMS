@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialDiscussion;
 use App\Models\MaterialProgress;
 use App\Models\Notification;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -103,9 +104,22 @@ class MaterialController extends Controller
             'instructor',
             'discussions',
             'rootDiscussions' => function ($q) {
-                $q->with(['user.role', 'replies.user.role'])->latest();
+                $q->with(['user', 'replies.user'])->latest();
             },
         ]);
+
+        $rolesMap = Role::all()->keyBy('id');
+
+        $material->rootDiscussions->each(function ($disc) use ($rolesMap) {
+            if ($disc->user) {
+                $disc->user->setRelation('role', $rolesMap->get($disc->user->role_id));
+            }
+            $disc->replies->each(function ($reply) use ($rolesMap) {
+                if ($reply->user) {
+                    $reply->user->setRelation('role', $rolesMap->get($reply->user->role_id));
+                }
+            });
+        });
 
         $isCompleted = MaterialProgress::where('user_id', $user->id)
             ->where('material_id', $material->id)

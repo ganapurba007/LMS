@@ -58,6 +58,16 @@ class QuizCrudTest extends TestCase
 
     public function test_guru_can_view_quiz_list(): void
     {
+        Quiz::create([
+            'title' => 'Kuis Evaluation',
+            'duration_minutes' => 30,
+            'points_per_question' => 10,
+            'deadline' => now()->addDays(3),
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
         $response = $this->actingAs($this->guru)->get(route('admin.quizzes.index'));
         $response->assertStatus(200);
         $response->assertSee('Kuis Evaluation');

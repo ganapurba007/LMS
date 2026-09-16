@@ -27,11 +27,23 @@ class QuizController extends Controller
         $subjectId = $request->query('subject_id');
         $classId = $request->query('class_id');
 
-        $query = Quiz::with(['subject', 'schoolClass', 'instructor', 'questions.options'])
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        $hasSubjectRestriction = $userSubjects->isNotEmpty();
+
+        $subjects = $hasSubjectRestriction ? $userSubjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+
+        $subjectsMap = $subjects->keyBy('id');
+        $classesMap = $classes->keyBy('id');
+
+        $query = Quiz::with(['instructor', 'questions.options'])
             ->withCount('questions');
 
-        if ($user->subjects()->exists()) {
-            $allowedSubjectIds = $user->subjects()->pluck('subjects.id');
+        if ($hasSubjectRestriction) {
+            $allowedSubjectIds = $userSubjects->pluck('id');
             $query->whereIn('subject_id', $allowedSubjectIds);
         }
 
@@ -49,8 +61,10 @@ class QuizController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
-        $classes = SchoolClass::orderBy('name')->get();
+        $quizzes->each(function ($quiz) use ($subjectsMap, $classesMap) {
+            $quiz->setRelation('subject', $subjectsMap->get($quiz->subject_id));
+            $quiz->setRelation('schoolClass', $classesMap->get($quiz->class_id));
+        });
 
         return view('admin.quizzes.index', compact('quizzes', 'subjects', 'classes', 'search', 'subjectId', 'classId'));
     }
@@ -58,7 +72,11 @@ class QuizController extends Controller
     public function create(): View
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.quizzes.create', compact('subjects', 'classes'));
@@ -76,7 +94,11 @@ class QuizController extends Controller
         ]);
 
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $request->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $request->subject_id)) {
             return back()->withErrors(['subject_id' => 'Anda tidak berhak membuat kuis untuk mata pelajaran ini.'])->withInput();
         }
 
@@ -96,6 +118,7 @@ class QuizController extends Controller
                 $q->where('name', 'siswa');
             })->get();
 
+        $quiz->loadMissing('subject');
         $instructorName = Auth::user()->name ?? 'Guru Pengampu';
         $subjectName = $quiz->subject->name ?? 'Mata Pelajaran';
         foreach ($students as $student) {
@@ -116,7 +139,11 @@ class QuizController extends Controller
     public function show(Quiz $quiz): View
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $quiz->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
@@ -129,11 +156,15 @@ class QuizController extends Controller
     public function edit(Quiz $quiz): View
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $quiz->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::orderBy('name')->get();
+        $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
 
         return view('admin.quizzes.edit', compact('quiz', 'subjects', 'classes'));
@@ -151,7 +182,11 @@ class QuizController extends Controller
         ]);
 
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $request->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $request->subject_id)) {
             return back()->withErrors(['subject_id' => 'Anda tidak berhak mengedit kuis untuk mata pelajaran ini.'])->withInput();
         }
 
@@ -170,7 +205,11 @@ class QuizController extends Controller
     public function destroy(Quiz $quiz): RedirectResponse
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $quiz->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
@@ -441,18 +480,30 @@ class QuizController extends Controller
     public function students(Quiz $quiz): View
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $quiz->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 
-        $quiz->load(['subject', 'schoolClass', 'instructor', 'questions.options']);
+        // Load quiz relations — schoolClass is loaded here once
+        $quiz->load(['subject', 'schoolClass', 'instructor']);
 
+        // Load students with role only; schoolClass is already known from $quiz->schoolClass
+        // and assigned via setRelation() to avoid a duplicate SELECT classes query.
         $students = User::where('class_id', $quiz->class_id)
             ->whereHas('role', function ($q) {
                 $q->where('name', 'siswa');
             })
+            ->with('role')
             ->orderBy('name')
             ->get();
+
+        // Assign the already-loaded schoolClass from quiz to each student — zero extra queries
+        $quizClass = $quiz->schoolClass;
+        $students->each(fn($s) => $s->setRelation('schoolClass', $quizClass));
 
         $attempts = QuizAttempt::where('quiz_id', $quiz->id)
             ->get()
@@ -464,7 +515,11 @@ class QuizController extends Controller
     public function resetStudentAttempt(Quiz $quiz, User $student): RedirectResponse
     {
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $quiz->subject_id)->exists()) {
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $quiz->subject_id)) {
             abort(403, 'Anda tidak memiliki akses ke kuis ini.');
         }
 

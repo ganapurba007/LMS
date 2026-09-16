@@ -32,10 +32,7 @@
             <i class="ti ti-clipboard-check"></i>
         </div>
         <div class="d-flex justify-content-between align-items-center flex-grow-1">
-            <h6 class="md-form-head-title mb-0">Pengaturan Kuis ID #{{ $quiz->id }}</h6>
-            <span class="md-badge blue">
-                {{ $quiz->questions_count }} Soal
-            </span>
+            <h6 class="md-form-head-title mb-0">Pengaturan Kuis </h6>
         </div>
     </div>
 
