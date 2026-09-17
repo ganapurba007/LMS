@@ -33,7 +33,7 @@
           </div>
           <span class="fs-3 fw-bold heading-custom">{{ config('app.name', 'RuangTerra') }}</span>
         </a>
-        <div class="small text-muted-custom mt-1 fw-semibold tracking-wide">PANEL KHUSUS GURU & ADMINISTRATOR</div>
+        <div class="small text-white mt-1 fw-bold tracking-wide">PANEL KHUSUS GURU & ADMINISTRATOR</div>
       </div>
 
       <!-- Session Status -->
@@ -91,7 +91,7 @@
       <!-- Footer text -->
       <div class="text-center mt-4">
         <p class="text-muted-custom small mb-0">
-          <a href="{{ route('admin.login') }}" class="text-primary fw-semibold text-decoration-none">
+          <a href="{{ route('admin.login') }}" class="fw-semibold text-decoration-none text-white">
             <i class="ti ti-arrow-left me-1"></i> Kembali ke Login Guru
           </a>
         </p>

@@ -5,7 +5,7 @@
       <div class="sidebar-brand-icon">
         <img src="{{ asset('images/icon.png') }}"
              alt="{{ config('app.name') }} Icon"
-             style="width:32px;height:32px;object-fit:contain;">
+             style="width:26px;height:26px;object-fit:contain;">
       </div>
       <span>{{ config('app.name') }}</span>
     </a>

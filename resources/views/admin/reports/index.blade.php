@@ -189,9 +189,9 @@
                         <td data-order="{{ $student->materials_percentage }}">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="progress flex-grow-1 rounded-pill" style="height: 6px; background-color: #E2E8F0;">
-                                    <div class="progress-bar rounded-pill" role="progressbar" 
-                                         style="width: {{ $student->materials_percentage }}%; background: linear-gradient(90deg, #3368A0, #66A3BF);" 
-                                         aria-valuenow="{{ $student->materials_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                     <div class="progress-bar rounded-pill" role="progressbar" 
+                                          style="width: {{ $student->materials_percentage }}%; background: linear-gradient(90deg, #3368A0, #66A3BF);" 
+                                          aria-valuenow="{{ $student->materials_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <span class="small fw-bold text-primary" style="font-size: 0.78rem; min-width: 42px;">{{ $student->materials_percentage }}%</span>
                             </div>

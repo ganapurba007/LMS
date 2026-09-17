@@ -112,9 +112,9 @@
 
       <!-- Redirection to Main Student Portal (NO REGISTER LINK) -->
       <div class="text-center mt-4">
-        <p class="text-muted-custom small mb-0">
+        <p class="text-white fw-bold small mb-0">
           Bukan Guru atau Administrator? 
-          <a href="{{ route('login') }}" class="text-primary fw-semibold text-decoration-none">
+          <a href="{{ route('login') }}" class="fw-bold text-decoration-none" style="color: #0480fbff;">
             Masuk sebagai Siswa <i class="ti ti-arrow-right ms-1"></i>
           </a>
         </p>
