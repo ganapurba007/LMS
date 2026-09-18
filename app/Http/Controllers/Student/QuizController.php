@@ -31,14 +31,7 @@ class QuizController extends Controller
             $baseQuery = Quiz::where('class_id', $user->class_id);
         }
 
-        $allClassQuizzes = (clone $baseQuery)->with(['subject', 'instructor', 'questions.options'])->get();
-        $allClassQuizzes->each(function ($q) use ($userAttemptsMap, $userClass) {
-            $att = $userAttemptsMap->get($q->id);
-            $q->setRelation('attempts', $att ? collect([$att]) : collect());
-            if ($userClass && $q->class_id === $userClass->id) {
-                $q->setRelation('schoolClass', $userClass);
-            }
-        });
+        $allClassQuizzes = (clone $baseQuery)->select('id', 'subject_id', 'class_id')->get();
 
         $totalQuizzes = $allClassQuizzes->count();
         $completedCount = 0;
@@ -49,7 +42,7 @@ class QuizController extends Controller
         $unattemptedQuizIds = [];
 
         foreach ($allClassQuizzes as $qItem) {
-            $att = $qItem->attempts->first();
+            $att = $userAttemptsMap->get($qItem->id);
             if ($att && $att->submitted_at) {
                 $completedCount++;
                 $completedQuizIds[] = $qItem->id;
@@ -63,6 +56,24 @@ class QuizController extends Controller
         }
 
         $query = (clone $baseQuery)->with(['subject', 'instructor', 'questions.options']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('instructor', function($iq) use ($search) {
+                      $iq->where('name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('subject', function($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('subject_id')) {
+            $query->where('subject_id', $request->input('subject_id'));
+        }
 
         // Filter status
         if ($request->input('status') === 'completed') {
@@ -85,9 +96,10 @@ class QuizController extends Controller
         $progressPercent = $totalQuizzes > 0 ? round(($completedCount / $totalQuizzes) * 100) : 0;
 
         // Daftar mapel untuk filter pills
-        $subjects = \App\Models\Subject::whereIn('id', $allClassQuizzes->pluck('subject_id')->unique())
-            ->orderBy('name')
-            ->get();
+        $subjectIds = $allClassQuizzes->pluck('subject_id')->filter()->unique();
+        $subjects = $subjectIds->isNotEmpty()
+            ? \App\Models\Subject::whereIn('id', $subjectIds)->orderBy('name')->get()
+            : collect();
 
         return view('student.quizzes.index', compact(
             'quizzes',
