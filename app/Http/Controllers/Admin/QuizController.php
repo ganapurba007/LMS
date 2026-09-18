@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\QuestionBank;
+use App\Models\QuestionBankOption;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
@@ -12,6 +13,7 @@ use App\Models\QuizQuestionOption;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -261,11 +263,13 @@ class QuizController extends Controller
 
     public function storeQuestion(Request $request, Quiz $quiz): RedirectResponse
     {
+        $instructorId = Auth::id() ?? $quiz->instructor_id;
+
         // 1. Batch / Bulk Questions Processing
         if ($request->has('questions') && is_array($request->input('questions')) && count($request->input('questions')) > 0) {
             $createdCount = 0;
 
-            DB::transaction(function () use ($request, $quiz, &$createdCount) {
+            DB::transaction(function () use ($request, $quiz, &$createdCount, $instructorId) {
                 foreach ($request->input('questions') as $qData) {
                     $qType = $qData['question_type'] ?? 'multiple_choice';
                     $qText = trim($qData['question_text'] ?? '');
@@ -279,9 +283,29 @@ class QuizController extends Controller
 
                     if ($qType === 'true_false') {
                         $correctTf = $qData['correct_tf'] ?? ($qData['tf_correct_answer'] ?? 'Benar');
+
+                        // Save to Question Bank
+                        $qb = QuestionBank::create([
+                            'instructor_id' => $instructorId,
+                            'question_text' => $qText,
+                            'question_type' => 'true_false',
+                        ]);
+
+                        QuestionBankOption::create([
+                            'question_bank_id' => $qb->id,
+                            'option_text' => 'Benar',
+                            'is_correct' => ($correctTf === 'Benar'),
+                        ]);
+                        QuestionBankOption::create([
+                            'question_bank_id' => $qb->id,
+                            'option_text' => 'Salah',
+                            'is_correct' => ($correctTf === 'Salah'),
+                        ]);
+
+                        // Save to Quiz Question
                         $qq = QuizQuestion::create([
                             'quiz_id' => $quiz->id,
-                            'question_bank_id' => null,
+                            'question_bank_id' => $qb->id,
                             'question_text' => $qText,
                             'question_type' => 'true_false',
                         ]);
@@ -300,9 +324,28 @@ class QuizController extends Controller
                     } elseif ($qType === 'matching') {
                         $pairs = $qData['pairs'] ?? ($qData['matching_pairs'] ?? []);
                         if (is_array($pairs) && count($pairs) >= 2) {
+                            // Save to Question Bank
+                            $qb = QuestionBank::create([
+                                'instructor_id' => $instructorId,
+                                'question_text' => $qText,
+                                'question_type' => 'matching',
+                            ]);
+
+                            foreach ($pairs as $pair) {
+                                if (!empty($pair['premise']) && !empty($pair['match'])) {
+                                    QuestionBankOption::create([
+                                        'question_bank_id' => $qb->id,
+                                        'option_text' => trim($pair['premise']),
+                                        'match_text' => trim($pair['match']),
+                                        'is_correct' => true,
+                                    ]);
+                                }
+                            }
+
+                            // Save to Quiz Question
                             $qq = QuizQuestion::create([
                                 'quiz_id' => $quiz->id,
-                                'question_bank_id' => null,
+                                'question_bank_id' => $qb->id,
                                 'question_text' => $qText,
                                 'question_type' => 'matching',
                             ]);
@@ -337,13 +380,6 @@ class QuizController extends Controller
                         }
 
                         if (count($filteredOptions) >= 2) {
-                            $qq = QuizQuestion::create([
-                                'quiz_id' => $quiz->id,
-                                'question_bank_id' => null,
-                                'question_text' => $qText,
-                                'question_type' => 'multiple_choice',
-                            ]);
-
                             $hasCorrect = false;
                             foreach ($filteredOptions as $fOpt) {
                                 if ($fOpt['is_correct']) {
@@ -354,6 +390,29 @@ class QuizController extends Controller
                             if (!$hasCorrect) {
                                 $filteredOptions[0]['is_correct'] = true;
                             }
+
+                            // Save to Question Bank
+                            $qb = QuestionBank::create([
+                                'instructor_id' => $instructorId,
+                                'question_text' => $qText,
+                                'question_type' => 'multiple_choice',
+                            ]);
+
+                            foreach ($filteredOptions as $fOpt) {
+                                QuestionBankOption::create([
+                                    'question_bank_id' => $qb->id,
+                                    'option_text' => $fOpt['text'],
+                                    'is_correct' => $fOpt['is_correct'],
+                                ]);
+                            }
+
+                            // Save to Quiz Question
+                            $qq = QuizQuestion::create([
+                                'quiz_id' => $quiz->id,
+                                'question_bank_id' => $qb->id,
+                                'question_text' => $qText,
+                                'question_type' => 'multiple_choice',
+                            ]);
 
                             foreach ($filteredOptions as $fOpt) {
                                 QuizQuestionOption::create([
@@ -369,7 +428,7 @@ class QuizController extends Controller
             });
 
             if ($createdCount > 0) {
-                return back()->with('success', $createdCount . ' butir soal kuis berhasil disimpan.');
+                return back()->with('success', $createdCount . ' butir soal kuis berhasil disimpan dan ditambahkan ke Bank Soal.');
             }
 
             return back()->with('error', 'Tidak ada butir soal yang valid untuk disimpan.');
@@ -391,10 +450,28 @@ class QuizController extends Controller
                 'correct_tf' => ['required', 'in:Benar,Salah'],
             ]);
 
-            DB::transaction(function () use ($request, $quiz) {
+            DB::transaction(function () use ($request, $quiz, $instructorId) {
+                $qb = QuestionBank::create([
+                    'instructor_id' => $instructorId,
+                    'question_text' => trim($request->question_text),
+                    'question_type' => 'true_false',
+                ]);
+
+                QuestionBankOption::create([
+                    'question_bank_id' => $qb->id,
+                    'option_text' => 'Benar',
+                    'is_correct' => ($request->correct_tf === 'Benar'),
+                ]);
+
+                QuestionBankOption::create([
+                    'question_bank_id' => $qb->id,
+                    'option_text' => 'Salah',
+                    'is_correct' => ($request->correct_tf === 'Salah'),
+                ]);
+
                 $qq = QuizQuestion::create([
                     'quiz_id' => $quiz->id,
-                    'question_bank_id' => null,
+                    'question_bank_id' => $qb->id,
                     'question_text' => trim($request->question_text),
                     'question_type' => 'true_false',
                 ]);
@@ -419,10 +496,25 @@ class QuizController extends Controller
                 'pairs.*.match' => ['required', 'string'],
             ]);
 
-            DB::transaction(function () use ($request, $quiz) {
+            DB::transaction(function () use ($request, $quiz, $instructorId) {
+                $qb = QuestionBank::create([
+                    'instructor_id' => $instructorId,
+                    'question_text' => trim($request->question_text),
+                    'question_type' => 'matching',
+                ]);
+
+                foreach ($request->pairs as $pair) {
+                    QuestionBankOption::create([
+                        'question_bank_id' => $qb->id,
+                        'option_text' => trim($pair['premise']),
+                        'match_text' => trim($pair['match']),
+                        'is_correct' => true,
+                    ]);
+                }
+
                 $qq = QuizQuestion::create([
                     'quiz_id' => $quiz->id,
-                    'question_bank_id' => null,
+                    'question_bank_id' => $qb->id,
                     'question_text' => trim($request->question_text),
                     'question_type' => 'matching',
                 ]);
@@ -445,10 +537,24 @@ class QuizController extends Controller
                 'correct_option' => ['required', 'integer', 'min:0'],
             ]);
 
-            DB::transaction(function () use ($request, $quiz) {
+            DB::transaction(function () use ($request, $quiz, $instructorId) {
+                $qb = QuestionBank::create([
+                    'instructor_id' => $instructorId,
+                    'question_text' => trim($request->question_text),
+                    'question_type' => 'multiple_choice',
+                ]);
+
+                foreach ($request->options as $index => $optionText) {
+                    QuestionBankOption::create([
+                        'question_bank_id' => $qb->id,
+                        'option_text' => trim($optionText),
+                        'is_correct' => ((int) $index === (int) $request->correct_option),
+                    ]);
+                }
+
                 $qq = QuizQuestion::create([
                     'quiz_id' => $quiz->id,
-                    'question_bank_id' => null,
+                    'question_bank_id' => $qb->id,
                     'question_text' => trim($request->question_text),
                     'question_type' => 'multiple_choice',
                 ]);
@@ -463,7 +569,7 @@ class QuizController extends Controller
             });
         }
 
-        return back()->with('success', 'Soal kuis baru berhasil ditambahkan.');
+        return back()->with('success', 'Soal kuis baru berhasil ditambahkan dan disimpan ke Bank Soal.');
     }
 
     public function destroyQuestion(Quiz $quiz, QuizQuestion $question): RedirectResponse
@@ -509,7 +615,181 @@ class QuizController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        return view('admin.quizzes.students', compact('quiz', 'students', 'attempts'));
+        // Analytics: Compute per-question statistics across all submitted attempts
+        $submittedAttempts = QuizAttempt::where('quiz_id', $quiz->id)
+            ->whereNotNull('submitted_at')
+            ->get();
+        $submittedCount = $submittedAttempts->count();
+
+        $quizQuestions = $quiz->questions()->with('options')->get();
+        $attemptIds = $submittedAttempts->pluck('id');
+        $allAnswers = \App\Models\QuizAnswer::whereIn('quiz_attempt_id', $attemptIds)
+            ->get()
+            ->groupBy('quiz_question_id');
+
+        $questionStats = $quizQuestions->map(function ($question) use ($submittedAttempts, $allAnswers, $submittedCount) {
+            $answers = $allAnswers->get($question->id, collect());
+            $correctStudentsCount = 0;
+            $incorrectStudentsCount = 0;
+
+            foreach ($submittedAttempts as $att) {
+                $ans = $answers->firstWhere('quiz_attempt_id', $att->id);
+                if ($question->isMatching()) {
+                    $pairsAnswer = is_array($ans?->answer_data) ? $ans->answer_data : [];
+                    $totalPairs = $question->options->count();
+                    $correctPairs = 0;
+                    if ($totalPairs > 0 && !empty($pairsAnswer)) {
+                        foreach ($question->options as $opt) {
+                            if (isset($pairsAnswer[$opt->id]) && trim((string)$pairsAnswer[$opt->id]) === trim((string)$opt->match_text)) {
+                                $correctPairs++;
+                            }
+                        }
+                    }
+                    if ($totalPairs > 0 && $correctPairs === $totalPairs) {
+                        $correctStudentsCount++;
+                    } else {
+                        $incorrectStudentsCount++;
+                    }
+                } else {
+                    $selectedOptId = $ans?->selected_option_id;
+                    $correctOpt = $question->options->firstWhere('is_correct', true);
+                    if ($selectedOptId && $correctOpt && $selectedOptId == $correctOpt->id) {
+                        $correctStudentsCount++;
+                    } else {
+                        $incorrectStudentsCount++;
+                    }
+                }
+            }
+
+            $correctPct = $submittedCount > 0 ? round(($correctStudentsCount / $submittedCount) * 100, 1) : 0;
+            $incorrectPct = $submittedCount > 0 ? round(($incorrectStudentsCount / $submittedCount) * 100, 1) : 0;
+
+            $correctAnswerText = '';
+            if ($question->isMatching()) {
+                $correctAnswerText = $question->options->map(fn($o) => $o->option_text . ' → ' . $o->match_text)->implode(', ');
+            } else {
+                $correctOpt = $question->options->firstWhere('is_correct', true);
+                $correctAnswerText = $correctOpt ? $correctOpt->option_text : '-';
+            }
+
+            return [
+                'question' => $question,
+                'correct_count' => $correctStudentsCount,
+                'incorrect_count' => $incorrectStudentsCount,
+                'correct_pct' => $correctPct,
+                'incorrect_pct' => $incorrectPct,
+                'correct_answer_text' => $correctAnswerText,
+            ];
+        });
+
+        // 5 Soal terbanyak dijawab salah
+        $mostIncorrectQuestions = $submittedCount > 0 
+            ? $questionStats->sortByDesc('incorrect_count')->take(5)->values()
+            : collect();
+
+        // 5 Soal terbanyak dijawab benar
+        $mostCorrectQuestions = $submittedCount > 0 
+            ? $questionStats->sortByDesc('correct_count')->take(5)->values()
+            : collect();
+
+        return view('admin.quizzes.students', compact(
+            'quiz', 'students', 'attempts', 'mostIncorrectQuestions', 'mostCorrectQuestions', 'submittedCount'
+        ));
+    }
+
+    public function getStudentAnswers(Quiz $quiz, User $student): JsonResponse
+    {
+        $user = Auth::user();
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $quiz->subject_id)) {
+            return response()->json(['error' => 'Anda tidak memiliki akses ke kuis ini.'], 403);
+        }
+
+        $attempt = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if (!$attempt) {
+            return response()->json(['error' => 'Siswa belum memiliki riwayat pengerjaan kuis ini.'], 404);
+        }
+
+        $questions = $quiz->questions()->with('options')->get();
+        $answers = $attempt->answers()->get()->keyBy('quiz_question_id');
+
+        $details = [];
+        foreach ($questions as $index => $question) {
+            $ans = $answers->get($question->id);
+            $isAnswered = !is_null($ans) && (!is_null($ans->selected_option_id) || !empty($ans->answer_data));
+
+            $item = [
+                'number' => $index + 1,
+                'id' => $question->id,
+                'question_text' => $question->question_text,
+                'question_type' => $question->question_type ?? 'multiple_choice',
+                'is_answered' => $isAnswered,
+                'is_correct' => false,
+                'selected_option_id' => $ans ? $ans->selected_option_id : null,
+                'answer_data' => $ans ? $ans->answer_data : null,
+                'options' => [],
+            ];
+
+            if ($question->isMatching()) {
+                $pairsAnswer = is_array($ans?->answer_data) ? $ans->answer_data : [];
+                $totalPairs = $question->options->count();
+                $correctPairs = 0;
+                $optionsList = [];
+                foreach ($question->options as $opt) {
+                    $studentPair = $pairsAnswer[$opt->id] ?? null;
+                    $isPairCorrect = !is_null($studentPair) && trim((string)$studentPair) === trim((string)$opt->match_text);
+                    if ($isPairCorrect) {
+                        $correctPairs++;
+                    }
+                    $optionsList[] = [
+                        'id' => $opt->id,
+                        'option_text' => $opt->option_text,
+                        'correct_match' => $opt->match_text,
+                        'student_match' => $studentPair,
+                        'is_pair_correct' => $isPairCorrect,
+                    ];
+                }
+                $item['is_correct'] = ($totalPairs > 0 && $correctPairs === $totalPairs);
+                $item['correct_pairs_count'] = $correctPairs;
+                $item['total_pairs_count'] = $totalPairs;
+                $item['options'] = $optionsList;
+            } else {
+                $correctOpt = $question->options->firstWhere('is_correct', true);
+                $item['is_correct'] = ($ans && $ans->selected_option_id && $correctOpt && $ans->selected_option_id == $correctOpt->id);
+                $optionsList = [];
+                foreach ($question->options as $opt) {
+                    $optionsList[] = [
+                        'id' => $opt->id,
+                        'option_text' => $opt->option_text,
+                        'is_correct' => (bool)$opt->is_correct,
+                        'is_selected' => ($ans && $ans->selected_option_id == $opt->id),
+                    ];
+                }
+                $item['options'] = $optionsList;
+            }
+
+            $details[] = $item;
+        }
+
+        return response()->json([
+            'student' => [
+                'name' => $student->name,
+                'email' => $student->email,
+            ],
+            'attempt' => [
+                'score' => $attempt->score,
+                'duration' => $attempt->duration_formatted,
+                'started_at' => $attempt->started_at ? $attempt->started_at->format('d M Y, H:i') . ' WIB' : '-',
+                'submitted_at' => $attempt->submitted_at ? $attempt->submitted_at->format('d M Y, H:i') . ' WIB' : 'Belum Selesai',
+            ],
+            'questions' => $details,
+        ]);
     }
 
     public function resetStudentAttempt(Quiz $quiz, User $student): RedirectResponse

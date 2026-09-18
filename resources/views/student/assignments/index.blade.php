@@ -459,7 +459,7 @@
 
                                     <!-- Description Snippet -->
                                     <p class="text-muted small mb-3" style="line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                        {{ $asg->description ?? 'Tidak ada petunjuk khusus untuk tugas ini.' }}
+                                        {{ !empty($asg->description) ? \Illuminate\Support\Str::limit(strip_tags($asg->description), 90) : 'Tidak ada petunjuk khusus untuk tugas ini.' }}
                                     </p>
 
                                     <!-- Deadline Info Pill -->

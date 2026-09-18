@@ -182,13 +182,13 @@
 
                 <!-- Right Column: Quick Progress Overview Card -->
                 <div class="col-lg-5">
-                    <div class="p-4 rounded-4 shadow-xl text-dark position-relative border" style="background: rgba(242, 239, 231, 0.95); backdrop-filter: blur(12px); border-color: rgba(255, 255, 255, 0.5) !important;">
-                        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: rgba(51, 104, 160, 0.15) !important;">
+                    <div class="p-4 rounded-4 shadow-xl position-relative border" style="background: var(--tblr-card-bg, rgba(242, 239, 231, 0.95)); backdrop-filter: blur(12px); border-color: var(--tblr-border-color, rgba(255, 255, 255, 0.5)) !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--tblr-border-color, rgba(51, 104, 160, 0.15)) !important;">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="rounded-circle text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #3368A0, #66A3BF); width: 34px; height: 34px;">
                                     <i class="ti ti-chart-pie fs-5"></i>
                                 </div>
-                                <span class="fw-bold text-dark fs-6" style="font-family: 'Jost', sans-serif;">Ringkasan Progres Materi</span>
+                                <span class="fw-bold fs-6" style="font-family: 'Jost', sans-serif; color: var(--tblr-heading-color, #0f172a);">Ringkasan Progres Materi</span>
                             </div>
                             <span class="badge rounded-pill px-2.5 py-1 font-bold text-white shadow-sm" style="background: {{ $progressPercent >= 100 ? '#10B981' : '#3368A0' }}; font-size: 0.75rem;">
                                 {{ $progressPercent }}% Selesai
@@ -197,9 +197,9 @@
 
                         <!-- Progress Bar Indicator -->
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between text-muted small fw-semibold mb-1">
+                            <div class="d-flex justify-content-between small fw-semibold mb-1" style="color: var(--tblr-text-muted, #64748b);">
                                 <span>Pencapaian Materi</span>
-                                <span class="text-dark font-bold">{{ $completedCount }} dari {{ $totalMaterials }} Modul</span>
+                                <span class="font-bold" style="color: var(--tblr-heading-color, #0f172a);">{{ $completedCount }} dari {{ $totalMaterials }} Modul</span>
                             </div>
                             <div class="progress rounded-pill shadow-inner" style="height: 10px; background: rgba(51, 104, 160, 0.12);">
                                 <div class="progress-bar rounded-pill progress-bar-striped progress-bar-animated" 
@@ -215,21 +215,21 @@
                         <!-- Mini Stats 3 Columns -->
                         <div class="row g-2 text-center pt-2">
                             <div class="col-4">
-                                <div class="p-2.5 rounded-3 border bg-white">
-                                    <div class="text-primary fw-extrabold fs-4 mb-0" style="line-height: 1;">{{ $totalMaterials }}</div>
-                                    <div class="text-muted small" style="font-size: 0.7rem;">Total Modul</div>
+                                <div class="p-2.5 rounded-3 border" style="background: var(--tblr-body-bg, #ffffff); border-color: var(--tblr-border-color, #e2e8f0) !important;">
+                                    <div class="fw-extrabold fs-4 mb-0" style="line-height: 1; color: var(--tblr-primary, #3368a0);">{{ $totalMaterials }}</div>
+                                    <div class="small" style="font-size: 0.7rem; color: var(--tblr-text-muted, #64748b);">Total Modul</div>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="p-2.5 rounded-3 border bg-white">
+                                <div class="p-2.5 rounded-3 border" style="background: var(--tblr-body-bg, #ffffff); border-color: var(--tblr-border-color, #e2e8f0) !important;">
                                     <div class="text-success fw-extrabold fs-4 mb-0" style="line-height: 1;">{{ $completedCount }}</div>
-                                    <div class="text-muted small" style="font-size: 0.7rem;">Selesai</div>
+                                    <div class="small" style="font-size: 0.7rem; color: var(--tblr-text-muted, #64748b);">Selesai</div>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="p-2.5 rounded-3 border bg-white">
+                                <div class="p-2.5 rounded-3 border" style="background: var(--tblr-body-bg, #ffffff); border-color: var(--tblr-border-color, #e2e8f0) !important;">
                                     <div class="text-warning fw-extrabold fs-4 mb-0" style="line-height: 1;">{{ $uncompletedCount }}</div>
-                                    <div class="text-muted small" style="font-size: 0.7rem;">Belum Selesai</div>
+                                    <div class="small" style="font-size: 0.7rem; color: var(--tblr-text-muted, #64748b);">Belum Selesai</div>
                                 </div>
                             </div>
                         </div>

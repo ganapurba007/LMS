@@ -238,21 +238,41 @@
                     </div>
                 @endif
 
-                <!-- 2.2 Petunjuk & Deskripsi Tugas Card -->
+                <!-- 2.2 Detail & Petunjuk Pengerjaan Tugas Card -->
                 <div class="content-card-modern">
                     <div class="content-card-header">
                         <div class="d-flex align-items-center gap-2">
                             <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0" style="background: linear-gradient(135deg, #3368A0, #66A3BF); width: 28px; height: 28px;">
-                                <i class="ti ti-file-description fs-6"></i>
+                                <i class="ti ti-file-text fs-6"></i>
                             </div>
                             <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.95rem;">
-                                Petunjuk Pengerjaan
+                                Detail &amp; Petunjuk Pengerjaan Tugas
                             </h6>
                         </div>
                     </div>
                     <div class="p-3 p-sm-4">
-                        <div class="p-3 p-sm-3.5 rounded-3 text-dark assignment-instructions" style="background: #F8FAFC; border: 1px solid rgba(51, 104, 160, 0.12);">
-                            {!! nl2br(e($assignment->description ?? 'Tidak ada petunjuk khusus untuk tugas ini.')) !!}
+                        <!-- Judul Tugas -->
+                        <div class="mb-4 pb-3 border-bottom" style="border-color: rgba(51, 104, 160, 0.12) !important;">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                                <i class="ti ti-notebook me-1 text-primary"></i> Judul Tugas
+                            </label>
+                            <h4 class="fw-extrabold text-dark mb-0" style="font-family: 'Jost', sans-serif; font-size: 1.25rem; line-height: 1.4;">
+                                {{ $assignment->title }}
+                            </h4>
+                        </div>
+
+                        <!-- Deskripsi & Instruksi Pengerjaan (TinyMCE Content) -->
+                        <div>
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-2" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                                <i class="ti ti-file-description me-1 text-primary"></i> Petunjuk &amp; Instruksi Pengerjaan Tugas
+                            </label>
+                            <div class="p-3 p-sm-3.5 rounded-3 article-body tinymce-content md-material-content assignment-instructions" style="background: var(--tblr-card-bg, #ffffff); border: 1px solid rgba(51, 104, 160, 0.12); color: var(--tblr-body-color, #1e293b);">
+                                @if(!empty($assignment->description))
+                                    {!! $assignment->description !!}
+                                @else
+                                    <span class="text-muted">Tidak ada deskripsi / petunjuk khusus untuk tugas ini.</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>

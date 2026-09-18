@@ -9,7 +9,7 @@
             <i class="ti ti-shield-check"></i>
         </div>
         <div>
-            <h5 class="md-title">Edit Role: <span style="color:#206bc4;">{{ ucfirst($role->name) }}</span></h5>
+            <h5 class="md-title">Edit Role: <span style="color:#3368A0;">{{ ucfirst($role->name) }}</span></h5>
         </div>
     </div>
     <a href="{{ route('admin.roles.index') }}" class="md-btn-secondary">

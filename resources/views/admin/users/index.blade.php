@@ -21,6 +21,14 @@
     </div>
 @endif
 
+@if(session('error'))
+    <div class="md-alert danger mb-4">
+        <i class="ti ti-alert-circle"></i> {{ session('error') }}
+        <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
+    </div>
+@endif
+
+
 <div class="md-card">
     <div class="md-table-wrap">
         <table class="table table-hover md-table mb-0 data-table">
@@ -82,6 +90,14 @@
                                         title="Reset Password">
                                     <i class="ti ti-key"></i>
                                 </button>
+                                @if(auth()->id() !== $user->id && (!auth()->user()->isGuru() || $user->isSiswa()))
+                                    <button type="button" class="md-icon-btn red btn-delete-user" 
+                                            data-url="{{ route('admin.users.destroy', $user) }}" 
+                                            data-name="{{ $user->name }}" 
+                                            title="Hapus User">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -174,6 +190,32 @@
     </div>
 </div>
 
+<!-- Modal Konfirmasi Hapus User -->
+<div class="modal fade" id="modalDeleteConfirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content md-modal-content">
+            <div class="md-modal-icon danger" style="background:rgba(225,29,72,.1);color:#e11d48;width:52px;height:52px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+                <i class="ti ti-trash"></i>
+            </div>
+            <h6 class="md-modal-title">Hapus Akun Pengguna?</h6>
+            <p class="md-modal-text mb-3">
+                Apakah Anda yakin ingin menghapus data akun <strong id="deleteTargetName"></strong>? Data yang dihapus tidak dapat dikembalikan.
+            </p>
+
+            <form id="formDeleteUser" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="md-modal-actions">
+                    <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="md-btn-danger">
+                        <i class="ti ti-trash me-1"></i> Ya, Hapus
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @include('admin._partials.master-data-styles')
 @endsection
 
@@ -195,8 +237,11 @@
     $(function () {
         var confirmModalEl = document.getElementById('modalResetConfirm');
         var successModalEl = document.getElementById('modalPasswordResetSuccess');
+        var deleteModalEl = document.getElementById('modalDeleteConfirm');
         var formReset = document.getElementById('formResetPassword');
+        var formDelete = document.getElementById('formDeleteUser');
         var targetNameEl = document.getElementById('resetTargetName');
+        var deleteTargetNameEl = document.getElementById('deleteTargetName');
         var successUserNameEl = document.getElementById('resetSuccessUserName');
         var resetPasswordValEl = document.getElementById('resetPasswordVal');
         var btnSubmitReset = document.getElementById('btnSubmitReset');
@@ -208,6 +253,22 @@
                 $(successModalEl).modal('show');
             }
         @endif
+
+        // Delegated click handler for delete user buttons
+        $(document).on('click', '.btn-delete-user', function (e) {
+            e.preventDefault();
+            var url = $(this).data('url');
+            var name = $(this).data('name') || '';
+
+            if (formDelete) formDelete.action = url;
+            if (deleteTargetNameEl) deleteTargetNameEl.textContent = name;
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(deleteModalEl).show();
+            } else if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
+                $(deleteModalEl).modal('show');
+            }
+        });
 
         // Delegated click handler for reset password buttons (works with DataTables redraw)
         $(document).on('click', '.btn-reset-password', function (e) {

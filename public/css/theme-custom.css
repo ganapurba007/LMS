@@ -1379,3 +1379,225 @@ body.theme-dark .mobile-bottom-nav {
     }
 }
 
+/* ==========================================================================
+   Material Content & WYSIWYG Article Body — Light & Dark Mode Compatibility
+   ========================================================================== */
+.article-body,
+.tinymce-content,
+.md-material-content,
+.assignment-instructions {
+    color: var(--tblr-body-color, #334155);
+    line-height: 1.75;
+    font-size: 0.96rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.article-body p, .tinymce-content p, .assignment-instructions p {
+    margin-bottom: 1rem;
+}
+
+.article-body ul, .tinymce-content ul, .assignment-instructions ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.article-body ol, .tinymce-content ol, .assignment-instructions ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.article-body li, .tinymce-content li, .assignment-instructions li {
+    margin-bottom: 0.35rem !important;
+}
+
+.article-body h1, .article-body h2, .article-body h3, .article-body h4, .article-body h5, .article-body h6,
+.tinymce-content h1, .tinymce-content h2, .tinymce-content h3, .tinymce-content h4, .tinymce-content h5, .tinymce-content h6,
+.assignment-instructions h1, .assignment-instructions h2, .assignment-instructions h3, .assignment-instructions h4, .assignment-instructions h5, .assignment-instructions h6 {
+    color: var(--tblr-heading-color, #0f172a);
+    font-weight: 700;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.article-body a, .tinymce-content a, .assignment-instructions a {
+    color: var(--tblr-primary, #3368a0);
+    text-decoration: underline;
+}
+
+.article-body table, .tinymce-content table {
+    width: 100% !important;
+    max-width: 100%;
+    margin: 1rem 0;
+    border-collapse: collapse;
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+}
+
+.article-body th, .article-body td,
+.tinymce-content th, .tinymce-content td {
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    color: var(--tblr-body-color, inherit);
+}
+
+.article-body th, .tinymce-content th {
+    background-color: var(--tblr-bg-surface-secondary, rgba(0, 0, 0, 0.03));
+    font-weight: 700;
+}
+
+.article-body blockquote, .tinymce-content blockquote {
+    border-left: 4px solid var(--tblr-primary, #3368a0);
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    background: rgba(51, 104, 160, 0.05);
+    border-radius: 0 8px 8px 0;
+    color: var(--tblr-body-color, #334155);
+}
+
+.article-body pre, .tinymce-content pre {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    padding: 0.85rem 1.1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88em;
+}
+
+.article-body code, .tinymce-content code {
+    background: rgba(0, 0, 0, 0.06);
+    color: #0f172a;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.88em;
+}
+
+/* ── OVERRIDE INLINE TINYMCE STYLES FOR DARK MODE ── */
+[data-bs-theme="dark"] .article-body,
+[data-bs-theme="dark"] .tinymce-content,
+[data-bs-theme="dark"] .assignment-instructions,
+[data-theme="dark"] .article-body,
+[data-theme="dark"] .tinymce-content,
+[data-theme="dark"] .assignment-instructions,
+body.theme-dark .article-body,
+body.theme-dark .tinymce-content,
+body.theme-dark .assignment-instructions,
+body.dark-mode .article-body,
+body.dark-mode .tinymce-content,
+body.dark-mode .assignment-instructions {
+    color: var(--tblr-body-color, #e2e8f0) !important;
+}
+
+[data-bs-theme="dark"] .article-body *,
+[data-bs-theme="dark"] .tinymce-content *,
+[data-bs-theme="dark"] .assignment-instructions *,
+[data-theme="dark"] .article-body *,
+[data-theme="dark"] .tinymce-content *,
+[data-theme="dark"] .assignment-instructions *,
+body.theme-dark .article-body *,
+body.theme-dark .tinymce-content *,
+body.theme-dark .assignment-instructions *,
+body.dark-mode .article-body *,
+body.dark-mode .tinymce-content *,
+body.dark-mode .assignment-instructions * {
+    color: inherit;
+}
+
+[data-bs-theme="dark"] .article-body p,
+[data-bs-theme="dark"] .tinymce-content p,
+[data-bs-theme="dark"] .assignment-instructions p,
+[data-theme="dark"] .article-body p,
+[data-theme="dark"] .tinymce-content p,
+[data-theme="dark"] .assignment-instructions p,
+body.theme-dark .article-body p,
+body.theme-dark .tinymce-content p,
+body.theme-dark .assignment-instructions p {
+    color: var(--tblr-body-color, #e2e8f0) !important;
+}
+
+[data-bs-theme="dark"] .article-body span,
+[data-bs-theme="dark"] .tinymce-content span,
+[data-bs-theme="dark"] .assignment-instructions span,
+[data-theme="dark"] .article-body span,
+[data-theme="dark"] .tinymce-content span,
+[data-theme="dark"] .assignment-instructions span,
+body.theme-dark .article-body span,
+body.theme-dark .tinymce-content span,
+body.theme-dark .assignment-instructions span {
+    color: var(--tblr-body-color, #e2e8f0) !important;
+    background-color: transparent !important;
+}
+
+[data-bs-theme="dark"] .article-body h1, [data-bs-theme="dark"] .article-body h2, [data-bs-theme="dark"] .article-body h3, [data-bs-theme="dark"] .article-body h4, [data-bs-theme="dark"] .article-body h5, [data-bs-theme="dark"] .article-body h6,
+[data-bs-theme="dark"] .assignment-instructions h1, [data-bs-theme="dark"] .assignment-instructions h2, [data-bs-theme="dark"] .assignment-instructions h3, [data-bs-theme="dark"] .assignment-instructions h4, [data-bs-theme="dark"] .assignment-instructions h5, [data-bs-theme="dark"] .assignment-instructions h6,
+[data-theme="dark"] .article-body h1, [data-theme="dark"] .article-body h2, [data-theme="dark"] .article-body h3, [data-theme="dark"] .article-body h4, [data-theme="dark"] .article-body h5, [data-theme="dark"] .article-body h6,
+[data-theme="dark"] .assignment-instructions h1, [data-theme="dark"] .assignment-instructions h2, [data-theme="dark"] .assignment-instructions h3, [data-theme="dark"] .assignment-instructions h4, [data-theme="dark"] .assignment-instructions h5, [data-theme="dark"] .assignment-instructions h6,
+body.theme-dark .article-body h1, body.theme-dark .article-body h2, body.theme-dark .article-body h3, body.theme-dark .article-body h4, body.theme-dark .article-body h5, body.theme-dark .article-body h6,
+body.theme-dark .assignment-instructions h1, body.theme-dark .assignment-instructions h2, body.theme-dark .assignment-instructions h3, body.theme-dark .assignment-instructions h4, body.theme-dark .assignment-instructions h5, body.theme-dark .assignment-instructions h6 {
+    color: var(--tblr-heading-color, #f8fafc) !important;
+}
+
+[data-bs-theme="dark"] .article-body a,
+[data-bs-theme="dark"] .tinymce-content a,
+[data-bs-theme="dark"] .assignment-instructions a,
+[data-theme="dark"] .article-body a,
+[data-theme="dark"] .tinymce-content a,
+[data-theme="dark"] .assignment-instructions a,
+body.theme-dark .article-body a,
+body.theme-dark .tinymce-content a,
+body.theme-dark .assignment-instructions a {
+    color: #60a5fa !important;
+}
+
+[data-bs-theme="dark"] .article-body table, [data-bs-theme="dark"] .tinymce-content table, [data-bs-theme="dark"] .assignment-instructions table,
+[data-theme="dark"] .article-body table, [data-theme="dark"] .tinymce-content table, [data-theme="dark"] .assignment-instructions table,
+body.theme-dark .article-body table, body.theme-dark .tinymce-content table, body.theme-dark .assignment-instructions table {
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .article-body th, [data-bs-theme="dark"] .article-body td,
+[data-bs-theme="dark"] .tinymce-content th, [data-bs-theme="dark"] .tinymce-content td,
+[data-bs-theme="dark"] .assignment-instructions th, [data-bs-theme="dark"] .assignment-instructions td,
+[data-theme="dark"] .article-body th, [data-theme="dark"] .article-body td,
+[data-theme="dark"] .tinymce-content th, [data-theme="dark"] .tinymce-content td,
+[data-theme="dark"] .assignment-instructions th, [data-theme="dark"] .assignment-instructions td,
+body.theme-dark .article-body th, body.theme-dark .article-body td,
+body.theme-dark .tinymce-content th, body.theme-dark .tinymce-content td,
+body.theme-dark .assignment-instructions th, body.theme-dark .assignment-instructions td {
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+    background-color: transparent !important;
+}
+
+[data-bs-theme="dark"] .article-body th, [data-bs-theme="dark"] .tinymce-content th, [data-bs-theme="dark"] .assignment-instructions th,
+[data-theme="dark"] .article-body th, [data-theme="dark"] .tinymce-content th, [data-theme="dark"] .assignment-instructions th,
+body.theme-dark .article-body th, body.theme-dark .tinymce-content th, body.theme-dark .assignment-instructions th {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .article-body code, [data-bs-theme="dark"] .tinymce-content code, [data-bs-theme="dark"] .assignment-instructions code,
+[data-theme="dark"] .article-body code, [data-theme="dark"] .tinymce-content code, [data-theme="dark"] .assignment-instructions code,
+body.theme-dark .article-body code, body.theme-dark .tinymce-content code, body.theme-dark .assignment-instructions code {
+    background: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+/* Light mode overrides for inline hardcoded white text */
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .article-body span[style*="color: rgb(255, 255, 255)"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .article-body span[style*="color: #fff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .article-body span[style*="color: #ffffff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .article-body p[style*="color: rgb(255, 255, 255)"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .article-body p[style*="color: #fff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .article-body p[style*="color: #ffffff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .assignment-instructions span[style*="color: rgb(255, 255, 255)"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .assignment-instructions span[style*="color: #fff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .assignment-instructions span[style*="color: #ffffff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .assignment-instructions p[style*="color: rgb(255, 255, 255)"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .assignment-instructions p[style*="color: #fff"],
+html:not([data-bs-theme="dark"]):not([data-theme="dark"]) body:not(.theme-dark):not(.dark-mode) .assignment-instructions p[style*="color: #ffffff"] {
+    color: #0f172a !important;
+}
+
+

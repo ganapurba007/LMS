@@ -402,7 +402,7 @@
                             </div>
                         </div>
                         <div class="p-3 p-sm-4 p-md-5">
-                            <div class="article-body">
+                            <div class="article-body tinymce-content">
                                 {!! $material->content !!}
                             </div>
                         </div>

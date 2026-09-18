@@ -32,7 +32,7 @@
             <i class="ti ti-database-edit"></i>
         </div>
         <div class="d-flex justify-content-between align-items-center flex-grow-1">
-            <h6 class="md-form-head-title mb-0">Informasi Soal ID #{{ $questionBank->id }}</h6>
+            <h6 class="md-form-head-title mb-0">Informasi Soal</h6>
             <span class="md-badge blue">
                 {{ strtoupper(str_replace('_', ' ', $questionBank->question_type ?? 'multiple_choice')) }}
             </span>
@@ -207,14 +207,15 @@
 @include('admin._partials.master-data-styles')
 
 <style>
+/* Format Pills */
 .qb-format-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: .35rem;
+    gap: .45rem;
 }
 .qb-format-pill {
     flex: 1;
-    min-width: 110px;
+    min-width: 120px;
 }
 .qb-format-pill input {
     display: none;
@@ -223,85 +224,229 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .3rem;
+    gap: .35rem;
     width: 100%;
-    padding: .45rem .6rem;
-    border-radius: 6px;
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    background: var(--tblr-body-bg, #f8fafc);
-    color: var(--tblr-text-muted, #64748b);
+    padding: .5rem .75rem;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
     font-size: .78rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all .15s ease;
     user-select: none;
     margin: 0;
 }
-.qb-format-pill input:checked + label {
-    background: rgba(8,145,178,.1);
-    border-color: #0891b2;
-    color: #0891b2;
-    font-weight: 700;
+.qb-format-pill label:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
 }
+.qb-format-pill input:checked + label {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    color: #0369a1;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+}
+
+/* Options Container & Rows */
 .qb-option-row {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    background: var(--tblr-body-bg, #f8fafc);
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    border-radius: 7px;
-    padding: .35rem .6rem;
-    transition: border-color .15s ease;
+    gap: .55rem;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: .45rem .75rem;
+    transition: all .15s ease;
+}
+.qb-option-row:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
 }
 .qb-option-row:focus-within {
-    border-color: #0891b2;
-    background: #fff;
+    border-color: #0284c7;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 .qb-opt-radio-wrap {
     display: flex;
     align-items: center;
-    gap: .3rem;
-    font-size: .75rem;
-    font-weight: 700;
-    color: var(--tblr-text-muted, #64748b);
+    gap: .35rem;
+    font-size: .82rem;
+    font-weight: 800;
+    color: #475569;
     cursor: pointer;
     flex-shrink: 0;
 }
 .qb-opt-radio-wrap input:checked ~ span {
-    color: #0ca678;
+    color: #059669;
 }
 .qb-option-input {
     border: none !important;
     background: transparent !important;
     padding: .25rem .3rem !important;
-    font-size: .8rem !important;
+    font-size: .84rem !important;
+    font-weight: 500 !important;
+    color: #0f172a !important;
     box-shadow: none !important;
     outline: none !important;
     flex: 1;
 }
+.qb-option-input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+}
+
+/* Form Controls & Textareas */
+.md-form-card textarea.form-control,
+.md-form-card input.form-control,
+.edit-pair-input {
+    border: 1.5px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: .84rem !important;
+    border-radius: 8px !important;
+}
+.md-form-card textarea.form-control:focus,
+.md-form-card input.form-control:focus,
+.edit-pair-input:focus {
+    border-color: #0284c7 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+.md-form-card textarea.form-control::placeholder,
+.md-form-card input.form-control::placeholder,
+.edit-pair-input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+}
+
+/* True / False Boxes */
 .qb-tf-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .4rem;
-    padding: .6rem;
-    border: 1.5px solid var(--tblr-border-color, #e2e8f0);
+    gap: .45rem;
+    padding: .75rem 1rem;
+    border: 1.5px solid #cbd5e1;
     border-radius: 8px;
-    background: var(--tblr-body-bg, #f8fafc);
+    background: #f8fafc;
     cursor: pointer;
-    font-size: .8rem;
+    font-size: .84rem;
     font-weight: 700;
+    color: #334155;
     transition: all .15s ease;
 }
+.qb-tf-box:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
+    color: #0f172a;
+}
 .qb-tf-wrap input:checked + .qb-tf-true {
-    border-color: #0ca678;
-    background: rgba(12,166,120,.08);
-    color: #0ca678;
+    border-color: #059669;
+    background: #ecfdf5;
+    color: #047857;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15);
 }
 .qb-tf-wrap input:checked + .qb-tf-false {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #b91c1c;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES
+   ============================================================ */
+[data-theme="dark"] .qb-format-pill label {
+    border-color: #334155;
+    background: rgba(15, 23, 42, 0.65);
+    color: #94a3b8;
+}
+[data-theme="dark"] .qb-format-pill label:hover {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: #475569;
+    color: #f1f5f9;
+}
+[data-theme="dark"] .qb-format-pill input:checked + label {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+}
+
+[data-theme="dark"] .qb-option-row {
+    background: rgba(15, 23, 42, 0.65);
+    border-color: #334155;
+}
+[data-theme="dark"] .qb-option-row:hover {
+    border-color: #475569;
+    background: rgba(15, 23, 42, 0.85);
+}
+[data-theme="dark"] .qb-option-row:focus-within {
+    border-color: #38bdf8;
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+[data-theme="dark"] .qb-opt-radio-wrap {
+    color: #94a3b8;
+}
+[data-theme="dark"] .qb-opt-radio-wrap input:checked ~ span {
+    color: #34d399;
+}
+[data-theme="dark"] .qb-option-input {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qb-option-input::placeholder {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .md-form-card textarea.form-control,
+[data-theme="dark"] .md-form-card input.form-control,
+[data-theme="dark"] .edit-pair-input {
+    border-color: #334155 !important;
+    background-color: rgba(15, 23, 42, 0.75) !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .md-form-card textarea.form-control:focus,
+[data-theme="dark"] .md-form-card input.form-control:focus,
+[data-theme="dark"] .edit-pair-input:focus {
+    border-color: #38bdf8 !important;
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="dark"] .md-form-card textarea.form-control::placeholder,
+[data-theme="dark"] .md-form-card input.form-control::placeholder,
+[data-theme="dark"] .edit-pair-input::placeholder {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .qb-tf-box {
+    border-color: #334155;
+    background: rgba(15, 23, 42, 0.65);
+    color: #cbd5e1;
+}
+[data-theme="dark"] .qb-tf-box:hover {
+    border-color: #475569;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f8fafc;
+}
+[data-theme="dark"] .qb-tf-wrap input:checked + .qb-tf-true {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+[data-theme="dark"] .qb-tf-wrap input:checked + .qb-tf-false {
     border-color: #ef4444;
-    background: rgba(239,68,68,.08);
-    color: #ef4444;
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 </style>
 

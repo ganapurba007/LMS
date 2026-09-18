@@ -159,11 +159,6 @@
                           style="background-color: #F2EFE7; color: #20456E !important; font-size: 0.8rem;">
                         <i class="ti ti-school text-primary"></i> Kelas {{ Auth::user()->schoolClass->name ?? 'Siswa' }}
                     </span>
-                    <!-- Predikat -->
-                    <span class="badge px-3 py-1.5 rounded-pill shadow-xs font-bold d-inline-flex align-items-center gap-1.5"
-                          style="background: {{ $predicateBadgeBg }}; color: {{ $predicateBadgeColor }} !important; font-size: 0.8rem;">
-                        <i class="ti ti-medal"></i> Predikat: {{ $gradePredicate }}
-                    </span>
                 </div>
 
                 <!-- Tombol Kembali -->

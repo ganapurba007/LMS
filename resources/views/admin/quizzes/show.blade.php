@@ -13,19 +13,11 @@
                 <i class="ti ti-list-check"></i>
             </div>
             <div>
-                <div class="d-flex align-items-center gap-1.5 mb-1 flex-wrap">
-                    <span class="md-badge blue">
-                        <i class="ti ti-school me-1"></i> {{ $quiz->schoolClass->name ?? $quiz->classroom->name ?? 'Kelas' }}
-                    </span>
-                    <span class="md-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);">
-                        <i class="ti ti-book me-1"></i> {{ $quiz->subject->name ?? 'Mata Pelajaran' }}
-                    </span>
-                </div>
                 <h5 class="md-title">Kelola Soal Kuis: {{ $quiz->title }}</h5>
             </div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <a href="{{ route('admin.quizzes.students', $quiz) }}" class="md-btn-secondary" style="color:#0891b2;border-color:rgba(8,145,178,.3);background:rgba(8,145,178,.05);">
+            <a href="{{ route('admin.quizzes.students', $quiz) }}" class="md-btn-secondary">
                 <i class="ti ti-users"></i> <span>Hasil &amp; Status Siswa</span>
             </a>
             <a href="{{ route('admin.quizzes.index') }}" class="md-btn-secondary">
@@ -55,24 +47,24 @@
     @endif
 
     <!-- Quiz Overview Card -->
-    <div class="card md-card mb-3">
+    <div class="card md-card qz-overview-card mb-3">
         <div class="card-body p-3 p-md-3.5">
             <div class="row g-3 align-items-center">
                 <div class="col-6 col-md-3">
-                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Mata Pelajaran</span>
-                    <div class="fw-bold fs-6 text-primary mt-0.5">{{ $quiz->subject->name ?? '-' }}</div>
+                    <span class="qz-meta-label">Mata Pelajaran</span>
+                    <div class="qz-meta-val text-primary">{{ $quiz->subject->name ?? '-' }}</div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Kelas Target</span>
-                    <div class="fw-bold fs-6 text-dark mt-0.5">{{ $quiz->schoolClass->name ?? $quiz->classroom->name ?? '-' }}</div>
+                    <span class="qz-meta-label">Kelas Target</span>
+                    <div class="qz-meta-val qz-text-main">{{ $quiz->schoolClass->name ?? $quiz->classroom->name ?? '-' }}</div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Durasi Pengerjaan</span>
-                    <div class="fw-bold fs-6 text-dark mt-0.5"><i class="ti ti-clock me-1 text-warning-emphasis"></i>{{ $quiz->formatted_duration }}</div>
+                    <span class="qz-meta-label">Durasi Pengerjaan</span>
+                    <div class="qz-meta-val qz-text-main"><i class="ti ti-clock me-1 text-warning"></i>{{ $quiz->formatted_duration }}</div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <span class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem;">Poin per Soal</span>
-                    <div class="fw-bold fs-6 text-success mt-0.5">{{ $quiz->points_per_question }} Poin</div>
+                    <span class="qz-meta-label">Poin per Soal</span>
+                    <div class="qz-meta-val text-success">{{ $quiz->points_per_question }} Poin</div>
                 </div>
             </div>
         </div>
@@ -81,43 +73,46 @@
 <div class="row g-4">
     <!-- Left Column: Current Quiz Questions List -->
     <div class="col-lg-7">
-        <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="card-title fw-bold mb-0 text-dark">Daftar Soal Kuis ({{ $quiz->questions->count() === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions->count() . ' Nomor • ' . $quiz->total_questions_count . ' Butir Soal' }})</h5>
+        <div class="card md-card qz-card">
+            <div class="qz-card-header d-flex justify-content-between align-items-center">
+                <h5 class="qz-card-title">
+                    <i class="ti ti-list-details text-primary me-1.5"></i>
+                    Daftar Soal Kuis <span class="qz-count-badge">({{ $quiz->questions->count() === $quiz->total_questions_count ? $quiz->total_questions_count . ' Soal' : $quiz->questions->count() . ' Nomor • ' . $quiz->total_questions_count . ' Butir Soal' }})</span>
+                </h5>
             </div>
             <div class="card-body p-0">
                 @forelse($quiz->questions as $index => $q)
-                    <div class="p-3 border-bottom {{ $loop->last ? 'border-0' : '' }}">
+                    <div class="qz-question-item {{ $loop->last ? 'last' : '' }}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div class="d-flex align-items-center gap-2">
-                                <h6 class="fw-bold mb-0">Soal {{ $index + 1 }}</h6>
+                                <h6 class="qz-question-num mb-0">Soal {{ $index + 1 }}</h6>
                                 @if($q->isMatching())
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">
-                                        <i class="ti ti-arrows-left-right me-1"></i> Menjodohkan
+                                    <span class="md-badge qb-badge-matching">
+                                        <i class="ti ti-arrows-left-right"></i> Menjodohkan
                                     </span>
                                 @elseif($q->isTrueFalse())
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">
-                                        <i class="ti ti-checkup-list me-1"></i> Benar / Salah
+                                    <span class="md-badge qb-badge-tf">
+                                        <i class="ti ti-checkup-list"></i> Benar / Salah
                                     </span>
                                 @else
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">
-                                        <i class="ti ti-list-check me-1"></i> Pilihan Ganda
+                                    <span class="md-badge qb-badge-mc">
+                                        <i class="ti ti-list-check"></i> Pilihan Ganda
                                     </span>
                                 @endif
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2.5 rounded-3" 
+                            <button type="button" class="qz-btn-delete-q" 
                                     onclick="openDeleteQuizQuestionModal('{{ route('admin.quizzes.destroy-question', [$quiz, $q]) }}', '{{ addslashes(Str::limit($q->question_text, 60)) }}')" 
                                     title="Hapus Soal">
-                                <i class="ti ti-trash me-1"></i> Hapus
+                                <i class="ti ti-trash"></i> <span>Hapus</span>
                             </button>
                         </div>
-                        <p class="mb-2 fw-medium text-dark">{{ $q->question_text }}</p>
+                        <p class="qz-question-text mb-2">{{ $q->question_text }}</p>
 
                         @if($q->isMatching())
                             <!-- Display Matching Pairs -->
                             <div class="table-responsive mt-2">
-                                <table class="table table-sm table-bordered mb-0 small">
-                                    <thead class="table-light">
+                                <table class="table table-sm qz-match-table mb-0">
+                                    <thead>
                                         <tr>
                                             <th style="width: 50%;">Premis / Pertanyaan</th>
                                             <th style="width: 50%;">Pasangan Jawaban Benar</th>
@@ -126,8 +121,8 @@
                                     <tbody>
                                         @foreach($q->options as $opt)
                                             <tr>
-                                                <td class="fw-semibold text-dark">{{ $opt->option_text }}</td>
-                                                <td class="text-success fw-bold"><i class="ti ti-arrow-right me-1"></i> {{ $opt->match_text }}</td>
+                                                <td class="premise-cell">{{ $opt->option_text }}</td>
+                                                <td class="match-cell"><i class="ti ti-arrow-right me-1"></i> {{ $opt->match_text }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -135,28 +130,31 @@
                             </div>
                         @elseif($q->isTrueFalse())
                             <!-- Display True/False -->
-                            <div class="d-flex align-items-center gap-3 mt-2">
+                            <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
                                 @foreach($q->options as $opt)
-                                    <div class="px-3 py-1.5 rounded-3 border d-flex align-items-center gap-1.5 small {{ $opt->is_correct ? 'bg-success-subtle border-success text-success fw-bold' : 'bg-light border-light text-muted' }}">
-                                        <i class="ti {{ $opt->is_correct ? 'ti-circle-check-filled' : 'ti-circle' }}"></i>
+                                    <div class="qz-tf-badge {{ $opt->is_correct ? 'qz-tf-correct' : 'qz-tf-inactive' }}">
+                                        <i class="ti {{ $opt->is_correct ? 'ti-circle-check-filled text-success' : 'ti-circle text-muted' }}"></i>
                                         <span>{{ $opt->option_text }}</span>
                                         @if($opt->is_correct)
-                                            <span class="badge bg-success ms-1" style="font-size: 0.68rem;">Kunci Jawaban</span>
+                                            <span class="qz-tf-key-tag">Kunci</span>
                                         @endif
                                     </div>
                                 @endforeach
                             </div>
                         @else
                             <!-- Display Multiple Choice Options -->
-                            <div class="ps-3 border-start border-3 border-primary">
+                            <div class="qz-mc-options">
                                 @foreach($q->options as $optIndex => $opt)
-                                    <div class="small mb-1 {{ $opt->is_correct ? 'text-success fw-bold' : 'text-muted' }}">
-                                        @if($opt->is_correct)
-                                            <i class="ti ti-check me-1"></i>
-                                        @else
-                                            <i class="ti ti-circle me-1"></i>
-                                        @endif
-                                        <span class="me-1 fw-bold">{{ chr(65 + $optIndex) }}.</span> {{ $opt->option_text }}
+                                    <div class="qz-mc-opt {{ $opt->is_correct ? 'is-correct' : '' }}">
+                                        <span class="qz-mc-icon">
+                                            @if($opt->is_correct)
+                                                <i class="ti ti-circle-check-filled text-success"></i>
+                                            @else
+                                                <i class="ti ti-circle text-muted"></i>
+                                            @endif
+                                        </span>
+                                        <span class="opt-letter">{{ chr(65 + $optIndex) }}.</span>
+                                        <span class="opt-text">{{ $opt->option_text }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -164,7 +162,7 @@
                     </div>
                 @empty
                     <div class="text-center py-5 text-muted">
-                        <i class="ti ti-help-off fs-1 d-block mb-2 text-secondary"></i>
+                        <i class="ti ti-help-off fs-1 d-block mb-2 text-secondary opacity-50"></i>
                         Belum ada soal dalam kuis ini. Silakan impor dari Bank Soal atau tambah soal manual.
                     </div>
                 @endforelse
@@ -175,32 +173,30 @@
     <!-- Right Column: Import from Bank Soal or Manual Creation -->
     <div class="col-lg-5">
         <!-- Import from Question Bank Card -->
-        <div class="card shadow-sm border-0 mb-4 rounded-3">
-            <div class="card-header py-3 bg-white border-bottom">
-                <h5 class="card-title fw-bold mb-0 text-dark">
-                    <i class="ti ti-file-import text-primary me-1"></i> Impor Soal dari Bank Soal
+        <div class="card md-card qz-card mb-4">
+            <div class="qz-card-header">
+                <h5 class="qz-card-title">
+                    <i class="ti ti-file-import text-primary me-1.5"></i> Impor Soal dari Bank Soal
                 </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-3">
                 <form action="{{ route('admin.quizzes.import-questions', $quiz) }}" method="POST">
                     @csrf
-                    <div class="mb-3" style="max-height: 250px; overflow-y: auto;">
+                    <div class="qz-qb-scroll mb-3">
                         @forelse($questionBanks as $qb)
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="question_bank_ids[]" value="{{ $qb->id }}" id="qb_{{ $qb->id }}">
-                                <label class="form-check-label small" for="qb_{{ $qb->id }}">
-                                    @if($qb->isMatching())
-                                        <span class="badge bg-info-subtle text-info me-1" style="font-size: 0.65rem;">Menjodohkan</span>
-                                    @elseif($qb->isTrueFalse())
-                                        <span class="badge bg-warning-subtle text-warning-emphasis me-1" style="font-size: 0.65rem;">Benar/Salah</span>
-                                    @else
-                                        <span class="badge bg-primary-subtle text-primary me-1" style="font-size: 0.65rem;">Pilgan</span>
-                                    @endif
-                                    {{ Str::limit($qb->question_text, 65) }}
-                                </label>
-                            </div>
+                            <label class="qz-qb-item d-flex align-items-center gap-2 mb-1.5" for="qb_{{ $qb->id }}">
+                                <input class="form-check-input mt-0 flex-shrink-0" type="checkbox" name="question_bank_ids[]" value="{{ $qb->id }}" id="qb_{{ $qb->id }}">
+                                @if($qb->isMatching())
+                                    <span class="md-badge qb-badge-matching qz-mini-badge">Menjodohkan</span>
+                                @elseif($qb->isTrueFalse())
+                                    <span class="md-badge qb-badge-tf qz-mini-badge">Benar/Salah</span>
+                                @else
+                                    <span class="md-badge qb-badge-mc qz-mini-badge">Pilgan</span>
+                                @endif
+                                <span class="qz-qb-item-text">{{ Str::limit($qb->question_text, 65) }}</span>
+                            </label>
                         @empty
-                            <div class="small text-muted">Bank Soal masih kosong.</div>
+                            <div class="small text-muted py-2">Bank Soal masih kosong.</div>
                         @endforelse
                     </div>
                     <button type="submit" class="md-btn-primary w-100 justify-content-center" {{ $questionBanks->isEmpty() ? 'disabled' : '' }}>
@@ -211,12 +207,12 @@
         </div>
 
         <!-- Multi-Question Builder Card -->
-        <div class="card md-card">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom">
-                <h5 class="card-title fw-bold mb-0 text-dark" style="font-size: .92rem;">
-                    <i class="ti ti-cards text-success me-1"></i> Buat Soal Kuis
+        <div class="card md-card qz-card">
+            <div class="qz-card-header d-flex justify-content-between align-items-center">
+                <h5 class="qz-card-title">
+                    <i class="ti ti-cards text-success me-1.5"></i> Buat Soal Kuis
                 </h5>
-                <button type="button" class="md-btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQuickPaste" style="color:#d97706;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05);">
+                <button type="button" class="qz-btn-quickpaste" data-bs-toggle="modal" data-bs-target="#modalQuickPaste">
                     <i class="ti ti-bolt text-warning"></i> <span>Input Cepat (Teks)</span>
                 </button>
             </div>
@@ -249,14 +245,14 @@
 <div class="modal fade" id="modalQuickPaste" tabindex="-1" aria-labelledby="modalQuickPasteLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content md-modal-content text-start">
-            <div class="modal-header bg-light border-bottom px-4 py-3">
-                <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="modalQuickPasteLabel">
+            <div class="modal-header qz-modal-header px-4 py-3">
+                <h5 class="modal-title fw-bold qz-modal-title d-flex align-items-center gap-2" id="modalQuickPasteLabel">
                     <i class="ti ti-bolt text-warning fs-4"></i> Input Cepat Soal dari Teks (Salin-Tempel Massal)
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body px-4 py-3">
-                <p class="text-muted small mb-2">
+                <p class="qz-modal-subtitle small mb-2">
                     Salin naskah soal Anda dari dokumen (Word / PDF / Notepad), lalu tempelkan di bawah ini. Sistem cerdas akan mendeteksi soal <strong>Pilihan Ganda</strong>, <strong>Benar/Salah</strong>, dan <strong>Menjodohkan</strong> sekaligus!
                 </p>
                 
@@ -266,10 +262,10 @@
                         <i class="ti ti-file-text me-1"></i> Muat Contoh Format
                     </button>
                 </div>
-                <textarea id="quickPasteTextarea" class="form-control font-monospace" rows="10" placeholder="1. Apa ibukota negara Indonesia?&#10;A. Jakarta&#10;B. Bandung&#10;C. Surabaya&#10;D. Medan&#10;Kunci: A&#10;&#10;2. Bumi mengelilingi matahari dalam kurun waktu 1 tahun.&#10;Kunci: Benar&#10;&#10;3. Jodohkan bahasa pemrograman dengan ekstensinya:&#10;PHP = .php&#10;Python = .py&#10;JavaScript = .js"></textarea>
+                <textarea id="quickPasteTextarea" class="form-control font-monospace qz-form-control" rows="10" placeholder="1. Apa ibukota negara Indonesia?&#10;A. Jakarta&#10;B. Bandung&#10;C. Surabaya&#10;D. Medan&#10;Kunci: A&#10;&#10;2. Bumi mengelilingi matahari dalam kurun waktu 1 tahun.&#10;Kunci: Benar&#10;&#10;3. Jodohkan bahasa pemrograman dengan ekstensinya:&#10;PHP = .php&#10;Python = .py&#10;JavaScript = .js"></textarea>
 
-                <div class="alert alert-light border small text-muted mt-3 mb-0 p-2.5 rounded-3">
-                    <div class="fw-bold text-dark mb-1"><i class="ti ti-info-circle text-primary me-1"></i> Panduan Format:</div>
+                <div class="qz-guide-alert mt-3 mb-0 p-3 rounded-3">
+                    <div class="fw-bold qz-guide-title mb-1"><i class="ti ti-info-circle text-primary me-1"></i> Panduan Format:</div>
                     <ul class="mb-0 ps-3">
                         <li><strong>Pilihan Ganda:</strong> Diawali nomor, baris opsi diawali <code>A.</code>, <code>B.</code>, dst, dan baris kunci <code>Kunci: A</code> atau <code>Jawaban: A</code>.</li>
                         <li><strong>Benar / Salah:</strong> Pertanyaan/pernyataan diikuti baris <code>Kunci: Benar</code> atau <code>Kunci: Salah</code>.</li>
@@ -277,7 +273,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="modal-footer bg-light border-top px-4 py-2.5">
+            <div class="modal-footer qz-modal-footer px-4 py-2.5">
                 <button type="button" class="md-btn-light" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="md-btn-primary" onclick="parseAndInsertQuestions()">
                     <i class="ti ti-sparkles"></i> <span>Konversi &amp; Masukkan ke Form</span>
@@ -349,6 +345,583 @@
     </div>
 </div>
 
+<style>
+/* ==========================================================================
+   QUIZ SHOW & QUESTION BUILDER DEDICATED STYLES (Light & Dark Compatible)
+   ========================================================================== */
+
+/* Overview Card */
+.qz-overview-card {
+    background: var(--tblr-card-bg, #ffffff);
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+}
+.qz-meta-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #64748b;
+}
+.qz-meta-val {
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin-top: .15rem;
+}
+.qz-text-main {
+    color: #0f172a;
+}
+
+/* Base Quiz Card */
+.qz-card {
+    background: var(--tblr-card-bg, #ffffff);
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    border-radius: 12px;
+}
+.qz-card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--tblr-border-color, #e2e8f0);
+    padding: .85rem 1.15rem;
+}
+.qz-card-title {
+    font-size: .95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+.qz-count-badge {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-left: .35rem;
+}
+
+/* Question List Items */
+.qz-question-item {
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid var(--tblr-border-color, #f1f5f9);
+    transition: background .15s ease;
+}
+.qz-question-item.last {
+    border-bottom: none;
+}
+.qz-question-num {
+    font-size: .9rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+.qz-question-text {
+    font-size: .88rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.55;
+}
+.qz-btn-delete-q {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .2rem .55rem;
+    border-radius: 6px;
+    font-size: .74rem;
+    font-weight: 600;
+    color: #ef4444;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    cursor: pointer;
+    transition: all .15s ease;
+    text-decoration: none;
+}
+.qz-btn-delete-q:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+}
+
+/* Matching Table */
+.qz-match-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+}
+.qz-match-table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: .74rem;
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--tblr-border-color, #e2e8f0);
+}
+.qz-match-table tbody td {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--tblr-border-color, #f1f5f9);
+    font-size: .8rem;
+    vertical-align: middle;
+}
+.qz-match-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.premise-cell {
+    font-weight: 600;
+    color: #0f172a;
+}
+.match-cell {
+    font-weight: 700;
+    color: #059669;
+}
+
+/* True / False Display Badges */
+.qz-tf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .75rem;
+    border-radius: 7px;
+    font-size: .78rem;
+    font-weight: 600;
+}
+.qz-tf-correct {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+.qz-tf-inactive {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+.qz-tf-key-tag {
+    background: #059669;
+    color: #ffffff;
+    font-size: .65rem;
+    font-weight: 700;
+    padding: .08rem .35rem;
+    border-radius: 4px;
+    margin-left: .25rem;
+}
+
+/* Multiple Choice Display */
+.qz-mc-options {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    padding-left: .75rem;
+    border-left: 3px solid #3b82f6;
+    margin-top: .4rem;
+}
+.qz-mc-opt {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .83rem;
+    line-height: 1.45;
+    color: #475569;
+}
+.qz-mc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    font-size: .95rem;
+    flex-shrink: 0;
+}
+.qz-mc-opt.is-correct {
+    color: #059669;
+    font-weight: 700;
+}
+.opt-letter {
+    font-weight: 700;
+    min-width: 18px;
+    color: #334155;
+}
+.opt-text {
+    flex: 1;
+}
+
+/* Bank Soal List in Right Column */
+.qz-qb-scroll {
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.qz-qb-item {
+    padding: .4rem .6rem;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+.qz-qb-item:hover {
+    background: #f1f5f9;
+}
+.qz-qb-item .form-check-input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+.qz-mini-badge {
+    font-size: .65rem !important;
+    padding: .15rem .45rem !important;
+    flex-shrink: 0;
+}
+.qz-qb-item-text {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+/* Input Cepat Button */
+.qz-btn-quickpaste {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .75rem;
+    border-radius: 7px;
+    font-size: .76rem;
+    font-weight: 700;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #b45309;
+    cursor: pointer;
+    transition: all .15s ease;
+    text-decoration: none;
+}
+.qz-btn-quickpaste:hover {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+/* Question Builder Dynamic Cards */
+.question-builder-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem;
+    transition: all .15s ease;
+}
+.qz-builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .6rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+.qz-form-control {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+.qz-form-control:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+}
+.qz-input-group-text {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-right: none !important;
+}
+
+/* Format Pills in Builder */
+.qz-format-pills {
+    display: flex;
+    gap: .4rem;
+    width: 100%;
+}
+.qz-format-pill {
+    flex: 1;
+    text-align: center;
+    padding: .35rem .5rem;
+    border-radius: 7px;
+    font-size: .76rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s ease;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+.btn-check:checked + .qz-pill-mc {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+.btn-check:checked + .qz-pill-tf {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    border-color: #b45309 !important;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+}
+.btn-check:checked + .qz-pill-match {
+    background: #0891b2 !important;
+    color: #ffffff !important;
+    border-color: #0e7490 !important;
+    box-shadow: 0 2px 6px rgba(8, 145, 178, 0.25);
+}
+
+/* True/False Selector in Builder */
+.qz-builder-tf-wrap {
+    display: flex;
+    gap: .6rem;
+    width: 100%;
+}
+.qz-builder-tf-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all .15s ease;
+    margin-bottom: 0;
+}
+.qz-tf-true .qz-tf-text {
+    color: #059669;
+    font-weight: 700;
+    font-size: .8rem;
+}
+.qz-tf-false .qz-tf-text {
+    color: #dc2626;
+    font-weight: 700;
+    font-size: .8rem;
+}
+
+/* Quick Paste Modal Styles */
+.qz-modal-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+.qz-modal-title {
+    color: #0f172a;
+    font-size: 1.05rem;
+}
+.qz-modal-subtitle {
+    color: #64748b;
+}
+.qz-guide-alert {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: .78rem;
+}
+.qz-guide-title {
+    color: #0f172a;
+}
+.qz-modal-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES ([data-theme="dark"])
+   ========================================================================== */
+[data-theme="dark"] .qz-overview-card {
+    background: var(--tblr-card-bg, #182234);
+    border-color: var(--tblr-border-color, rgba(255, 255, 255, 0.1));
+}
+[data-theme="dark"] .qz-meta-label {
+    color: #94a3b8;
+}
+[data-theme="dark"] .qz-text-main {
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .qz-card {
+    background: var(--tblr-card-bg, #182234);
+    border-color: var(--tblr-border-color, rgba(255, 255, 255, 0.1));
+}
+[data-theme="dark"] .qz-card-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .qz-card-title {
+    color: #f8fafc;
+}
+[data-theme="dark"] .qz-count-badge {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .qz-question-item {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .qz-question-num {
+    color: #f8fafc;
+}
+[data-theme="dark"] .qz-question-text {
+    color: #f1f5f9;
+}
+[data-theme="dark"] .qz-btn-delete-q {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #f87171;
+}
+[data-theme="dark"] .qz-btn-delete-q:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    border-color: #ef4444;
+}
+
+/* Matching Table Dark Mode */
+[data-theme="dark"] .qz-match-table {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+[data-theme="dark"] .qz-match-table thead th {
+    background: rgba(15, 23, 42, 0.6);
+    color: #cbd5e1;
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+[data-theme="dark"] .qz-match-table tbody td {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .premise-cell {
+    color: #e2e8f0;
+}
+[data-theme="dark"] .match-cell {
+    color: #34d399;
+}
+
+/* True / False Badges Dark Mode */
+[data-theme="dark"] .qz-tf-correct {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #34d399;
+}
+[data-theme="dark"] .qz-tf-inactive {
+    background: rgba(15, 23, 42, 0.45);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+/* MC Options Dark Mode */
+[data-theme="dark"] .qz-mc-opt {
+    color: #94a3b8;
+}
+[data-theme="dark"] .qz-mc-opt.is-correct {
+    color: #34d399;
+}
+
+/* Right Column Bank Soal Dark Mode */
+[data-theme="dark"] .qz-qb-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .qz-qb-item-text {
+    color: #e2e8f0;
+}
+
+/* Quick Paste Button Dark Mode */
+[data-theme="dark"] .qz-btn-quickpaste {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+}
+[data-theme="dark"] .qz-btn-quickpaste:hover {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: #fbbf24;
+    color: #fef08a;
+}
+
+/* Builder Items Dark Mode */
+[data-theme="dark"] .question-builder-item {
+    background: rgba(15, 23, 42, 0.45);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .qz-builder-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .qz-form-control {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qz-form-control:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important;
+}
+[data-theme="dark"] .qz-form-control::placeholder {
+    color: #64748b !important;
+}
+[data-theme="dark"] .qz-input-group-text {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Format Pills Dark Mode */
+[data-theme="dark"] .qz-format-pill {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+}
+[data-theme="dark"] .btn-check:checked + .qz-pill-mc {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+    border-color: #60a5fa !important;
+}
+[data-theme="dark"] .btn-check:checked + .qz-pill-tf {
+    background: #f59e0b !important;
+    color: #ffffff !important;
+    border-color: #fbbf24 !important;
+}
+[data-theme="dark"] .btn-check:checked + .qz-pill-match {
+    background: #06b6d4 !important;
+    color: #ffffff !important;
+    border-color: #22d3ee !important;
+}
+
+/* Builder TF Box Dark Mode */
+[data-theme="dark"] .qz-builder-tf-box {
+    background: rgba(15, 23, 42, 0.7);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] .qz-tf-true .qz-tf-text {
+    color: #34d399;
+}
+[data-theme="dark"] .qz-tf-false .qz-tf-text {
+    color: #f87171;
+}
+
+/* Modals Dark Mode */
+[data-theme="dark"] .qz-modal-header {
+    background: rgba(15, 23, 42, 0.6);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .qz-modal-title {
+    color: #f8fafc;
+}
+[data-theme="dark"] .qz-modal-subtitle {
+    color: #94a3b8;
+}
+[data-theme="dark"] .qz-guide-alert {
+    background: rgba(15, 23, 42, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+[data-theme="dark"] .qz-guide-title {
+    color: #f8fafc;
+}
+[data-theme="dark"] .qz-guide-alert strong {
+    color: #e2e8f0;
+}
+[data-theme="dark"] .qz-guide-alert code {
+    background: rgba(255, 255, 255, 0.08);
+    color: #38bdf8;
+}
+[data-theme="dark"] .qz-modal-footer {
+    background: rgba(15, 23, 42, 0.6);
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+</style>
+
 <script>
     let questionCounter = 0;
     let pendingDeleteQuizIndex = null;
@@ -383,7 +956,7 @@
         ];
 
         const card = document.createElement('div');
-        card.className = 'question-builder-item border rounded-3 p-3 bg-light position-relative shadow-2xs overflow-hidden';
+        card.className = 'question-builder-item position-relative overflow-hidden';
         card.id = `qCard_${index}`;
         card.setAttribute('data-q-idx', index);
         card.setAttribute('data-current-type', qType);
@@ -397,10 +970,10 @@
             const isReq = (i < 2) ? 'required' : '';
             optionsHtml += `
                 <div class="input-group input-group-sm mb-1.5">
-                    <div class="input-group-text bg-white">
+                    <div class="input-group-text qz-input-group-text">
                         <input class="form-check-input mt-0" type="radio" name="questions[${index}][correct_option]" value="${i}" ${checked} title="Tandai sebagai kunci jawaban">
                     </div>
-                    <input type="text" name="questions[${index}][options][]" class="form-control form-control-sm bg-white" placeholder="${placeholder}" value="${escapeHtml(val)}" ${isReq}>
+                    <input type="text" name="questions[${index}][options][]" class="form-control form-control-sm qz-form-control" placeholder="${placeholder}" value="${escapeHtml(val)}" ${isReq}>
                 </div>
             `;
         }
@@ -410,10 +983,10 @@
             pairsHtml += `
                 <div class="row g-1 align-items-center mb-1.5 pair-row">
                     <div class="col-6">
-                        <input type="text" name="questions[${index}][pairs][${pIdx}][premise]" class="form-control form-control-sm bg-white" placeholder="Premis ${pIdx + 1}" value="${escapeHtml(p.premise || '')}">
+                        <input type="text" name="questions[${index}][pairs][${pIdx}][premise]" class="form-control form-control-sm qz-form-control" placeholder="Premis ${pIdx + 1}" value="${escapeHtml(p.premise || '')}">
                     </div>
                     <div class="col-5">
-                        <input type="text" name="questions[${index}][pairs][${pIdx}][match]" class="form-control form-control-sm bg-white" placeholder="Pasangan ${pIdx + 1}" value="${escapeHtml(p.match || '')}">
+                        <input type="text" name="questions[${index}][pairs][${pIdx}][match]" class="form-control form-control-sm qz-form-control" placeholder="Pasangan ${pIdx + 1}" value="${escapeHtml(p.match || '')}">
                     </div>
                     <div class="col-1 text-center">
                         <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removePairRowFromCard(this)" title="Hapus baris">
@@ -425,7 +998,7 @@
         });
 
         card.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+            <div class="qz-builder-header">
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge bg-primary rounded-pill px-2.5 py-1 fw-bold q-num-badge">Soal #1</span>
                 </div>
@@ -436,27 +1009,23 @@
                 </div>
             </div>
 
-            <!-- Format Selector (Responsive Flex-Wrap) -->
+            <!-- Format Selector -->
             <div class="mb-2">
-                <div class="d-flex flex-wrap gap-1" role="group">
-                    <div class="flex-fill" style="min-width: 80px;">
-                        <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qtype_${index}_mc" value="multiple_choice" ${qType === 'multiple_choice' ? 'checked' : ''} onchange="handleQuizFormatChange(${index}, 'multiple_choice')">
-                        <label class="btn btn-sm btn-outline-primary w-100 text-nowrap py-1 px-1.5" for="qtype_${index}_mc"><i class="ti ti-list-check me-1"></i>Pilgan</label>
-                    </div>
-                    <div class="flex-fill" style="min-width: 95px;">
-                        <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qtype_${index}_tf" value="true_false" ${qType === 'true_false' ? 'checked' : ''} onchange="handleQuizFormatChange(${index}, 'true_false')">
-                        <label class="btn btn-sm btn-outline-warning text-dark w-100 text-nowrap py-1 px-1.5" for="qtype_${index}_tf"><i class="ti ti-checkup-list me-1"></i>Benar/Salah</label>
-                    </div>
-                    <div class="flex-fill" style="min-width: 100px;">
-                        <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qtype_${index}_match" value="matching" ${qType === 'matching' ? 'checked' : ''} onchange="handleQuizFormatChange(${index}, 'matching')">
-                        <label class="btn btn-sm btn-outline-info text-dark w-100 text-nowrap py-1 px-1.5" for="qtype_${index}_match"><i class="ti ti-arrows-left-right me-1"></i>Menjodohkan</label>
-                    </div>
+                <div class="qz-format-pills" role="group">
+                    <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qtype_${index}_mc" value="multiple_choice" ${qType === 'multiple_choice' ? 'checked' : ''} onchange="handleQuizFormatChange(${index}, 'multiple_choice')">
+                    <label class="qz-format-pill qz-pill-mc" for="qtype_${index}_mc"><i class="ti ti-list-check me-1"></i>Pilgan</label>
+
+                    <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qtype_${index}_tf" value="true_false" ${qType === 'true_false' ? 'checked' : ''} onchange="handleQuizFormatChange(${index}, 'true_false')">
+                    <label class="qz-format-pill qz-pill-tf" for="qtype_${index}_tf"><i class="ti ti-checkup-list me-1"></i>Benar/Salah</label>
+
+                    <input type="radio" class="btn-check" name="questions[${index}][question_type]" id="qtype_${index}_match" value="matching" ${qType === 'matching' ? 'checked' : ''} onchange="handleQuizFormatChange(${index}, 'matching')">
+                    <label class="qz-format-pill qz-pill-match" for="qtype_${index}_match"><i class="ti ti-arrows-left-right me-1"></i>Menjodohkan</label>
                 </div>
             </div>
 
             <!-- Pertanyaan -->
             <div class="mb-2 ${qType === 'matching' ? 'd-none' : ''}" id="quiz_sec_qtext_${index}">
-                <textarea name="questions[${index}][question_text]" class="form-control form-control-sm bg-white" rows="2" placeholder="Tuliskan pertanyaan soal..." ${qType === 'matching' ? '' : 'required'}>${escapeHtml(qText)}</textarea>
+                <textarea name="questions[${index}][question_text]" class="form-control form-control-sm qz-form-control" rows="2" placeholder="Tuliskan pertanyaan soal..." ${qType === 'matching' ? '' : 'required'}>${escapeHtml(qText)}</textarea>
             </div>
 
             <!-- Section MC -->
@@ -470,15 +1039,15 @@
             <!-- Section TF -->
             <div class="sec-tf ${qType === 'true_false' ? '' : 'd-none'}" id="sec_tf_${index}">
                 <label class="form-label small fw-semibold text-muted mb-1">Pilih Kunci Jawaban yang Benar:</label>
-                <div class="d-flex gap-2">
-                    <div class="form-check form-check-inline p-2 border rounded bg-white flex-fill text-center">
-                        <input class="form-check-input" type="radio" name="questions[${index}][correct_tf]" id="q${index}_tf_true" value="Benar" ${correctTf === 'Benar' ? 'checked' : ''}>
-                        <label class="form-check-label fw-bold text-success small" for="q${index}_tf_true">Benar (True)</label>
-                    </div>
-                    <div class="form-check form-check-inline p-2 border rounded bg-white flex-fill text-center">
-                        <input class="form-check-input" type="radio" name="questions[${index}][correct_tf]" id="q${index}_tf_false" value="Salah" ${correctTf === 'Salah' ? 'checked' : ''}>
-                        <label class="form-check-label fw-bold text-danger small" for="q${index}_tf_false">Salah (False)</label>
-                    </div>
+                <div class="qz-builder-tf-wrap">
+                    <label class="qz-builder-tf-box qz-tf-true" for="q${index}_tf_true">
+                        <input class="form-check-input me-1.5" type="radio" name="questions[${index}][correct_tf]" id="q${index}_tf_true" value="Benar" ${correctTf === 'Benar' ? 'checked' : ''}>
+                        <span class="qz-tf-text"><i class="ti ti-check me-0.5"></i> Benar (True)</span>
+                    </label>
+                    <label class="qz-builder-tf-box qz-tf-false" for="q${index}_tf_false">
+                        <input class="form-check-input me-1.5" type="radio" name="questions[${index}][correct_tf]" id="q${index}_tf_false" value="Salah" ${correctTf === 'Salah' ? 'checked' : ''}>
+                        <span class="qz-tf-text"><i class="ti ti-x me-0.5"></i> Salah (False)</span>
+                    </label>
                 </div>
             </div>
 
@@ -626,10 +1195,10 @@
         row.className = 'row g-1 align-items-center mb-1.5 pair-row';
         row.innerHTML = `
             <div class="col-6">
-                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][premise]" class="form-control form-control-sm bg-white" placeholder="Premis ${currentCount + 1}" required>
+                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][premise]" class="form-control form-control-sm qz-form-control" placeholder="Premis ${currentCount + 1}" required>
             </div>
             <div class="col-5">
-                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][match]" class="form-control form-control-sm bg-white" placeholder="Pasangan ${currentCount + 1}" required>
+                <input type="text" name="questions[${qIndex}][pairs][${currentCount}][match]" class="form-control form-control-sm qz-form-control" placeholder="Pasangan ${currentCount + 1}" required>
             </div>
             <div class="col-1 text-center">
                 <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removePairRowFromCard(this)">

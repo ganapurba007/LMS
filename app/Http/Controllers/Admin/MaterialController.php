@@ -6,6 +6,7 @@ use App\Events\DiscussionCommentSent;
 use App\Events\MaterialCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use App\Models\MaterialBank;
 use App\Models\MaterialDiscussion;
 use App\Models\MaterialProgress;
 use App\Models\Notification;
@@ -120,49 +121,52 @@ class MaterialController extends Controller
         $userSubjects = $user ? $user->subjects : collect();
         $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
+        $materialBanks = MaterialBank::where('instructor_id', Auth::id())->with('subject')->orderBy('title')->get();
 
-        return view('admin.materials.create', compact('subjects', 'classes'));
+        return view('admin.materials.create', compact('subjects', 'classes', 'materialBanks'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'subject_id' => ['required', 'exists:subjects,id'],
+            'material_bank_id' => ['required', 'exists:material_banks,id'],
             'class_id' => ['required', 'exists:classes,id'],
-            'content_type' => ['nullable', 'string'],
-            'content' => ['nullable', 'string'],
-            'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg', 'max:20480'],
-            'video_url' => ['nullable', 'url'],
             'order' => ['nullable', 'integer', 'min:0'],
+        ], [
+            'material_bank_id.required' => 'Silakan pilih materi dari Bank Materi.',
+            'material_bank_id.exists' => 'Materi dari Bank Materi tidak valid.',
+            'class_id.required' => 'Silakan pilih kelas target penerima.',
+            'class_id.exists' => 'Kelas yang dipilih tidak valid.',
         ]);
 
+        $bankItem = MaterialBank::with('subject')->findOrFail($request->material_bank_id);
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $request->subject_id)->exists()) {
-            return back()->withErrors(['subject_id' => 'Anda tidak berhak membuat materi untuk mata pelajaran ini.'])->withInput();
+
+        $subjectId = $bankItem->subject_id;
+        if (!$subjectId) {
+            $firstSubj = $user->subjects()->first() ?? Subject::first();
+            $subjectId = $firstSubj ? $firstSubj->id : null;
+        }
+
+        if ($subjectId && $user->subjects()->exists() && !$user->subjects()->where('subjects.id', $subjectId)->exists()) {
+            return back()->withErrors(['material_bank_id' => 'Anda tidak berhak menerbitkan materi untuk mata pelajaran ini.'])->withInput();
         }
 
         $documentPath = null;
-        if ($request->hasFile('document_file')) {
-            $documentPath = $request->file('document_file')->store('materials', 'public');
-        }
-
-        // Determine content_type for backward database compatibility
-        $contentType = $request->content_type ?? 'text';
-        if ($request->video_url && !$request->content && !$documentPath) {
-            $contentType = 'youtube';
-        } elseif ($documentPath && !$request->content && !$request->video_url) {
-            $contentType = 'document';
+        if ($bankItem->document_path && Storage::disk('public')->exists($bankItem->document_path)) {
+            $filename = basename($bankItem->document_path);
+            $documentPath = 'materials/' . Str::random(20) . '_' . $filename;
+            Storage::disk('public')->copy($bankItem->document_path, $documentPath);
         }
 
         $material = new Material();
-        $material->title = trim($request->title);
-        $material->content_type = $contentType;
-        $material->content = $request->content;
+        $material->title = $bankItem->title;
+        $material->content_type = $bankItem->content_type ?? 'text';
+        $material->content = $bankItem->content;
         $material->document_path = $documentPath;
-        $material->video_url = $request->video_url;
+        $material->video_url = $bankItem->video_url;
         $material->order = $request->order ?? 0;
-        $material->subject_id = $request->subject_id;
+        $material->subject_id = $subjectId;
         $material->class_id = $request->class_id;
         $material->instructor_id = Auth::id();
         $material->save();
@@ -189,7 +193,7 @@ class MaterialController extends Controller
         }
 
         return redirect()->route('admin.materials.index')
-            ->with('success', 'Materi pembelajaran berhasil ditambahkan.');
+            ->with('success', 'Materi "' . $material->title . '" berhasil diterbitkan ke kelas.');
     }
 
     public function edit(Material $material): View
@@ -206,53 +210,68 @@ class MaterialController extends Controller
 
         $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name')->get();
+        $materialBanks = MaterialBank::where('instructor_id', Auth::id())->with('subject')->orderBy('title')->get();
 
-        return view('admin.materials.edit', compact('material', 'subjects', 'classes'));
+        return view('admin.materials.edit', compact('material', 'subjects', 'classes', 'materialBanks'));
     }
 
     public function update(Request $request, Material $material): RedirectResponse
     {
         $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'subject_id' => ['required', 'exists:subjects,id'],
+            'material_bank_id' => ['required', 'exists:material_banks,id'],
             'class_id' => ['required', 'exists:classes,id'],
-            'content_type' => ['nullable', 'string'],
-            'content' => ['nullable', 'string'],
-            'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,zip,rar,txt,png,jpg,jpeg', 'max:20480'],
-            'video_url' => ['nullable', 'url'],
             'order' => ['nullable', 'integer', 'min:0'],
+        ], [
+            'material_bank_id.required' => 'Silakan pilih materi dari Bank Materi.',
+            'material_bank_id.exists' => 'Materi dari Bank Materi tidak valid.',
+            'class_id.required' => 'Silakan pilih kelas target penerima.',
+            'class_id.exists' => 'Kelas yang dipilih tidak valid.',
         ]);
 
+        $bankItem = MaterialBank::with('subject')->findOrFail($request->material_bank_id);
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $request->subject_id)->exists()) {
-            return back()->withErrors(['subject_id' => 'Anda tidak berhak mengedit materi untuk mata pelajaran ini.'])->withInput();
+
+        $subjectId = $bankItem->subject_id;
+        if (!$subjectId) {
+            $firstSubj = $user->subjects()->first() ?? Subject::first();
+            $subjectId = $firstSubj ? $firstSubj->id : null;
         }
 
-        if ($request->hasFile('document_file')) {
-            if ($material->document_path) {
+        if ($subjectId && $user->subjects()->exists() && !$user->subjects()->where('subjects.id', $subjectId)->exists()) {
+            return back()->withErrors(['material_bank_id' => 'Anda tidak berhak memperbarui materi untuk mata pelajaran ini.'])->withInput();
+        }
+
+        // Handle Document copying from Bank Materi
+        $documentPath = $material->document_path;
+        if ($bankItem->document_path) {
+            if ($material->document_path && $material->document_path !== $bankItem->document_path && Storage::disk('public')->exists($material->document_path)) {
                 Storage::disk('public')->delete($material->document_path);
             }
-            $material->document_path = $request->file('document_file')->store('materials', 'public');
+
+            if (Storage::disk('public')->exists($bankItem->document_path)) {
+                $filename = basename($bankItem->document_path);
+                $documentPath = 'materials/' . Str::random(20) . '_' . $filename;
+                Storage::disk('public')->copy($bankItem->document_path, $documentPath);
+            }
+        } else {
+            if ($material->document_path && Storage::disk('public')->exists($material->document_path)) {
+                Storage::disk('public')->delete($material->document_path);
+            }
+            $documentPath = null;
         }
 
-        $contentType = $request->content_type ?? $material->content_type ?? 'text';
-        if ($request->video_url && !$request->content && !$material->document_path) {
-            $contentType = 'youtube';
-        } elseif ($material->document_path && !$request->content && !$request->video_url) {
-            $contentType = 'document';
-        }
-
-        $material->title = trim($request->title);
-        $material->content_type = $contentType;
-        $material->content = $request->content;
-        $material->video_url = $request->video_url;
+        $material->title = $bankItem->title;
+        $material->content_type = $bankItem->content_type ?? 'text';
+        $material->content = $bankItem->content;
+        $material->document_path = $documentPath;
+        $material->video_url = $bankItem->video_url;
         $material->order = $request->order ?? 0;
-        $material->subject_id = $request->subject_id;
+        $material->subject_id = $subjectId;
         $material->class_id = $request->class_id;
         $material->save();
 
         return redirect()->route('admin.materials.index')
-            ->with('success', 'Materi pembelajaran berhasil diperbarui.');
+            ->with('success', 'Materi "' . $material->title . '" berhasil diperbarui.');
     }
 
     public function destroy(Material $material): RedirectResponse

@@ -113,4 +113,24 @@ class UserController extends Controller
             ->with('reset_user_name', $user->name)
             ->with('reset_new_password', $newPassword);
     }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        $currentUser = auth()->user();
+
+        // 1. Cannot delete own account
+        if ($currentUser && $currentUser->id === $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        // 2. Guru can only delete student accounts (cannot delete other teachers or admins)
+        if ($currentUser && $currentUser->isGuru() && !$user->isSiswa()) {
+            return redirect()->back()->with('error', 'Anda hanya memiliki akses untuk menghapus data siswa. Tidak dapat menghapus akun guru lain.');
+        }
+
+        $userName = $user->name;
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'Data akun pengguna ' . $userName . ' berhasil dihapus.');
+    }
 }

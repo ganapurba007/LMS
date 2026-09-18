@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\AssignmentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\AssignmentBank;
 use App\Models\Notification;
 use App\Models\SchoolClass;
 use App\Models\Subject;
@@ -14,45 +15,93 @@ use Illuminate\Support\Facades\Auth;
 
 class AssignmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $assignments = Assignment::with(['subject', 'schoolClass', 'instructor'])
-            ->withCount('submissions')
-            ->latest()
-            ->paginate(10);
+        $user = Auth::user();
+        $search = $request->query('search');
+        $subjectId = $request->query('subject_id');
+        $classId = $request->query('class_id');
 
-        return view('admin.assignments.index', compact('assignments'));
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        $hasSubjectRestriction = $userSubjects->isNotEmpty();
+
+        $query = Assignment::with(['subject', 'schoolClass', 'instructor'])
+            ->withCount('submissions');
+
+        if ($hasSubjectRestriction) {
+            $allowedSubjectIds = $userSubjects->pluck('id');
+            $query->whereIn('subject_id', $allowedSubjectIds);
+        }
+
+        $assignments = $query
+            ->when($search, function ($q, $search) {
+                $q->where('title', 'like', "%{$search}%");
+            })
+            ->when($subjectId, function ($q, $subjectId) {
+                $q->where('subject_id', $subjectId);
+            })
+            ->when($classId, function ($q, $classId) {
+                $q->where('class_id', $classId);
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $subjects = $hasSubjectRestriction ? $userSubjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+
+        return view('admin.assignments.index', compact('assignments', 'subjects', 'classes', 'search', 'subjectId', 'classId'));
     }
 
     public function create()
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::all();
-        $classes = SchoolClass::all();
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+        $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+        $assignmentBanks = AssignmentBank::where('instructor_id', Auth::id())->with('subject')->orderBy('title')->get();
 
-        return view('admin.assignments.create', compact('subjects', 'classes'));
+        return view('admin.assignments.create', compact('subjects', 'classes', 'assignmentBanks'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'due_date' => ['required', 'date'],
-            'subject_id' => ['required', 'exists:subjects,id'],
+            'assignment_bank_id' => ['required', 'exists:assignment_banks,id'],
             'class_id' => ['required', 'exists:classes,id'],
+            'due_date' => ['required', 'date'],
+        ], [
+            'assignment_bank_id.required' => 'Silakan pilih tugas dari Bank Tugas.',
+            'assignment_bank_id.exists' => 'Tugas dari Bank Tugas tidak valid.',
+            'class_id.required' => 'Silakan pilih kelas target penerima.',
+            'class_id.exists' => 'Kelas yang dipilih tidak valid.',
+            'due_date.required' => 'Batas waktu penyerahan tugas wajib diisi.',
         ]);
 
+        $bankItem = AssignmentBank::with('subject')->findOrFail($request->assignment_bank_id);
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $request->subject_id)->exists()) {
-            return back()->withErrors(['subject_id' => 'Anda tidak berhak membuat tugas untuk mata pelajaran ini.'])->withInput();
+
+        $subjectId = $bankItem->subject_id;
+        if (!$subjectId) {
+            $firstSubj = $user->subjects()->first() ?? Subject::first();
+            $subjectId = $firstSubj ? $firstSubj->id : null;
+        }
+
+        if ($subjectId && $user->subjects()->exists() && !$user->subjects()->where('subjects.id', $subjectId)->exists()) {
+            return back()->withErrors(['assignment_bank_id' => 'Anda tidak berhak menerbitkan tugas untuk mata pelajaran ini.'])->withInput();
         }
 
         $assignment = new Assignment();
-        $assignment->title = $request->title;
-        $assignment->description = $request->description;
+        $assignment->title = $bankItem->title;
+        $assignment->description = $bankItem->description;
         $assignment->due_date = $request->due_date;
-        $assignment->subject_id = $request->subject_id;
+        $assignment->subject_id = $subjectId;
         $assignment->class_id = $request->class_id;
         $assignment->instructor_id = Auth::id();
         $assignment->save();
@@ -65,7 +114,7 @@ class AssignmentController extends Controller
                 $q->where('name', 'siswa');
             })->get();
 
-        $instructorName = $user->name ?? 'Guru Pengampu';
+        $instructorName = Auth::user()->name ?? 'Guru Pengampu';
         $subjectName = $assignment->subject->name ?? 'Mata Pelajaran';
         foreach ($students as $student) {
             Notification::create([
@@ -79,46 +128,73 @@ class AssignmentController extends Controller
         }
 
         return redirect()->route('admin.assignments.index')
-            ->with('success', 'Tugas siswa berhasil dibuat dan notifikasi realtime dikirim.');
+            ->with('success', 'Tugas "' . $assignment->title . '" berhasil diterbitkan ke kelas.');
     }
 
     public function edit(Assignment $assignment)
     {
         $user = Auth::user();
-        $subjects = $user->subjects()->exists() ? $user->subjects : Subject::all();
-        $classes = SchoolClass::all();
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
 
-        return view('admin.assignments.edit', compact('assignment', 'subjects', 'classes'));
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $assignment->subject_id)) {
+            abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+        }
+
+        $subjects = $userSubjects->isNotEmpty() ? $userSubjects : Subject::orderBy('name')->get();
+        $classes = SchoolClass::orderBy('name')->get();
+        $assignmentBanks = AssignmentBank::where('instructor_id', Auth::id())->with('subject')->orderBy('title')->get();
+
+        return view('admin.assignments.edit', compact('assignment', 'subjects', 'classes', 'assignmentBanks'));
     }
 
     public function update(Request $request, Assignment $assignment)
     {
         $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'due_date' => ['required', 'date'],
-            'subject_id' => ['required', 'exists:subjects,id'],
+            'assignment_bank_id' => ['required', 'exists:assignment_banks,id'],
             'class_id' => ['required', 'exists:classes,id'],
+            'due_date' => ['required', 'date'],
+        ], [
+            'assignment_bank_id.required' => 'Silakan pilih tugas dari Bank Tugas.',
+            'assignment_bank_id.exists' => 'Tugas dari Bank Tugas tidak valid.',
+            'class_id.required' => 'Silakan pilih kelas target penerima.',
+            'class_id.exists' => 'Kelas yang dipilih tidak valid.',
+            'due_date.required' => 'Batas waktu penyerahan tugas wajib diisi.',
         ]);
 
+        $bankItem = AssignmentBank::with('subject')->findOrFail($request->assignment_bank_id);
         $user = Auth::user();
-        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $request->subject_id)->exists()) {
-            return back()->withErrors(['subject_id' => 'Anda tidak berhak mengedit tugas untuk mata pelajaran ini.'])->withInput();
+
+        $subjectId = $bankItem->subject_id;
+        if (!$subjectId) {
+            $firstSubj = $user->subjects()->first() ?? Subject::first();
+            $subjectId = $firstSubj ? $firstSubj->id : null;
         }
 
-        $assignment->title = $request->title;
-        $assignment->description = $request->description;
+        if ($subjectId && $user->subjects()->exists() && !$user->subjects()->where('subjects.id', $subjectId)->exists()) {
+            return back()->withErrors(['assignment_bank_id' => 'Anda tidak berhak memperbarui tugas untuk mata pelajaran ini.'])->withInput();
+        }
+
+        $assignment->title = $bankItem->title;
+        $assignment->description = $bankItem->description;
         $assignment->due_date = $request->due_date;
-        $assignment->subject_id = $request->subject_id;
+        $assignment->subject_id = $subjectId;
         $assignment->class_id = $request->class_id;
         $assignment->save();
 
         return redirect()->route('admin.assignments.index')
-            ->with('success', 'Tugas siswa berhasil diperbarui.');
+            ->with('success', 'Tugas "' . $assignment->title . '" berhasil diperbarui.');
     }
 
     public function destroy(Assignment $assignment)
     {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $assignment->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke tugas ini.');
+        }
+
         $assignment->delete();
 
         return redirect()->route('admin.assignments.index')

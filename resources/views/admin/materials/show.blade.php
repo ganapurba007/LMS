@@ -156,7 +156,7 @@
 
                 {{-- Text Content --}}
                 @if($material->content)
-                    <div class="p-3 rounded-3" style="background:var(--tblr-card-bg,#fff);border:1px solid var(--tblr-border-color,#e2e8f0);line-height:1.65;font-size:.85rem;color:var(--tblr-body-color);">
+                    <div class="p-3 rounded-3 article-body tinymce-content" style="background:var(--tblr-card-bg,#fff);border:1px solid var(--tblr-border-color,#e2e8f0);line-height:1.65;font-size:.85rem;color:var(--tblr-body-color);">
                         {!! $material->content !!}
                     </div>
                 @elseif(!$material->video_url && !$material->document_path)

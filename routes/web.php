@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AssignmentBankController;
 use App\Http\Controllers\Admin\AssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MaterialBankController;
 use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\QuestionBankController;
 use App\Http\Controllers\Admin\QuizController;
@@ -80,7 +82,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
 
     // Master User (List & Assign Role)
     Route::match(['get', 'post'], 'users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
-    Route::resource('users', UserController::class)->only(['index', 'edit', 'update']);
+    Route::resource('users', UserController::class)->only(['index', 'edit', 'update', 'destroy']);
 
     // Master Mata Pelajaran CRUD
     Route::resource('subjects', SubjectController::class);
@@ -90,6 +92,14 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
 
     // Master Bank Soal CRUD
     Route::resource('question-banks', QuestionBankController::class);
+
+    // Master Bank Materi CRUD & JSON API
+    Route::get('material-banks/{materialBank}/json', [MaterialBankController::class, 'getDetailJson'])->name('material-banks.json');
+    Route::resource('material-banks', MaterialBankController::class);
+
+    // Master Bank Tugas CRUD & JSON API
+    Route::get('assignment-banks/{assignmentBank}/json', [AssignmentBankController::class, 'getDetailJson'])->name('assignment-banks.json');
+    Route::resource('assignment-banks', AssignmentBankController::class);
 
     // Master Materi CRUD & Diskusi
     Route::resource('materials', MaterialController::class);
@@ -102,6 +112,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     // Master Kuis CRUD & Question Management
     Route::resource('quizzes', QuizController::class);
     Route::get('quizzes/{quiz}/students', [QuizController::class, 'students'])->name('quizzes.students');
+    Route::get('quizzes/{quiz}/students/{student}/answers', [QuizController::class, 'getStudentAnswers'])->name('quizzes.students.answers');
     Route::delete('quizzes/{quiz}/students/{student}/reset', [QuizController::class, 'resetStudentAttempt'])->name('quizzes.students.reset');
     Route::post('quizzes/{quiz}/import-questions', [QuizController::class, 'importQuestions'])->name('quizzes.import-questions');
     Route::post('quizzes/{quiz}/questions', [QuizController::class, 'storeQuestion'])->name('quizzes.store-question');

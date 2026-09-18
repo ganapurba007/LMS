@@ -57,6 +57,18 @@
           <span>Bank Soal</span>
         </a>
       </li>
+      <li class="sidebar-nav-item">
+        <a href="{{ route('admin.material-banks.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.material-banks.*') ? 'active' : '' }}">
+          <i class="ti ti-books"></i>
+          <span>Bank Materi</span>
+        </a>
+      </li>
+      <li class="sidebar-nav-item">
+        <a href="{{ route('admin.assignment-banks.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.assignment-banks.*') ? 'active' : '' }}">
+          <i class="ti ti-notebook"></i>
+          <span>Bank Tugas</span>
+        </a>
+      </li>
     </ul>
 
     <div class="sidebar-section-label">Pembelajaran & Evaluasi</div>

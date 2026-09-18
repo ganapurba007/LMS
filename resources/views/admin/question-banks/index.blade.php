@@ -58,15 +58,15 @@
                         <td>
                             <div class="mb-1">
                                 @if($qb->isMatching())
-                                    <span class="md-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);">
+                                    <span class="md-badge qb-badge-matching">
                                         <i class="ti ti-arrows-left-right"></i> Menjodohkan
                                     </span>
                                 @elseif($qb->isTrueFalse())
-                                    <span class="md-badge" style="background:rgba(245,158,11,.1);color:#d97706;border:1px solid rgba(245,158,11,.2);">
+                                    <span class="md-badge qb-badge-tf">
                                         <i class="ti ti-checkup-list"></i> Benar / Salah
                                     </span>
                                 @else
-                                    <span class="md-badge blue">
+                                    <span class="md-badge qb-badge-mc">
                                         <i class="ti ti-list-check"></i> Pilihan Ganda
                                     </span>
                                 @endif
@@ -78,12 +78,12 @@
                                     @foreach($qb->options->take(2) as $opt)
                                         <div class="qb-pair-mobile">
                                             <span>{{ Str::limit($opt->option_text, 18) }}</span>
-                                            <i class="ti ti-arrow-right" style="color:#0891b2;font-size:.7rem;"></i>
-                                            <span style="color:#0ca678;font-weight:700;">{{ Str::limit($opt->match_text, 18) }}</span>
+                                            <i class="ti ti-arrow-right" style="color:#0284c7;font-size:.7rem;"></i>
+                                            <span class="qb-pair-a">{{ Str::limit($opt->match_text, 18) }}</span>
                                         </div>
                                     @endforeach
                                     @if($qb->options->count() > 2)
-                                        <span style="font-size:.65rem;color:var(--tblr-text-muted,#64748b);">+{{ $qb->options->count() - 2 }} pasangan lagi</span>
+                                        <span class="qb-pair-more">+{{ $qb->options->count() - 2 }} pasangan lagi</span>
                                     @endif
                                 @elseif($qb->isTrueFalse())
                                     @php $tf = $qb->options->firstWhere('is_correct', true); $isT = optional($tf)->option_text === 'Benar'; @endphp
@@ -104,11 +104,11 @@
                         {{-- Opsi --}}
                         <td class="d-none d-md-table-cell">
                             @if($qb->isMatching())
-                                <span class="md-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);">{{ $qb->options_count }} Pasangan</span>
+                                <span class="md-badge qb-badge-matching">{{ $qb->options_count }} Pasangan</span>
                             @elseif($qb->isTrueFalse())
-                                <span class="md-badge amber">2 Opsi</span>
+                                <span class="md-badge qb-badge-tf">2 Opsi</span>
                             @else
-                                <span class="md-badge blue">{{ $qb->options_count }} Opsi</span>
+                                <span class="md-badge qb-badge-mc">{{ $qb->options_count }} Opsi</span>
                             @endif
                         </td>
 
@@ -119,11 +119,11 @@
                                     @forelse($qb->options as $opt)
                                         <div class="qb-pair">
                                             <span class="qb-pair-q">{{ Str::limit($opt->option_text, 22) }}</span>
-                                            <i class="ti ti-arrow-right" style="color:#0891b2;font-size:.72rem;flex-shrink:0;"></i>
+                                            <i class="ti ti-arrow-right" style="color:#0284c7;font-size:.72rem;flex-shrink:0;"></i>
                                             <span class="qb-pair-a">{{ Str::limit($opt->match_text, 22) }}</span>
                                         </div>
                                     @empty
-                                        <span style="font-size:.74rem;color:var(--tblr-text-muted,#64748b);">Belum ada pasangan</span>
+                                        <span class="text-muted" style="font-size:.74rem;">Belum ada pasangan</span>
                                     @endforelse
                                 </div>
                             @elseif($qb->isTrueFalse())
@@ -138,7 +138,7 @@
                                         <i class="ti ti-check"></i> {{ Str::limit($cor->option_text, 45) }}
                                     </span>
                                 @else
-                                    <span style="font-size:.74rem;color:#ef4444;">Belum diatur</span>
+                                    <span class="md-badge rose">Belum diatur</span>
                                 @endif
                             @endif
                         </td>
@@ -214,27 +214,109 @@
 @include('admin._partials.master-data-styles')
 
 <style>
+.qb-badge-matching {
+    background: #ecfeff;
+    color: #0891b2;
+    border: 1px solid #a5f3fc;
+    font-weight: 700;
+}
+.qb-badge-tf {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    font-weight: 700;
+}
+.qb-badge-mc {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    font-weight: 700;
+}
+
 .qb-question-text {
-    font-size: .8rem; font-weight: 600;
-    color: var(--tblr-heading-color, #0f172a);
-    line-height: 1.45; max-width: 480px;
+    font-size: .83rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.5;
+    max-width: 480px;
 }
-.qb-pair-list { display: flex; flex-direction: column; gap: .25rem; }
+.qb-pair-list {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
 .qb-pair {
-    display: flex; align-items: center; gap: .4rem;
-    background: var(--tblr-body-bg, #f4f6fa);
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    border-radius: 6px; padding: .2rem .5rem;
-    font-size: .72rem; max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: .25rem .55rem;
+    font-size: .74rem;
+    max-width: 340px;
 }
-.qb-pair-q { font-weight: 600; color: var(--tblr-heading-color, #0f172a); flex: 1; }
-.qb-pair-a { font-weight: 700; color: #0ca678; flex: 1; }
+.qb-pair-q {
+    font-weight: 600;
+    color: #1e293b;
+    flex: 1;
+}
+.qb-pair-a {
+    font-weight: 700;
+    color: #059669;
+    flex: 1;
+}
 .qb-pair-mobile {
-    display: inline-flex; align-items: center; gap: .3rem;
-    font-size: .7rem; font-weight: 600;
-    background: var(--tblr-body-bg, #f4f6fa);
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    border-radius: 5px; padding: .15rem .4rem; margin-bottom: .15rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .72rem;
+    font-weight: 600;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    padding: .2rem .45rem;
+    margin-bottom: .2rem;
+}
+.qb-pair-more {
+    font-size: .68rem;
+    font-weight: 600;
+    color: #64748b;
+    display: block;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .qb-badge-matching {
+    background: rgba(8, 145, 178, 0.18);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.35);
+}
+[data-theme="dark"] .qb-badge-tf {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.35);
+}
+[data-theme="dark"] .qb-badge-mc {
+    background: rgba(59, 130, 246, 0.18);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.35);
+}
+[data-theme="dark"] .qb-question-text {
+    color: #f8fafc;
+}
+[data-theme="dark"] .qb-pair,
+[data-theme="dark"] .qb-pair-mobile {
+    background: rgba(15, 23, 42, 0.65);
+    border-color: #334155;
+}
+[data-theme="dark"] .qb-pair-q {
+    color: #e2e8f0;
+}
+[data-theme="dark"] .qb-pair-a {
+    color: #34d399;
+}
+[data-theme="dark"] .qb-pair-more {
+    color: #94a3b8;
 }
 </style>
 

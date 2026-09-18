@@ -15,7 +15,7 @@
             </div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <button type="button" class="md-btn-secondary" data-bs-toggle="modal" data-bs-target="#modalQuickPaste" style="color:#d97706;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05);">
+            <button type="button" class="md-btn-secondary qb-quick-paste-btn" data-bs-toggle="modal" data-bs-target="#modalQuickPaste">
                 <i class="ti ti-bolt text-warning"></i> <span>Input Cepat (Teks)</span>
             </button>
             <a href="{{ route('admin.question-banks.index') }}" class="md-btn-secondary">
@@ -43,15 +43,15 @@
             </div>
             <div class="d-flex justify-content-between align-items-center flex-grow-1">
                 <h6 class="md-form-head-title mb-0">Daftar Butir Soal</h6>
-                <span id="qbQuestionCounterBadge" class="md-badge" style="background:rgba(8,145,178,.1);color:#0891b2;border:1px solid rgba(8,145,178,.2);font-weight:700;">
+                <span id="qbQuestionCounterBadge" class="md-badge qb-counter-badge">
                     <i class="ti ti-list-check"></i> 1 Butir Soal
                 </span>
             </div>
         </div>
 
         <div class="md-form-body">
-            <div class="alert border-0 rounded-3 d-flex align-items-start gap-2 mb-4 p-3" style="background:rgba(8,145,178,.06);color:var(--tblr-heading-color,#0f172a);font-size:.82rem;">
-                <i class="ti ti-info-circle fs-5" style="color:#0891b2;flex-shrink:0;margin-top:1px;"></i>
+            <div class="alert border-0 rounded-3 d-flex align-items-start gap-2 mb-4 p-3 qb-info-alert">
+                <i class="ti ti-info-circle fs-5 flex-shrink-0 mt-1" style="color:#0891b2;"></i>
                 <div>
                     Pilih tipe format soal untuk tiap butir. Anda dapat membuat lebih dari satu soal sekaligus dan menekan <strong>Simpan Semua Soal</strong> ketika selesai.
                 </div>
@@ -159,47 +159,82 @@
 @include('admin._partials.master-data-styles')
 
 <style>
+/* Header Buttons & Badges */
+.qb-quick-paste-btn {
+    background: #ffffff !important;
+    color: #b45309 !important;
+    border: 1.5px solid #d97706 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.15) !important;
+}
+.qb-quick-paste-btn:hover {
+    background: #fffbeb !important;
+    color: #92400e !important;
+    border-color: #b45309 !important;
+}
+.qb-counter-badge {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    border: 1px solid #7dd3fc !important;
+    font-weight: 700 !important;
+}
+.qb-info-alert {
+    background: #f0fdfa !important;
+    border: 1px solid #ccfbf1 !important;
+    color: #134e4a !important;
+    font-size: .84rem;
+}
+
+/* Card Builder Item */
 .qb-builder-item {
-    background: var(--tblr-card-bg, #ffffff);
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    border-radius: 10px;
-    padding: 1.15rem;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 1.25rem;
     transition: all .2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,.02);
+    box-shadow: 0 2px 8px rgba(0,0,0,.03);
 }
 .qb-builder-item:hover {
-    border-color: rgba(8,145,178,.4);
-    box-shadow: 0 4px 12px rgba(8,145,178,.05);
+    border-color: #0284c7;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.08);
 }
+.qb-builder-item .border-bottom {
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* Add More Button */
 .qb-btn-add-more {
     width: 100%;
-    padding: .75rem 1rem;
-    background: transparent;
-    border: 1.5px dashed rgba(8,145,178,.35);
-    border-radius: 8px;
-    color: #0891b2;
-    font-weight: 700;
-    font-size: .82rem;
+    padding: .8rem 1rem;
+    background: #ffffff;
+    border: 2px dashed #0284c7;
+    border-radius: 10px;
+    color: #0369a1;
+    font-weight: 800;
+    font-size: .84rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .4rem;
+    gap: .45rem;
     cursor: pointer;
     transition: all .18s ease;
 }
 .qb-btn-add-more:hover {
-    background: rgba(8,145,178,.05);
-    border-color: #0891b2;
-    color: #0891b2;
+    background: #f0f9ff;
+    border-color: #0369a1;
+    color: #0284c7;
+    transform: translateY(-1px);
 }
+
+/* Format Pills */
 .qb-format-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: .35rem;
+    gap: .45rem;
 }
 .qb-format-pill {
     flex: 1;
-    min-width: 110px;
+    min-width: 120px;
 }
 .qb-format-pill input {
     display: none;
@@ -208,93 +243,281 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .3rem;
+    gap: .35rem;
     width: 100%;
-    padding: .4rem .6rem;
-    border-radius: 6px;
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    background: var(--tblr-body-bg, #f8fafc);
-    color: var(--tblr-text-muted, #64748b);
-    font-size: .75rem;
-    font-weight: 600;
+    padding: .5rem .75rem;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    font-size: .78rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all .15s ease;
     user-select: none;
     margin: 0;
 }
-.qb-format-pill input:checked + label {
-    background: rgba(8,145,178,.1);
-    border-color: #0891b2;
-    color: #0891b2;
-    font-weight: 700;
+.qb-format-pill label:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
 }
+.qb-format-pill input:checked + label {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    color: #0369a1;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+}
+
+/* Options Container & Rows */
 .qb-option-row {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    background: var(--tblr-body-bg, #f8fafc);
-    border: 1px solid var(--tblr-border-color, #e2e8f0);
-    border-radius: 7px;
-    padding: .35rem .6rem;
-    transition: border-color .15s ease;
+    gap: .55rem;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: .45rem .75rem;
+    transition: all .15s ease;
+}
+.qb-option-row:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
 }
 .qb-option-row:focus-within {
-    border-color: #0891b2;
-    background: #fff;
+    border-color: #0284c7;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 .qb-opt-radio-wrap {
     display: flex;
     align-items: center;
-    gap: .3rem;
-    font-size: .75rem;
-    font-weight: 700;
-    color: var(--tblr-text-muted, #64748b);
+    gap: .35rem;
+    font-size: .82rem;
+    font-weight: 800;
+    color: #475569;
     cursor: pointer;
     flex-shrink: 0;
 }
 .qb-opt-radio-wrap input:checked ~ span {
-    color: #0ca678;
+    color: #059669;
 }
 .qb-option-input {
     border: none !important;
     background: transparent !important;
     padding: .25rem .3rem !important;
-    font-size: .8rem !important;
+    font-size: .84rem !important;
+    font-weight: 500 !important;
+    color: #0f172a !important;
     box-shadow: none !important;
     outline: none !important;
     flex: 1;
 }
+.qb-option-input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+}
+
+/* Form Controls & Textareas inside builder */
+.qb-builder-item textarea.form-control,
+.qb-builder-item input.form-control,
+#modalQuickPaste textarea.form-control {
+    border: 1.5px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: .84rem !important;
+    border-radius: 8px !important;
+}
+.qb-builder-item textarea.form-control:focus,
+.qb-builder-item input.form-control:focus,
+#modalQuickPaste textarea.form-control:focus {
+    border-color: #0284c7 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+.qb-builder-item textarea.form-control::placeholder,
+.qb-builder-item input.form-control::placeholder,
+#modalQuickPaste textarea.form-control::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+}
+
+/* True / False Boxes */
 .qb-tf-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .4rem;
-    padding: .6rem;
-    border: 1.5px solid var(--tblr-border-color, #e2e8f0);
+    gap: .45rem;
+    padding: .75rem 1rem;
+    border: 1.5px solid #cbd5e1;
     border-radius: 8px;
-    background: var(--tblr-body-bg, #f8fafc);
+    background: #f8fafc;
     cursor: pointer;
-    font-size: .8rem;
+    font-size: .84rem;
     font-weight: 700;
+    color: #334155;
     transition: all .15s ease;
 }
-.qb-tf-box input:checked + label {
-    color: inherit;
+.qb-tf-box:hover {
+    border-color: #94a3b8;
+    background: #ffffff;
+    color: #0f172a;
 }
 .qb-tf-wrap input:checked + .qb-tf-true {
-    border-color: #0ca678;
-    background: rgba(12,166,120,.08);
-    color: #0ca678;
+    border-color: #059669;
+    background: #ecfdf5;
+    color: #047857;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15);
 }
 .qb-tf-wrap input:checked + .qb-tf-false {
-    border-color: #ef4444;
-    background: rgba(239,68,68,.08);
-    color: #ef4444;
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #b91c1c;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);
 }
+
 .qb-pair-item {
     display: flex;
     align-items: center;
     gap: .4rem;
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES
+   ============================================================ */
+[data-theme="dark"] .qb-quick-paste-btn {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+    box-shadow: none !important;
+}
+[data-theme="dark"] .qb-quick-paste-btn:hover {
+    background: rgba(245, 158, 11, 0.25) !important;
+    color: #fde68a !important;
+    border-color: #f59e0b !important;
+}
+[data-theme="dark"] .qb-counter-badge {
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(56, 189, 248, 0.3) !important;
+}
+[data-theme="dark"] .qb-info-alert {
+    background: rgba(8, 145, 178, 0.12) !important;
+    border-color: rgba(56, 189, 248, 0.25) !important;
+    color: #e0f2fe !important;
+}
+
+[data-theme="dark"] .qb-builder-item {
+    background: #151e32;
+    border-color: #243049;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+[data-theme="dark"] .qb-builder-item:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.12);
+}
+[data-theme="dark"] .qb-builder-item .border-bottom {
+    border-bottom: 1px solid #243049 !important;
+}
+
+[data-theme="dark"] .qb-btn-add-more {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(56, 189, 248, 0.45);
+    color: #38bdf8;
+}
+[data-theme="dark"] .qb-btn-add-more:hover {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: #38bdf8;
+    color: #7dd3fc;
+}
+
+[data-theme="dark"] .qb-format-pill label {
+    border-color: #334155;
+    background: rgba(15, 23, 42, 0.65);
+    color: #94a3b8;
+}
+[data-theme="dark"] .qb-format-pill label:hover {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: #475569;
+    color: #f1f5f9;
+}
+[data-theme="dark"] .qb-format-pill input:checked + label {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+}
+
+[data-theme="dark"] .qb-option-row {
+    background: rgba(15, 23, 42, 0.65);
+    border-color: #334155;
+}
+[data-theme="dark"] .qb-option-row:hover {
+    border-color: #475569;
+    background: rgba(15, 23, 42, 0.85);
+}
+[data-theme="dark"] .qb-option-row:focus-within {
+    border-color: #38bdf8;
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+[data-theme="dark"] .qb-opt-radio-wrap {
+    color: #94a3b8;
+}
+[data-theme="dark"] .qb-opt-radio-wrap input:checked ~ span {
+    color: #34d399;
+}
+[data-theme="dark"] .qb-option-input {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qb-option-input::placeholder {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .qb-builder-item textarea.form-control,
+[data-theme="dark"] .qb-builder-item input.form-control,
+[data-theme="dark"] #modalQuickPaste textarea.form-control {
+    border-color: #334155 !important;
+    background-color: rgba(15, 23, 42, 0.75) !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qb-builder-item textarea.form-control:focus,
+[data-theme="dark"] .qb-builder-item input.form-control:focus,
+[data-theme="dark"] #modalQuickPaste textarea.form-control:focus {
+    border-color: #38bdf8 !important;
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="dark"] .qb-builder-item textarea.form-control::placeholder,
+[data-theme="dark"] .qb-builder-item input.form-control::placeholder,
+[data-theme="dark"] #modalQuickPaste textarea.form-control::placeholder {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .qb-tf-box {
+    border-color: #334155;
+    background: rgba(15, 23, 42, 0.65);
+    color: #cbd5e1;
+}
+[data-theme="dark"] .qb-tf-box:hover {
+    border-color: #475569;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f8fafc;
+}
+[data-theme="dark"] .qb-tf-wrap input:checked + .qb-tf-true {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+[data-theme="dark"] .qb-tf-wrap input:checked + .qb-tf-false {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 </style>
 
