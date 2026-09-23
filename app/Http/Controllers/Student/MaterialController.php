@@ -22,15 +22,17 @@ class MaterialController extends Controller
         if ($user->isGuru()) {
             $query = Material::where('instructor_id', $user->id)
                 ->with(['subject', 'instructor', 'schoolClass']);
-            $allClassMaterialIds = Material::where('instructor_id', $user->id)->pluck('id');
-            $subjects = \App\Models\Subject::whereIn('id', Material::where('instructor_id', $user->id)->pluck('subject_id')->unique())
+            $classMaterialsData = Material::where('instructor_id', $user->id)->select('id', 'subject_id')->get();
+            $allClassMaterialIds = $classMaterialsData->pluck('id');
+            $subjects = \App\Models\Subject::whereIn('id', $classMaterialsData->pluck('subject_id')->filter()->unique())
                 ->orderBy('name')
                 ->get();
         } else {
             $query = Material::where('class_id', $user->class_id)
                 ->with(['subject', 'instructor', 'schoolClass']);
-            $allClassMaterialIds = Material::where('class_id', $user->class_id)->pluck('id');
-            $subjects = \App\Models\Subject::whereIn('id', Material::where('class_id', $user->class_id)->pluck('subject_id')->unique())
+            $classMaterialsData = Material::where('class_id', $user->class_id)->select('id', 'subject_id')->get();
+            $allClassMaterialIds = $classMaterialsData->pluck('id');
+            $subjects = \App\Models\Subject::whereIn('id', $classMaterialsData->pluck('subject_id')->filter()->unique())
                 ->orderBy('name')
                 ->get();
         }

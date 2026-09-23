@@ -11,9 +11,13 @@
 
         <title>{{ config('app.name', 'RuangTerra') }}</title>
 
-        <!-- Google Fonts: Montserrat & Plus Jakarta Sans -->
+        <!-- Resource Hints -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+        <link rel="preconnect" href="https://unpkg.com" crossorigin>
+        <link rel="dns-prefetch" href="https://unpkg.com">
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
         <!-- Tabler Icons -->

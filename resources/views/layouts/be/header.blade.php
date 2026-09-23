@@ -13,9 +13,15 @@
 
   <title>@yield('title', config('app.name', 'RuangTerra'))</title>
 
-  <!-- Google Fonts: Plus Jakarta Sans -->
+  <!-- Resource Hints for CDNs -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.datatables.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.datatables.net">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Bootstrap 5 CSS CDN -->
@@ -32,7 +38,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
   <!-- Custom Template CSS -->
-  <link rel="stylesheet" href="{{ asset('template/be/assets/css/custom.css') }}?v={{ file_exists(public_path('template/be/assets/css/custom.css')) ? filemtime(public_path('template/be/assets/css/custom.css')) : '1.1' }}">
+  <link rel="stylesheet" href="{{ asset('template/be/assets/css/custom.css') }}?v=1.2">
 
   <style>
     [x-cloak] { display: none !important; }
