@@ -4132,6 +4132,13 @@
         if (!fileInput.files || !fileInput.files[0]) return;
 
         const file = fileInput.files[0];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (['zip', 'rar'].includes(ext)) {
+            showQbModalAlert('Format Tidak Didukung', 'File arsip (.zip dan .rar) tidak didukung untuk naskah soal. Silakan gunakan dokumen Word (.docx), PDF (.pdf), atau Teks (.txt).');
+            fileInput.value = '';
+            return;
+        }
+
         const nameEl = document.getElementById('selectedDocName');
         nameEl.innerText = `File terpilih: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
         nameEl.classList.remove('d-none');
@@ -4156,7 +4163,7 @@
                 cancelUrl: '{{ route('admin.upload.chunk.cancel') }}',
                 onProgress: function(progress) {
                     if (loadingTextEl) {
-                        loadingTextEl.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Mengunggah: ${progress.percent}% (Pecahan ${progress.chunkIndex}/${progress.totalChunks})...`;
+                        loadingTextEl.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Mengunggah dokumen: ${progress.percent}%...`;
                     }
                 },
                 onSuccess: function(data) {

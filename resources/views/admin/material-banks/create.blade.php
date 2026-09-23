@@ -93,9 +93,9 @@
 
                     <!-- Dokumen File -->
                     <div class="col-12 col-md-6">
-                        <label for="document_file" class="md-form-label"><i class="ti ti-file-download text-warning me-1"></i> File Dokumen Lampiran (Maks 20MB)</label>
-                        <input type="file" class="form-control @error('document_file') is-invalid @enderror" id="document_file" name="document_file">
-                        <div class="md-form-hint text-white">Format didukung: PDF, DOCX, PPTX, XLSX, PNG, JPG, ZIP, RAR.</div>
+                        <label for="document_file" class="md-form-label"><i class="ti ti-file-download text-warning me-1"></i> File Dokumen Lampiran (Maks 50MB)</label>
+                        <input type="file" class="form-control @error('document_file') is-invalid @enderror" id="document_file" name="document_file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.txt">
+                        <div class="md-form-hint text-white">Format didukung: PDF, DOCX, PPTX, XLSX, PNG, JPG, TXT.</div>
                         @error('document_file')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

@@ -1,10 +1,11 @@
 /**
- * RuangTerra LMS - Chunked File Uploader (Vanilla JS)
- * Memecah file besar menjadi pecahan 1MB untuk diunggah tanpa timeout server.
+ * RuangTerra LMS - Fast Chunked File Uploader (Vanilla JS)
+ * Mengunggah file besar per 2.5MB secara bertahap tanpa timeout server.
  */
 class ChunkedUploader {
     constructor(options = {}) {
-        this.chunkSize = options.chunkSize || 1024 * 1024; // 1 MB per chunk
+        // Optimal chunk size 2.5MB: sangat cepat, minim round-trip request, aman di bawah PHP post_max_size
+        this.chunkSize = options.chunkSize || Math.floor(2.5 * 1024 * 1024);
         this.uploadUrl = options.uploadUrl || '/admin/upload/chunk';
         this.cancelUrl = options.cancelUrl || '/admin/upload/chunk/cancel';
         this.csrfToken = options.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -28,12 +29,24 @@ class ChunkedUploader {
             const formData = new FormData();
             formData.append('file_uuid', this.fileUuid);
             formData.append('_token', this.csrfToken);
-            navigator.sendBeacon ? navigator.sendBeacon(this.cancelUrl, formData) : fetch(this.cancelUrl, { method: 'POST', body: formData });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(this.cancelUrl, formData);
+            } else {
+                fetch(this.cancelUrl, { method: 'POST', body: formData });
+            }
         }
     }
 
     async upload(file) {
         if (!file) return;
+
+        // Validasi ekstensi terlarang (arsip ZIP dan RAR)
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (['zip', 'rar'].includes(ext)) {
+            const err = new Error('Format file arsip (.zip dan .rar) tidak diizinkan. Silakan unggah dokumen PDF, DOCX, PPTX, XLSX, TXT, atau gambar.');
+            this.onError(err);
+            return;
+        }
 
         this.isCancelled = false;
         this.fileUuid = this.generateUuid();
@@ -75,7 +88,7 @@ class ChunkedUploader {
                 const data = await response.json();
 
                 if (!response.ok || !data.success) {
-                    const errMsg = data.message || `Gagal mengunggah potongan file ke-${chunkIndex + 1}`;
+                    const errMsg = data.message || `Gagal mengunggah bagian file (${chunkIndex + 1}/${totalChunks})`;
                     this.onError(new Error(errMsg));
                     return;
                 }
@@ -111,12 +124,13 @@ function initChunkedFileInput(config) {
     const fileInput = typeof config.input === 'string' ? document.querySelector(config.input) : config.input;
     if (!fileInput) return null;
 
+    const originalInputName = fileInput.getAttribute('name') || 'document_file';
     const container = config.container ? (typeof config.container === 'string' ? document.querySelector(config.container) : config.container) : fileInput.parentElement;
     const hiddenInputName = config.hiddenInputName || 'document_chunk_path';
     const originalNameInputName = config.originalNameInputName || 'original_filename';
     const submitButtons = config.submitButtons ? document.querySelectorAll(config.submitButtons) : document.querySelectorAll('button[type="submit"]');
     const targetFolder = config.targetFolder || 'material-banks';
-    const maxSizeBytes = config.maxSizeBytes || (250 * 1024 * 1024); // default 250MB
+    const maxSizeBytes = config.maxSizeBytes || (100 * 1024 * 1024); // default 100MB
 
     // Siapkan hidden input untuk menyimpan path chunk file yang sudah dirangkai
     let hiddenInput = container.querySelector(`input[name="${hiddenInputName}"]`);
@@ -133,6 +147,18 @@ function initChunkedFileInput(config) {
         origNameInput.type = 'hidden';
         origNameInput.name = originalNameInputName;
         container.appendChild(origNameInput);
+    }
+
+    // Hindari duplikasi pengiriman file besar saat submit form (Mencegah ERR_CONNECTION_RESET / site can't be reached)
+    const parentForm = fileInput.closest('form');
+    if (parentForm && !parentForm.dataset.chunkFormBound) {
+        parentForm.dataset.chunkFormBound = 'true';
+        parentForm.addEventListener('submit', function() {
+            if (hiddenInput && hiddenInput.value) {
+                // Hapus name pada fileInput agar browser TIDAK mengunggah ulang file 15MB via POST form standar
+                fileInput.removeAttribute('name');
+            }
+        });
     }
 
     // UI Progress Bar Container
@@ -195,6 +221,7 @@ function initChunkedFileInput(config) {
             hiddenInput.value = '';
             origNameInput.value = '';
             fileInput.value = '';
+            fileInput.setAttribute('name', originalInputName);
             progressWrapper.classList.add('d-none');
             setSubmitDisabled(false);
         }
@@ -204,9 +231,25 @@ function initChunkedFileInput(config) {
         const file = this.files && this.files[0];
         if (!file) return;
 
+        // Cek ekstensi terlarang (ZIP dan RAR)
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (['zip', 'rar'].includes(ext)) {
+            alert('File arsip (.zip dan .rar) tidak diizinkan. Silakan unggah file PDF, DOCX, PPTX, XLSX, TXT, atau gambar.');
+            this.value = '';
+            hiddenInput.value = '';
+            origNameInput.value = '';
+            fileInput.setAttribute('name', originalInputName);
+            progressWrapper.classList.add('d-none');
+            return;
+        }
+
         if (file.size > maxSizeBytes) {
             alert(`Ukuran file melebihi batas maksimal (${formatBytes(maxSizeBytes)}).`);
             this.value = '';
+            hiddenInput.value = '';
+            origNameInput.value = '';
+            fileInput.setAttribute('name', originalInputName);
+            progressWrapper.classList.add('d-none');
             return;
         }
 
@@ -230,7 +273,7 @@ function initChunkedFileInput(config) {
             onProgress: function(progress) {
                 progressBarEl.style.width = progress.percent + '%';
                 statusTextEl.textContent = progress.percent + '%';
-                sizeInfoEl.textContent = `${formatBytes(progress.uploadedBytes)} / ${formatBytes(progress.totalBytes)} (Pecahan ${progress.chunkIndex}/${progress.totalChunks})`;
+                sizeInfoEl.textContent = `${formatBytes(progress.uploadedBytes)} / ${formatBytes(progress.totalBytes)} (${progress.percent}%)`;
             },
             onSuccess: function(response) {
                 progressBarEl.style.width = '100%';
@@ -240,6 +283,9 @@ function initChunkedFileInput(config) {
                 sizeInfoEl.textContent = `Selesai diunggah (${formatBytes(response.file_size)})`;
                 hiddenInput.value = response.file_path;
                 origNameInput.value = response.original_filename;
+                
+                // File sudah tersimpan di server via chunk -> copot name form submit
+                fileInput.removeAttribute('name');
                 setSubmitDisabled(false);
 
                 if (typeof config.onSuccess === 'function') {
@@ -253,6 +299,7 @@ function initChunkedFileInput(config) {
                 sizeInfoEl.textContent = err.message;
                 hiddenInput.value = '';
                 origNameInput.value = '';
+                fileInput.setAttribute('name', originalInputName);
                 setSubmitDisabled(false);
 
                 if (typeof config.onError === 'function') {

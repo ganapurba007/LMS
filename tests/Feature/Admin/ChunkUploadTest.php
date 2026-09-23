@@ -52,6 +52,25 @@ class ChunkUploadTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJson(['success' => false]);
+
+        // Uji penolakan arsip ZIP dan RAR
+        $resZip = $this->actingAs($this->guru)->postJson(route('admin.upload.chunk'), [
+            'file' => UploadedFile::fake()->create('archive.zip', 100),
+            'chunk_index' => 0,
+            'total_chunks' => 1,
+            'file_uuid' => 'test_uuid_zip',
+            'original_filename' => 'archive.zip',
+        ]);
+        $resZip->assertStatus(422)->assertJson(['success' => false]);
+
+        $resRar = $this->actingAs($this->guru)->postJson(route('admin.upload.chunk'), [
+            'file' => UploadedFile::fake()->create('archive.rar', 100),
+            'chunk_index' => 0,
+            'total_chunks' => 1,
+            'file_uuid' => 'test_uuid_rar',
+            'original_filename' => 'archive.rar',
+        ]);
+        $resRar->assertStatus(422)->assertJson(['success' => false]);
     }
 
     public function test_chunked_upload_merges_successfully(): void
