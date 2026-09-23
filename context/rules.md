@@ -65,6 +65,8 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+- Jika task menambah fitur/scope/kolom DB baru, update FR terkait di `context/PRD.md` (Amandemen) dan/atau `context/SCHEMA.md` di sesi yang sama sebelum task dianggap selesai.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
