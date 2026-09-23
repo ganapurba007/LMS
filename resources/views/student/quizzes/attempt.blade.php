@@ -94,22 +94,27 @@
             object-fit: contain;
             display: block;
         }
-        .question-text-wrapper table {
+        .question-text-wrapper .table-responsive {
             width: 100%;
-            max-width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            display: block;
             margin: 0.75rem 0;
-            border-collapse: collapse;
-            border: 1px solid #e2e8f0;
             border-radius: 8px;
+        }
+        .question-text-wrapper table {
+            width: 100%;
+            margin: 0.5rem 0;
+            border-collapse: collapse;
+            font-size: 0.9rem;
         }
         .question-text-wrapper table th,
         .question-text-wrapper table td {
             padding: 0.55rem 0.75rem;
-            border: 1px solid #e2e8f0;
-            font-size: 0.88rem;
+            vertical-align: middle;
+        }
+        .question-text-wrapper table th {
+            background-color: #f1f5f9;
+            font-weight: 700;
         }
         .question-text-wrapper p {
             margin-bottom: 0.65rem;
@@ -780,7 +785,7 @@
                                     
                                     <!-- Teks Pertanyaan Soal -->
                                     <div class="question-text-wrapper fw-bold text-dark mb-3" style="font-family: 'Jost', sans-serif;">
-                                        {!! nl2br(e($question->question_text)) !!}
+                                        {!! $question->formatted_question_text !!}
                                     </div>
 
                                     <!-- Options Container (Adaptive based on Question Type) -->
@@ -834,7 +839,7 @@
                                                                             {{ $pairIndex + 1 }}
                                                                         </span>
                                                                         <div class="fw-semibold text-dark pt-0.5" style="font-size: 0.88rem; line-height: 1.4;">
-                                                                            {{ $opt->option_text }}
+                                                                            {!! $opt->option_text !!}
                                                                         </div>
                                                                     </div>
 
@@ -848,7 +853,7 @@
                                                                                 <div class="d-flex align-items-center gap-1.5 text-truncate me-2">
                                                                                     <i class="ti ti-circle-check-filled fs-5 text-success shrink-0"></i>
                                                                                     <span class="fw-bold text-truncate" style="font-size: 0.85rem; color: #065F46;">
-                                                                                        {{ $currentMatch }}
+                                                                                        {!! $currentMatch !!}
                                                                                     </span>
                                                                                 </div>
                                                                                 <button type="button" 
@@ -901,7 +906,7 @@
                                                                     data-question-id="{{ $question->id }}"
                                                                     onclick="selectMatchChip({{ $question->id }}, {{ json_encode($match) }})">
                                                                 <i class="ti {{ $usedByOptId ? 'ti-check text-success' : 'ti-point text-primary' }} fs-5"></i>
-                                                                <span class="fw-semibold">{{ $match }}</span>
+                                                                <span class="fw-semibold">{!! $match !!}</span>
                                                                 @if($usedByOptId)
                                                                     <span class="badge bg-success-subtle text-success-emphasis ms-1" style="font-size: 0.65rem;">Terpasang</span>
                                                                 @endif
@@ -934,7 +939,7 @@
                                                             <div class="rounded-circle p-1.5 mb-1.5 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: {{ $isTrue ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; color: {{ $isTrue ? '#059669' : '#dc2626' }};">
                                                                 <i class="ti {{ $isTrue ? 'ti-check' : 'ti-x' }} fs-4"></i>
                                                             </div>
-                                                            <span class="fw-bold {{ $isTrue ? 'text-success' : 'text-danger' }}" style="font-size: 0.95rem;">{{ $option->option_text }}</span>
+                                                            <span class="fw-bold {{ $isTrue ? 'text-success' : 'text-danger' }}" style="font-size: 0.95rem;">{!! $option->option_text !!}</span>
                                                         </label>
                                                     </div>
                                                 @endforeach
@@ -959,7 +964,7 @@
                                                                {{ $isSelected ? 'checked' : '' }}
                                                                class="form-check-input option-radio d-none">
                                                         <span class="option-badge-letter">{{ $letter }}</span>
-                                                        <span class="option-text-wrapper">{{ $option->option_text }}</span>
+                                                        <span class="option-text-wrapper">{!! $option->option_text !!}</span>
                                                     </label>
                                                 @endforeach
                                             </div>

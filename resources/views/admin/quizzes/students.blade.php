@@ -546,7 +546,7 @@
                                     <div class="qa-rank-badge danger mt-0.5">#{{ $idx + 1 }}</div>
                                     <div class="min-w-0 flex-grow-1">
                                         <div class="qa-text mb-1">
-                                            {!! strip_tags($stat['question']->question_text) !!}
+                                            {!! $stat['question']->summary_text !!}
                                         </div>
                                         <div class="qa-meta-bar">
                                             <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0.5 font-semibold" style="font-size: 0.72rem;">
@@ -594,7 +594,7 @@
                                     <div class="qa-rank-badge success mt-0.5">#{{ $idx + 1 }}</div>
                                     <div class="min-w-0 flex-grow-1">
                                         <div class="qa-text mb-1">
-                                            {!! strip_tags($stat['question']->question_text) !!}
+                                            {!! $stat['question']->summary_text !!}
                                         </div>
                                         <div class="qa-meta-bar">
                                             <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 font-semibold" style="font-size: 0.72rem;">

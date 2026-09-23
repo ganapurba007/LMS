@@ -161,5 +161,85 @@ class QuestionBankCrudTest extends TestCase
 
         $response->assertRedirect('/dashboard');
     }
+
+    public function test_guru_can_parse_questions_from_uploaded_document(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        $content = "1. Apa ibukota Indonesia?\nA. Jakarta\nB. Surabaya\nC. Bandung\nD. Medan\nKunci: A\n\n2. Matahari terbit dari timur.\nKunci: Benar";
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('soal.txt', $content);
+
+        $response = $this->actingAs($guru)->postJson('/admin/question-banks/parse-document', [
+            'document_file' => $file,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'count' => 2,
+        ]);
+        $response->assertJsonPath('questions.0.question_text', 'Apa ibukota Indonesia?');
+        $response->assertJsonPath('questions.0.correct_option', 0);
+        $response->assertJsonPath('questions.1.question_type', 'true_false');
+        $response->assertJsonPath('questions.1.correct_tf', 'Benar');
+    }
+
+    public function test_guru_can_upload_editor_image(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        $image = \Illuminate\Http\UploadedFile::fake()->image('gambar_soal.png', 300, 300);
+
+        $response = $this->actingAs($guru)->postJson('/admin/upload-editor-image', [
+            'file' => $image,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['location', 'url', 'success']);
+    }
+
+    public function test_guru_can_import_and_directly_save_document_to_question_bank(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        $content = "1. Apa kepanjangan dari PHP?\nA. Hypertext Preprocessor\nB. Personal Home Page\nC. Private Hosting Protocol\nD. Preprocessed Hypertext\nKunci: A\n\n2. Bumi itu bulat.\nKunci: Benar";
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('naskah_soal.txt', $content);
+
+        $response = $this->actingAs($guru)->post('/admin/question-banks/import-document', [
+            'document_file' => $file,
+        ]);
+
+        $response->assertRedirect('/admin/question-banks');
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('question_bank', [
+            'question_text' => 'Apa kepanjangan dari PHP?',
+            'instructor_id' => $guru->id,
+            'question_type' => 'multiple_choice',
+        ]);
+
+        $this->assertDatabaseHas('question_bank', [
+            'question_text' => 'Bumi itu bulat.',
+            'instructor_id' => $guru->id,
+            'question_type' => 'true_false',
+        ]);
+    }
+
+    public function test_guru_can_download_question_template_docx_and_txt(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        // Download docx template
+        $responseDocx = $this->actingAs($guru)->get('/admin/question-banks/download-template?format=docx');
+        $responseDocx->assertStatus(200);
+        $responseDocx->assertHeader('content-disposition', 'attachment; filename=Template_Format_Soal_LMS.docx');
+
+        // Download txt template
+        $responseTxt = $this->actingAs($guru)->get('/admin/question-banks/download-template?format=txt');
+        $responseTxt->assertStatus(200);
+        $responseTxt->assertHeader('content-disposition', 'attachment; filename="Template_Format_Soal_LMS.txt"');
+        $this->assertStringContainsString('FORMAT PENULISAN NASKAH SOAL KUIS', $responseTxt->getContent());
+    }
 }
 

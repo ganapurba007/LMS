@@ -727,7 +727,7 @@ class QuizController extends Controller
             $item = [
                 'number' => $index + 1,
                 'id' => $question->id,
-                'question_text' => $question->question_text,
+                'question_text' => $question->formatted_question_text,
                 'question_type' => $question->question_type ?? 'multiple_choice',
                 'is_answered' => $isAnswered,
                 'is_correct' => false,

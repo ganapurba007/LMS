@@ -11,12 +11,15 @@
         </div>
         <div>
             <h5 class="md-title">Bank Soal</h5>
+            <div class="text-muted small">Kelola kumpulan butir soal untuk kuis dan evaluasi belajar.</div>
         </div>
     </div>
-    <a href="{{ route('admin.question-banks.create') }}" class="md-btn-primary">
-        <i class="ti ti-plus"></i>
-        <span>Buat Soal</span>
-    </a>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ route('admin.question-banks.create') }}" class="md-btn-primary">
+            <i class="ti ti-plus"></i>
+            <span>Buat Soal</span>
+        </a>
+    </div>
 </div>
 
 {{-- Flash --}}
@@ -32,6 +35,39 @@
         <button class="md-alert-close" onclick="this.closest('.md-alert').remove()"><i class="ti ti-x"></i></button>
     </div>
 @endif
+
+{{-- Filter & Search Form --}}
+<div class="md-card mb-4 p-3">
+    <form method="GET" action="{{ route('admin.question-banks.index') }}" class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="ti ti-search"></i></span>
+                <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Cari soal..." value="{{ request('search') }}">
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <select name="type" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Format Soal --</option>
+                <option value="multiple_choice" {{ request('type') == 'multiple_choice' ? 'selected' : '' }}>Pilihan Ganda</option>
+                <option value="true_false" {{ request('type') == 'true_false' ? 'selected' : '' }}>Benar / Salah</option>
+                <option value="matching" {{ request('type') == 'matching' ? 'selected' : '' }}>Menjodohkan</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <select name="per_page" class="form-select" onchange="this.form.submit()" title="Jumlah per halaman">
+                <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10 / hal</option>
+                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 / hal</option>
+                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / hal</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="md-btn-primary w-100"><i class="ti ti-filter"></i> Filter</button>
+            @if(request('search') || request('type') || (request('per_page') && request('per_page') != 10))
+                <a href="{{ route('admin.question-banks.index') }}" class="md-btn-secondary" title="Reset Filter"><i class="ti ti-refresh"></i></a>
+            @endif
+        </div>
+    </form>
+</div>
 
 {{-- Card --}}
 <div class="md-card">
@@ -71,7 +107,22 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="qb-question-text">{{ Str::limit($qb->question_text, 130) }}</div>
+                            <div class="qb-question-text">
+                                @if($qb->hasImage())
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1" style="font-size: .72rem; font-weight: 600;"><i class="ti ti-photo me-0.5"></i> (gambar)</span>
+                                @endif
+                                @if($qb->hasTable())
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle me-1" style="font-size: .72rem; font-weight: 600;"><i class="ti ti-table me-0.5"></i> (tabel)</span>
+                                @endif
+                                @php
+                                    $cleanText = trim(preg_replace('/!\[.*?\]\(.*?\)/', '', strip_tags($qb->question_text)));
+                                @endphp
+                                @if($cleanText !== '')
+                                    {{ Str::limit($cleanText, 130) }}
+                                @else
+                                    <span class="text-muted fst-italic small">Konten {{ $qb->hasImage() ? '(gambar)' : '' }} {{ $qb->hasTable() ? '(tabel)' : '' }}</span>
+                                @endif
+                            </div>
                             {{-- Kunci jawaban on mobile --}}
                             <div class="d-lg-none mt-1">
                                 @if($qb->isMatching())
@@ -149,8 +200,13 @@
                                 <a href="{{ route('admin.question-banks.edit', $qb) }}" class="md-icon-btn blue" title="Edit">
                                     <i class="ti ti-edit"></i>
                                 </a>
+                                @php
+                                    $previewQbText = Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($qb->question_text))), 60);
+                                @endphp
                                 <button class="md-icon-btn red" title="Hapus"
-                                    onclick="openDeleteQbModal('{{ route('admin.question-banks.destroy', $qb) }}', '{{ addslashes(Str::limit($qb->question_text, 60)) }}')">
+                                    data-action="{{ route('admin.question-banks.destroy', $qb) }}"
+                                    data-text="{{ $previewQbText }}"
+                                    onclick="openDeleteQbModal(this.dataset.action, this.dataset.text)">
                                     <i class="ti ti-trash"></i>
                                 </button>
                             </div>
@@ -188,9 +244,14 @@
             </tbody>
         </table>
     </div>
-    @if($questionBanks->hasPages())
-        <div class="md-card-footer">{{ $questionBanks->links() }}</div>
-    @endif
+    <div class="md-card-footer d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="small text-muted">
+            Menampilkan <strong>{{ $questionBanks->firstItem() ?? 0 }}</strong> sampai <strong>{{ $questionBanks->lastItem() ?? 0 }}</strong> dari <strong>{{ $questionBanks->total() }}</strong> butir soal
+        </div>
+        @if($questionBanks->hasPages())
+            <div>{{ $questionBanks->links() }}</div>
+        @endif
+    </div>
 </div>
 
 {{-- Delete Modal --}}

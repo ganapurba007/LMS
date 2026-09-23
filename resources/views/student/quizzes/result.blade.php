@@ -540,7 +540,7 @@
                             <div class="p-3 p-sm-4 p-md-4">
                                 
                                 <div class="fw-semibold text-dark mb-3" style="font-size: 0.96rem; line-height: 1.65;">
-                                    {!! nl2br(e($question->question_text)) !!}
+                                    {!! $question->formatted_question_text !!}
                                 </div>
 
                                 @if($question->image_path)
@@ -577,18 +577,18 @@
                                                             $isPairCorrect = $chosenMatch && trim($chosenMatch) === trim($option->match_text);
                                                         @endphp
                                                         <tr class="{{ $isPairCorrect ? 'table-success-subtle' : ($chosenMatch ? 'table-danger-subtle' : '') }}">
-                                                            <td class="fw-semibold text-dark">{{ $option->option_text }}</td>
+                                                            <td class="fw-semibold text-dark">{!! $option->option_text !!}</td>
                                                             <td>
                                                                 @if($chosenMatch)
                                                                     <span class="fw-bold {{ $isPairCorrect ? 'text-success' : 'text-danger' }}">
-                                                                        {{ $chosenMatch }}
+                                                                        {!! $chosenMatch !!}
                                                                     </span>
                                                                 @else
                                                                     <span class="text-muted fst-italic">- Tidak Dipilih -</span>
                                                                 @endif
                                                             </td>
                                                             <td class="text-success fw-bold">
-                                                                <i class="ti ti-check me-0.5"></i> {{ $option->match_text }}
+                                                                <i class="ti ti-check me-0.5"></i> {!! $option->match_text !!}
                                                             </td>
                                                             <td class="text-center">
                                                                 @if($isPairCorrect)
@@ -612,7 +612,7 @@
                                                     $isThisSelected = ($selectedOptionId === $option->id);
                                                     $isThisCorrectKey = (bool)$option->is_correct;
                                                     
-                                                    $tileClass = 'review-option-tile ';
+                                                     $tileClass = 'review-option-tile ';
                                                     $badgeBg = '#F1F5F9';
                                                     $badgeColor = '#334155';
                                                     $badgeBorder = '#CBD5E1';
@@ -647,7 +647,7 @@
                                                             @endif
                                                         </span>
                                                         <span class="fw-semibold text-dark text-break" style="font-size: 0.88rem;">
-                                                            {{ $option->option_text }}
+                                                            {!! $option->option_text !!}
                                                         </span>
                                                     </div>
 

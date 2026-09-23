@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\QuestionBank;
 use App\Models\QuestionBankOption;
+use App\Services\DocumentQuestionParserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class QuestionBankController extends Controller
@@ -17,6 +20,10 @@ class QuestionBankController extends Controller
     {
         $search = $request->query('search');
         $type = $request->query('type');
+        $perPage = (int) $request->query('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50, 100])) {
+            $perPage = 10;
+        }
 
         $questionBanks = QuestionBank::with('options')
             ->withCount('options')
@@ -28,10 +35,10 @@ class QuestionBankController extends Controller
                 $query->where('question_type', $type);
             })
             ->orderBy('id', 'desc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
-        return view('admin.question-banks.index', compact('questionBanks', 'search', 'type'));
+        return view('admin.question-banks.index', compact('questionBanks', 'search', 'type', 'perPage'));
     }
 
     public function create(): View
@@ -334,6 +341,228 @@ class QuestionBankController extends Controller
         $questionBank->delete();
 
         return redirect()->route('admin.question-banks.index')->with('success', 'Soal di Bank Soal berhasil dihapus.');
+    }
+
+    /**
+     * Download contoh template format naskah soal (.docx atau .txt).
+     */
+    public function downloadTemplate(Request $request, DocumentQuestionParserService $parser)
+    {
+        $format = strtolower($request->query('format', 'docx'));
+
+        if ($format === 'txt') {
+            $content = $parser->getTextTemplateContent();
+            return response($content, 200, [
+                'Content-Type' => 'text/plain; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="Template_Format_Soal_LMS.txt"',
+            ]);
+        }
+
+        // Default: docx
+        $filePath = $parser->generateDocxTemplate();
+        return response()->download($filePath, 'Template_Format_Soal_LMS.docx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ])->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Upload dan simpan langsung butir-butir soal dari file dokumen Word (.docx) atau PDF (.pdf).
+     */
+    public function importDocument(Request $request, DocumentQuestionParserService $parser): RedirectResponse
+    {
+        $request->validate([
+            'document_file' => ['required', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+        ]);
+
+        try {
+            $file = $request->file('document_file');
+            $extension = $file->getClientOriginalExtension();
+            $path = $file->getRealPath();
+
+            $extractedText = $parser->extractTextFromFile($path, $extension);
+            if (empty(trim($extractedText))) {
+                return back()->with('error', 'Tidak dapat mengekstrak teks dari file dokumen tersebut. Pastikan dokumen bukan hasil scan gambar murni tanpa teks.');
+            }
+
+            $questions = $parser->parseQuestionsFromText($extractedText);
+            if (empty($questions)) {
+                return back()->with('error', 'Format butir soal dalam dokumen tidak terdeteksi. Pastikan naskah soal memiliki nomor urut (contoh: 1. Pertanyaan) dan opsi (A., B., Kunci).');
+            }
+
+            $createdCount = 0;
+            $instructorId = Auth::id();
+
+            DB::transaction(function () use ($questions, $instructorId, &$createdCount) {
+                foreach ($questions as $qData) {
+                    $qType = $qData['question_type'] ?? 'multiple_choice';
+                    $qText = trim($qData['question_text'] ?? '');
+                    if ($qText === '') {
+                        if ($qType === 'matching') {
+                            $qText = 'Jodohkanlah item berikut dengan pasangannya yang benar:';
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if ($qType === 'true_false') {
+                        $correctTf = $qData['correct_tf'] ?? 'Benar';
+                        $qb = QuestionBank::create([
+                            'instructor_id' => $instructorId,
+                            'question_text' => $qText,
+                            'question_type' => 'true_false',
+                        ]);
+
+                        QuestionBankOption::create([
+                            'question_bank_id' => $qb->id,
+                            'option_text' => 'Benar',
+                            'is_correct' => ($correctTf === 'Benar'),
+                        ]);
+                        QuestionBankOption::create([
+                            'question_bank_id' => $qb->id,
+                            'option_text' => 'Salah',
+                            'is_correct' => ($correctTf === 'Salah'),
+                        ]);
+                        $createdCount++;
+                    } elseif ($qType === 'matching') {
+                        $pairs = $qData['pairs'] ?? [];
+                        if (is_array($pairs) && count($pairs) >= 2) {
+                            $qb = QuestionBank::create([
+                                'instructor_id' => $instructorId,
+                                'question_text' => $qText,
+                                'question_type' => 'matching',
+                            ]);
+
+                            foreach ($pairs as $pair) {
+                                if (!empty($pair['premise']) && !empty($pair['match'])) {
+                                    QuestionBankOption::create([
+                                        'question_bank_id' => $qb->id,
+                                        'option_text' => trim($pair['premise']),
+                                        'match_text' => trim($pair['match']),
+                                        'is_correct' => true,
+                                    ]);
+                                }
+                            }
+                            $createdCount++;
+                        }
+                    } else {
+                        // Multiple choice
+                        $options = $qData['options'] ?? [];
+                        $filteredOptions = [];
+                        $rawCorrectOpt = isset($qData['correct_option']) ? (int)$qData['correct_option'] : 0;
+
+                        foreach ($options as $idx => $optText) {
+                            $t = trim($optText);
+                            if ($t !== '') {
+                                $filteredOptions[] = [
+                                    'text' => $t,
+                                    'is_correct' => ($idx === $rawCorrectOpt),
+                                ];
+                            }
+                        }
+
+                        if (count($filteredOptions) >= 2) {
+                            $qb = QuestionBank::create([
+                                'instructor_id' => $instructorId,
+                                'question_text' => $qText,
+                                'question_type' => 'multiple_choice',
+                            ]);
+
+                            $hasCorrect = false;
+                            foreach ($filteredOptions as $fOpt) {
+                                if ($fOpt['is_correct']) {
+                                    $hasCorrect = true;
+                                    break;
+                                }
+                            }
+                            if (!$hasCorrect) {
+                                $filteredOptions[0]['is_correct'] = true;
+                            }
+
+                            foreach ($filteredOptions as $fOpt) {
+                                QuestionBankOption::create([
+                                    'question_bank_id' => $qb->id,
+                                    'option_text' => $fOpt['text'],
+                                    'is_correct' => $fOpt['is_correct'],
+                                ]);
+                            }
+                            $createdCount++;
+                        }
+                    }
+                }
+            });
+
+            return redirect()->route('admin.question-banks.index')
+                ->with('success', "Berhasil! {$createdCount} butir soal dari file {$file->getClientOriginalName()} langsung tersimpan di Bank Soal.");
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal memproses dokumen: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Parse file dokumen Word (.docx) atau PDF (.pdf) menjadi butir-butir soal.
+     */
+    public function parseDocument(Request $request, DocumentQuestionParserService $parser): JsonResponse
+    {
+        $request->validate([
+            'document_file' => ['required', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+        ]);
+
+        try {
+            $file = $request->file('document_file');
+            $extension = $file->getClientOriginalExtension();
+            $path = $file->getRealPath();
+
+            $extractedText = $parser->extractTextFromFile($path, $extension);
+            if (empty(trim($extractedText))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat mengekstrak teks dari file dokumen tersebut. Pastikan dokumen bukan hasil scan gambar murni tanpa teks.',
+                ], 422);
+            }
+
+            $questions = $parser->parseQuestionsFromText($extractedText);
+
+            return response()->json([
+                'success' => true,
+                'raw_text' => $extractedText,
+                'count' => count($questions),
+                'questions' => $questions,
+                'message' => count($questions) . ' butir soal berhasil dideteksi dari dokumen.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membaca dokumen: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload gambar dari editor soal (TinyMCE atau form gambar custom).
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $filename = 'qb_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('question-images', $filename, 'public');
+
+            $url = asset('storage/' . $path);
+
+            return response()->json([
+                'location' => $url,
+                'url' => $url,
+                'success' => true,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Gagal mengunggah gambar: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
 

@@ -90,7 +90,11 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     // Master Kelas CRUD
     Route::resource('classes', SchoolClassController::class);
 
-    // Master Bank Soal CRUD
+    // Master Bank Soal CRUD & Tools
+    Route::get('question-banks/download-template', [QuestionBankController::class, 'downloadTemplate'])->name('question-banks.download-template');
+    Route::post('question-banks/import-document', [QuestionBankController::class, 'importDocument'])->name('question-banks.import-document');
+    Route::post('question-banks/parse-document', [QuestionBankController::class, 'parseDocument'])->name('question-banks.parse-document');
+    Route::post('upload-editor-image', [QuestionBankController::class, 'uploadImage'])->name('upload-editor-image');
     Route::resource('question-banks', QuestionBankController::class);
 
     // Master Bank Materi CRUD & JSON API

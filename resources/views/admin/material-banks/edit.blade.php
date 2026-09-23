@@ -104,7 +104,7 @@
                                 </a>
                             </div>
                         @endif
-                        <div class="md-form-hint">Upload file baru jika ingin mengganti dokumen lampiran.</div>
+                        <div class="md-form-hint text-white">Upload file baru jika ingin mengganti dokumen lampiran.</div>
                         @error('document_file')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
