@@ -4143,32 +4143,87 @@
     }
 
     function parseDocumentViaBackend(file) {
-        const formData = new FormData();
-        formData.append('document_file', file);
-        formData.append('_token', '{{ csrf_token() }}');
+        const loadingEl = document.getElementById('docParseLoading');
+        const loadingTextEl = loadingEl ? (loadingEl.querySelector('.qb-loading-text') || loadingEl) : null;
+        if (loadingEl) loadingEl.classList.remove('d-none');
+        if (loadingTextEl) loadingTextEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Mengunggah dokumen naskah soal...';
 
-        fetch('{{ route('admin.question-banks.parse-document') }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            const loadingEl = document.getElementById('docParseLoading');
-            loadingEl.classList.add('d-none');
+        // Jika file berukuran > 1MB, gunakan Chunked Uploader agar bebas timeout
+        if (file.size > 1024 * 1024 && typeof ChunkedUploader !== 'undefined') {
+            const uploader = new ChunkedUploader({
+                targetFolder: 'question-banks-temp',
+                uploadUrl: '{{ route('admin.upload.chunk') }}',
+                cancelUrl: '{{ route('admin.upload.chunk.cancel') }}',
+                onProgress: function(progress) {
+                    if (loadingTextEl) {
+                        loadingTextEl.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Mengunggah: ${progress.percent}% (Pecahan ${progress.chunkIndex}/${progress.totalChunks})...`;
+                    }
+                },
+                onSuccess: function(data) {
+                    if (loadingTextEl) {
+                        loadingTextEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menganalisis butir soal dari dokumen...';
+                    }
 
-            if (data.success && data.questions && data.questions.length > 0) {
-                renderExtractedDocQuestions(data.questions, data.raw_text);
-            } else {
-                showQbModalAlert('Gagal Parsing', data.message || 'Tidak ada butir soal yang berhasil dideteksi.');
-            }
-        })
-        .catch(err => {
-            document.getElementById('docParseLoading').classList.add('d-none');
-            showQbModalAlert('Gagal Membaca Dokumen', 'Terjadi kesalahan jaringan atau format dokumen tidak dapat dibaca.');
-        });
+                    const formData = new FormData();
+                    formData.append('document_chunk_path', data.file_path);
+                    formData.append('original_filename', data.original_filename);
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    fetch('{{ route('admin.question-banks.parse-document') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(parseData => {
+                        if (loadingEl) loadingEl.classList.add('d-none');
+                        if (parseData.success && parseData.questions && parseData.questions.length > 0) {
+                            renderExtractedDocQuestions(parseData.questions, parseData.raw_text);
+                        } else {
+                            showQbModalAlert('Gagal Parsing', parseData.message || 'Tidak ada butir soal yang berhasil dideteksi.');
+                        }
+                    })
+                    .catch(err => {
+                        if (loadingEl) loadingEl.classList.add('d-none');
+                        showQbModalAlert('Gagal Membaca Dokumen', 'Terjadi kesalahan saat memproses dokumen: ' + err.message);
+                    });
+                },
+                onError: function(err) {
+                    if (loadingEl) loadingEl.classList.add('d-none');
+                    showQbModalAlert('Gagal Unggah Dokumen', err.message);
+                }
+            });
+
+            uploader.upload(file);
+        } else {
+            // Direct upload fallback untuk file kecil
+            const formData = new FormData();
+            formData.append('document_file', file);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch('{{ route('admin.question-banks.parse-document') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (loadingEl) loadingEl.classList.add('d-none');
+                if (data.success && data.questions && data.questions.length > 0) {
+                    renderExtractedDocQuestions(data.questions, data.raw_text);
+                } else {
+                    showQbModalAlert('Gagal Parsing', data.message || 'Tidak ada butir soal yang berhasil dideteksi.');
+                }
+            })
+            .catch(err => {
+                if (loadingEl) loadingEl.classList.add('d-none');
+                showQbModalAlert('Gagal Membaca Dokumen', 'Terjadi kesalahan jaringan atau format dokumen tidak dapat dibaca.');
+            });
+        }
     }
 
     function parseRawQuestionTextToObjects(text) {
@@ -4519,4 +4574,5 @@ CSS = .css`;
         document.getElementById('batchQbForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 </script>
+<script src="{{ asset('js/chunked-uploader.js') }}"></script>
 @endsection

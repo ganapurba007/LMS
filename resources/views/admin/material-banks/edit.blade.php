@@ -124,3 +124,19 @@
 
 @include('admin._partials.master-data-styles')
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/chunked-uploader.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initChunkedFileInput({
+        input: '#document_file',
+        targetFolder: 'material-banks',
+        hiddenInputName: 'document_chunk_path',
+        originalNameInputName: 'original_filename',
+        uploadUrl: '{{ route('admin.upload.chunk') }}',
+        cancelUrl: '{{ route('admin.upload.chunk.cancel') }}'
+    });
+});
+</script>
+@endpush

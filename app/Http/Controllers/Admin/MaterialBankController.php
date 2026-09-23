@@ -73,11 +73,14 @@ class MaterialBankController extends Controller
             'content_type' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg,zip,rar,txt', 'max:20480'],
+            'document_chunk_path' => ['nullable', 'string'],
             'video_url' => ['nullable', 'url'],
         ]);
 
         $documentPath = null;
-        if ($request->hasFile('document_file')) {
+        if ($request->filled('document_chunk_path') && Storage::disk('public')->exists($request->document_chunk_path)) {
+            $documentPath = $request->document_chunk_path;
+        } elseif ($request->hasFile('document_file')) {
             $documentPath = $request->file('document_file')->store('material-banks', 'public');
         }
 
@@ -130,10 +133,16 @@ class MaterialBankController extends Controller
             'content_type' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg,zip,rar,txt', 'max:20480'],
+            'document_chunk_path' => ['nullable', 'string'],
             'video_url' => ['nullable', 'url'],
         ]);
 
-        if ($request->hasFile('document_file')) {
+        if ($request->filled('document_chunk_path') && Storage::disk('public')->exists($request->document_chunk_path)) {
+            if ($materialBank->document_path && $materialBank->document_path !== $request->document_chunk_path) {
+                Storage::disk('public')->delete($materialBank->document_path);
+            }
+            $materialBank->document_path = $request->document_chunk_path;
+        } elseif ($request->hasFile('document_file')) {
             if ($materialBank->document_path) {
                 Storage::disk('public')->delete($materialBank->document_path);
             }

@@ -371,13 +371,28 @@ class QuestionBankController extends Controller
     public function importDocument(Request $request, DocumentQuestionParserService $parser): RedirectResponse
     {
         $request->validate([
-            'document_file' => ['required', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+            'document_file' => ['nullable', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+            'document_chunk_path' => ['nullable', 'string'],
+            'original_filename' => ['nullable', 'string'],
         ]);
 
+        if (!$request->hasFile('document_file') && !$request->filled('document_chunk_path')) {
+            return back()->with('error', 'Silakan pilih file dokumen naskah soal terlebih dahulu.');
+        }
+
         try {
-            $file = $request->file('document_file');
-            $extension = $file->getClientOriginalExtension();
-            $path = $file->getRealPath();
+            if ($request->filled('document_chunk_path') && Storage::disk('public')->exists($request->document_chunk_path)) {
+                $path = Storage::disk('public')->path($request->document_chunk_path);
+                $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $displayName = $request->input('original_filename', basename($path));
+                $isChunk = true;
+            } else {
+                $file = $request->file('document_file');
+                $extension = $file->getClientOriginalExtension();
+                $path = $file->getRealPath();
+                $displayName = $file->getClientOriginalName();
+                $isChunk = false;
+            }
 
             $extractedText = $parser->extractTextFromFile($path, $extension);
             if (empty(trim($extractedText))) {
@@ -491,8 +506,13 @@ class QuestionBankController extends Controller
                 }
             });
 
+            // Hapus file temporary chunk jika berasal dari chunked upload
+            if ($isChunk && !empty($request->document_chunk_path)) {
+                Storage::disk('public')->delete($request->document_chunk_path);
+            }
+
             return redirect()->route('admin.question-banks.index')
-                ->with('success', "Berhasil! {$createdCount} butir soal dari file {$file->getClientOriginalName()} langsung tersimpan di Bank Soal.");
+                ->with('success', "Berhasil! {$createdCount} butir soal dari file {$displayName} langsung tersimpan di Bank Soal.");
         } catch (\Throwable $e) {
             return back()->with('error', 'Gagal memproses dokumen: ' . $e->getMessage());
         }
@@ -504,13 +524,28 @@ class QuestionBankController extends Controller
     public function parseDocument(Request $request, DocumentQuestionParserService $parser): JsonResponse
     {
         $request->validate([
-            'document_file' => ['required', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+            'document_file' => ['nullable', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+            'document_chunk_path' => ['nullable', 'string'],
         ]);
 
+        if (!$request->hasFile('document_file') && !$request->filled('document_chunk_path')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Silakan pilih file dokumen naskah soal terlebih dahulu.',
+            ], 422);
+        }
+
         try {
-            $file = $request->file('document_file');
-            $extension = $file->getClientOriginalExtension();
-            $path = $file->getRealPath();
+            $isChunk = false;
+            if ($request->filled('document_chunk_path') && Storage::disk('public')->exists($request->document_chunk_path)) {
+                $path = Storage::disk('public')->path($request->document_chunk_path);
+                $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $isChunk = true;
+            } else {
+                $file = $request->file('document_file');
+                $extension = $file->getClientOriginalExtension();
+                $path = $file->getRealPath();
+            }
 
             $extractedText = $parser->extractTextFromFile($path, $extension);
             if (empty(trim($extractedText))) {
@@ -521,6 +556,11 @@ class QuestionBankController extends Controller
             }
 
             $questions = $parser->parseQuestionsFromText($extractedText);
+
+            // Bersihkan file temporary chunk setelah selesai diparse
+            if ($isChunk && !empty($request->document_chunk_path)) {
+                Storage::disk('public')->delete($request->document_chunk_path);
+            }
 
             return response()->json([
                 'success' => true,

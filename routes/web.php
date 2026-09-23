@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AssignmentBankController;
 use App\Http\Controllers\Admin\AssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
+use App\Http\Controllers\Admin\ChunkUploadController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MaterialBankController;
 use App\Http\Controllers\Admin\MaterialController;
@@ -76,6 +77,10 @@ Route::middleware(['auth'])->prefix('student')->as('student.')->group(function (
 // Route Group Admin / Guru
 Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Chunked File Upload
+    Route::post('upload/chunk', [ChunkUploadController::class, 'uploadChunk'])->name('upload.chunk');
+    Route::post('upload/chunk/cancel', [ChunkUploadController::class, 'cancelChunk'])->name('upload.chunk.cancel');
 
     // Master Role CRUD
     Route::resource('roles', RoleController::class);

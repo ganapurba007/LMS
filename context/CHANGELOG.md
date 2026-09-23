@@ -2,6 +2,24 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 48] Chunked File Upload System for Material & Question Banks — 2026-09-23
+
+### Ditambahkan & Diperbarui
+- **Fitur Chunked File Upload (Unggah Terfragmentasi Tanpa Timeout Server)**:
+  - **Chunk Upload Controller ([`ChunkUploadController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/ChunkUploadController.php))**:
+    - Menerima potongan file per 1MB via route `POST /admin/upload/chunk` dan menyimpannya di temporary directory `storage/app/chunks/{uuid}/`.
+    - Menggabungkan seluruh pecahan file secara berurutan saat chunk terakhir diterima, memvalidasi tipe file dan ekstensi aman, lalu memindahkan file utuh ke target folder di disk public.
+    - Dilengkapi endpoint pembersihan `POST /admin/upload/chunk/cancel` jika proses unggah dibatalkan.
+  - **Komponen Vanilla JS Chunked Uploader ([`public/js/chunked-uploader.js`](file:///c:/laragon/www/KELAS/lms_dani/public/js/chunked-uploader.js))**:
+    - Mengelola pemecahan file di sisi client (1MB per request), pengiriman asynchronous berurutan, visual real-time progress bar (0%–100%), dan handling status upload.
+    - Dilengkapi fungsi otomatis `initChunkedFileInput()` yang langsung dapat dipasangkan ke elemen form input file manapun.
+  - **Integrasi di Bank Materi ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/create.blade.php) & [`edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/edit.blade.php))**:
+    - Input file dokumen lampiran otomatis mengunggah per chunk saat file dipilih, menampilkan progress bar interaktif, dan mengirimkan file path hasil merge ke `MaterialBankController`.
+  - **Integrasi di Bank Soal ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**:
+    - Fitur import/deteksi naskah soal Word & PDF otomatis beralih ke chunked upload saat ukuran file > 1MB, sehingga naskah dokumen besar (berisi gambar/tabel) terunggah lancar tanpa resiko `max_execution_time` timeout.
+- **Pengujian & Regresi**:
+  - Penambahan feature test suite baru [`ChunkUploadTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/ChunkUploadTest.php) (5 passed, 19 assertions).
+
 ## [Fase 47] Quiz Student Results Monitoring, Attempt Reset & UI Refinement — 2026-09-14
 
 ### Ditambahkan & Diperbarui

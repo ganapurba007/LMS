@@ -137,6 +137,7 @@ Menu **Master** adalah kelompok navigasi utama di admin dashboard, berisi sub-me
 | FR-3.4 | Guru hanya dapat mengelola materi yang dibuat oleh dirinya sendiri                                                                                                                                          |
 | FR-3.5 | Setiap materi memiliki **ruang diskusi realtime**: guru dan siswa (di kelas yang sama) dapat memposting komentar/pertanyaan; komentar baru muncul langsung tanpa reload halaman (via Laravel Echo + Pusher) |
 | FR-3.6 | Guru dapat menghapus komentar diskusi yang tidak sesuai                                                                                                                                                     |
+| FR-3.7 | Upload file lampiran pada Bank Materi mendukung **Chunked Upload** (pecahan 1MB per chunk) dengan real-time progress bar persentase (0%–100%) untuk mencegah terjadinya timeout server pada file berukuran besar (15MB+) |
 
 ---
 
@@ -193,6 +194,7 @@ Menu **Master** adalah kelompok navigasi utama di admin dashboard, berisi sub-me
 | FR-6.6 | Guru dapat menambahkan banyak butir soal sekaligus (**Batch Question Builder**) dalam satu form multi-tab dinamis dan menyimpannya secara simultan ke Bank Soal maupun Kuis            |
 | FR-6.7 | Guru dapat mengimpor butir-butir soal secara otomatis dari dokumen Word (`.docx`), PDF (`.pdf`), atau teks (`.txt`) via Document Question Parser Service terintegrasi                 |
 | FR-6.8 | Teks soal mendukung format kaya (media): Tabel Markdown/HTML, Gambar Markdown/HTML, upload gambar via TinyMCE/AJAX, serta indikator badge `(tabel)` dan `(gambar)`                    |
+| FR-6.9 | Import & Deteksi naskah soal dari dokumen Word/PDF/Teks mendukung **Chunked Upload** otomatis pada file besar (>1MB) sebelum diparse, menjamin ekstraksi butir soal tanpa terkena batas `max_execution_time` server |
 
 ---
 
@@ -758,4 +760,5 @@ Bagian ini mendokumentasikan evolusi spesifikasi dan penyesuaian fungsionalitas 
 | **2026-09-14**<br>Fase 44 | **Batch Question Builder & Quick Paste Parser**: Form dinamis multi-butir soal sekaligus, parser dokumen Word (`.docx`), PDF (`.pdf`), teks (`.txt`), dan modal input cepat regex (`Modal ⚡ Input Cepat`). | Mempercepat produktivitas guru dalam menyusun atau memindahkan naskah soal ujian puluhan butir dalam 1 kali proses simpan. |
 | **2026-09-14**<br>Fase 45–46 | **Smart Tab Auto-Spawn & UI Refinement**: Tampilan pasangan menjodohkan ringkas, deteksi otomatis perpindahan tab tipe format (auto-spawn kartu baru), dan standardisasi modal konfirmasi Bootstrap 5. | Menyempurnakan alur kerja penyusunan soal campuran (hybrid) tanpa kehilangan draf soal yang sedang diketik. |
 | **2026-09-14**<br>Fase 47 | **Monitoring Hasil Siswa & Reset Attempt Kuis**: Halaman monitoring progres kelas per kuis (`/admin/quizzes/{quiz}/students`), modal AJAX review jawaban detail, dan fitur **Reset Pengerjaan Siswa** (`resetStudentAttempt`). | Memberikan visibilitas penuh kepada guru atas ketuntasan belajar siswa dan kontrol reset pengerjaan jika terjadi kendala teknis / kebutuhan remedial. |
-| **2026-09-18**<br>Fase Master Bank | **Master Bank Materi & Bank Tugas**: Penambahan tabel `material_banks` dan `assignment_banks` beserta modul CRUD Bank Materi dan Bank Tugas terpusat. | Memungkinkan guru membuat bank materi dan bank tugas yang dapat digunakan kembali (*reusable*) lintas kelas tanpa input ulang. |
+| **2026-09-18**<br>Fase Master Bank | **Master Bank Materi & Bank Tugas**: Penambahan tabel `material_banks` dan `assignment_banks` beserta modul CRUD Bank Materi dan Bank Tugas terpusat. | Memungkinkan guru membuat bank materi dan bank tugas yang dapat digunakan kembali (*reusable*) lintas kelas tanpa input ulang. |
+| **2026-09-23**<br>Fase 48 | **Chunked File Upload (Bank Materi & Bank Soal)**: Implementasi pemecahan file besar di sisi client (1MB per chunk) via asynchronous endpoints (`/admin/upload/chunk`) dan real-time UI progress bar. | Mengatasi kendala HTTP timeout (504/max_execution_time) saat guru mengunggah dokumen/modul besar (15MB–50MB+) tanpa perlu menambah durasi timeout server global. |
