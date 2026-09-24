@@ -72,7 +72,7 @@ class MaterialBankController extends Controller
             'subject_id' => ['nullable', 'exists:subjects,id'],
             'content_type' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
-            'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg,txt', 'max:51200'],
+            'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg', 'max:51200'],
             'document_chunk_path' => ['nullable', 'string'],
             'video_url' => ['nullable', 'url'],
         ]);
@@ -132,7 +132,7 @@ class MaterialBankController extends Controller
             'subject_id' => ['nullable', 'exists:subjects,id'],
             'content_type' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
-            'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg,txt', 'max:51200'],
+            'document_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,png,jpg,jpeg', 'max:51200'],
             'document_chunk_path' => ['nullable', 'string'],
             'video_url' => ['nullable', 'url'],
         ]);

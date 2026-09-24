@@ -40,10 +40,10 @@ class ChunkedUploader {
     async upload(file) {
         if (!file) return;
 
-        // Validasi ekstensi terlarang (arsip ZIP dan RAR)
+        // Validasi ekstensi terlarang (arsip ZIP/RAR dan file teks mentah TXT)
         const ext = file.name.split('.').pop().toLowerCase();
-        if (['zip', 'rar'].includes(ext)) {
-            const err = new Error('Format file arsip (.zip dan .rar) tidak diizinkan. Silakan unggah dokumen PDF, DOCX, PPTX, XLSX, TXT, atau gambar.');
+        if (['zip', 'rar', 'txt'].includes(ext)) {
+            const err = new Error('Format file (.' + ext + ') tidak diizinkan. Silakan unggah dokumen PDF, DOCX, PPTX, XLSX, atau Gambar.');
             this.onError(err);
             return;
         }
@@ -231,10 +231,10 @@ function initChunkedFileInput(config) {
         const file = this.files && this.files[0];
         if (!file) return;
 
-        // Cek ekstensi terlarang (ZIP dan RAR)
+        // Cek ekstensi terlarang (ZIP, RAR, TXT)
         const ext = file.name.split('.').pop().toLowerCase();
-        if (['zip', 'rar'].includes(ext)) {
-            alert('File arsip (.zip dan .rar) tidak diizinkan. Silakan unggah file PDF, DOCX, PPTX, XLSX, TXT, atau gambar.');
+        if (['zip', 'rar', 'txt'].includes(ext)) {
+            alert('Format file (.' + ext + ') tidak diizinkan. Silakan unggah file PDF, DOCX, PPTX, XLSX, atau Gambar.');
             this.value = '';
             hiddenInput.value = '';
             origNameInput.value = '';

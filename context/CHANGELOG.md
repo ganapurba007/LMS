@@ -15,12 +15,11 @@
     - **Penyelesaian Masalah "Site Can't Be Reached"**: Menghapus duplikasi pengiriman payload file 15MB saat submit form utama (hanya mengirim path chunk `<1KB`), mengeliminasi total error connection reset / max post size.
     - **Penyempurnaan Teks UI**: Menghapus kata "pecahan" pada tampilan progres (`15.0 MB / 15.0 MB (100%)`).
     - **Proteksi Ekstensi**: Memblokir file `.zip` dan `.rar` di sisi client maupun server.
-  - **Integrasi di Bank Materi ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/create.blade.php) & [`edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/edit.blade.php))**:
-    - Input file dokumen lampiran otomatis mengunggah per chunk saat file dipilih, menampilkan progress bar interaktif, dan mengirimkan file path hasil merge ke `MaterialBankController`.
-  - **Integrasi di Bank Soal ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**:
-    - Fitur import/deteksi naskah soal Word & PDF otomatis beralih ke chunked upload saat ukuran file > 1MB, sehingga naskah dokumen besar (berisi gambar/tabel) terunggah lancar tanpa resiko `max_execution_time` timeout.
+  - **Penyempurnaan UI Bank Materi ([`index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/index.blade.php) & [`edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/edit.blade.php))**:
+    - **Modal Pratinjau Dokumen In-Page**: Pratinjau file PDF, Gambar, dan Video disajikan langsung melalui modal interaktif yang responsif dengan dukungan tema Dark/Light Mode.
+    - **Pembersihan Tampilan Tabel & Form**: Menyederhanakan kolom tabel index (hanya judul materi) dan form edit lampiran (hanya tombol Pratinjau & Unduh yang ringkas).
 - **Pengujian & Regresi**:
-  - Penambahan feature test suite baru [`ChunkUploadTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/ChunkUploadTest.php) (5 passed, 23 assertions).
+  - Penambahan feature test suite baru [`ChunkUploadTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/ChunkUploadTest.php) (5 passed, 25 assertions).
 
 ## [Fase 47] Quiz Student Results Monitoring, Attempt Reset & UI Refinement — 2026-09-14
 

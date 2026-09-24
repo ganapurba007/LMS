@@ -71,6 +71,16 @@ class ChunkUploadTest extends TestCase
             'original_filename' => 'archive.rar',
         ]);
         $resRar->assertStatus(422)->assertJson(['success' => false]);
+
+        // Uji penolakan format teks mentah .txt
+        $resTxt = $this->actingAs($this->guru)->postJson(route('admin.upload.chunk'), [
+            'file' => UploadedFile::fake()->create('notes.txt', 100),
+            'chunk_index' => 0,
+            'total_chunks' => 1,
+            'file_uuid' => 'test_uuid_txt',
+            'original_filename' => 'notes.txt',
+        ]);
+        $resTxt->assertStatus(422)->assertJson(['success' => false]);
     }
 
     public function test_chunked_upload_merges_successfully(): void

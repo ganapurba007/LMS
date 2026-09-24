@@ -33,13 +33,13 @@ class ChunkUploadController extends Controller
         $originalFilename = $request->input('original_filename');
         $targetFolder = $request->input('target_folder', 'material-banks');
 
-        // Validasi ekstensi yang diizinkan (arsip .zip/.rar tidak diizinkan)
+        // Validasi ekstensi yang diizinkan (arsip .zip/.rar/.txt tidak diizinkan)
         $extension = strtolower(pathinfo($originalFilename, PATHINFO_EXTENSION));
-        $allowedExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'txt', 'mp4', 'webm'];
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'mp4', 'webm'];
         if (!in_array($extension, $allowedExtensions)) {
             return response()->json([
                 'success' => false,
-                'message' => "Format file (.{$extension}) tidak diizinkan. File arsip (.zip, .rar) tidak didukung.",
+                'message' => "Format file (.{$extension}) tidak diizinkan. Silakan gunakan dokumen PDF, Word, PowerPoint, Excel, atau Gambar.",
             ], 422);
         }
 

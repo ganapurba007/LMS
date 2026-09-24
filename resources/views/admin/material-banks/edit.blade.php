@@ -95,16 +95,31 @@
                     <!-- Dokumen File -->
                     <div class="col-12 col-md-6">
                         <label for="document_file" class="md-form-label"><i class="ti ti-file-download text-warning me-1"></i> File Dokumen Lampiran (Maks 50MB)</label>
-                        <input type="file" class="form-control @error('document_file') is-invalid @enderror" id="document_file" name="document_file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.txt">
+                        <input type="file" class="form-control @error('document_file') is-invalid @enderror" id="document_file" name="document_file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg">
+                        
                         @if($materialBank->document_path)
-                            <div class="mt-2 small">
-                                <span class="text-muted">File saat ini:</span>
-                                <a href="{{ asset('storage/' . $materialBank->document_path) }}" target="_blank" class="fw-bold text-primary ms-1">
-                                    <i class="ti ti-paperclip"></i> {{ basename($materialBank->document_path) }}
+                            @php
+                                $ext = strtolower(pathinfo($materialBank->document_path, PATHINFO_EXTENSION));
+                                $isPdf = $ext === 'pdf';
+                                $isImage = in_array($ext, ['png', 'jpg', 'jpeg', 'webp']);
+                                $canPreview = $isPdf || $isImage;
+                            @endphp
+                            <div class="mt-2 d-flex align-items-center gap-2">
+                                @if($canPreview)
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2.5 btn-preview-current-file d-inline-flex align-items-center gap-1" 
+                                            data-url="{{ asset('storage/' . $materialBank->document_path) }}" 
+                                            data-name="{{ basename($materialBank->document_path) }}" 
+                                            data-type="{{ $isPdf ? 'pdf' : 'image' }}"
+                                            style="font-size: 0.75rem;">
+                                        <i class="ti ti-eye"></i> Pratinjau
+                                    </button>
+                                @endif
+                                <a href="{{ asset('storage/' . $materialBank->document_path) }}" download class="btn btn-sm btn-primary py-1 px-2.5 d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                    <i class="ti ti-download"></i> Unduh
                                 </a>
                             </div>
                         @endif
-                        <div class="md-form-hint text-white">Upload file baru jika ingin mengganti dokumen lampiran (PDF, DOCX, PPTX, XLSX, PNG, JPG, TXT).</div>
+                        <div class="md-form-hint mt-1.5 text-muted small">Upload file baru jika ingin mengganti dokumen lampiran (PDF, DOCX, PPTX, XLSX, PNG, JPG).</div>
                         @error('document_file')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -122,6 +137,39 @@
     </form>
 </div>
 
+<!-- Modal Pratinjau Dokumen Saat Ini -->
+<div class="modal fade" id="modalPreviewDocEdit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="background: var(--tblr-bg-surface, #ffffff); border-radius: 12px; overflow: hidden;">
+            <div class="modal-header border-bottom py-3 px-4" style="background: var(--tblr-bg-surface-secondary, #f8fafc); border-color: var(--tblr-border-color, #e2e8f0) !important;">
+                <div class="d-flex align-items-center gap-2 text-truncate" style="min-width: 0;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="background: rgba(32, 107, 196, 0.12); color: #206bc4; width: 36px; height: 36px;">
+                        <i class="ti ti-file-text" style="font-size: 1.1rem;"></i>
+                    </div>
+                    <div class="text-truncate" style="min-width: 0;">
+                        <h6 class="modal-title fw-bold text-dark text-truncate mb-0" style="font-size: 0.92rem;">Pratinjau Dokumen Lampiran</h6>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3 p-md-4">
+                <div id="previewEditPdfWrap" class="d-none">
+                    <iframe id="previewEditPdfIframe" src="" style="width: 100%; height: 500px; border: 1px solid var(--tblr-border-color, #e2e8f0); border-radius: 8px;"></iframe>
+                </div>
+                <div id="previewEditImgWrap" class="text-center d-none">
+                    <img id="previewEditImgEl" src="" alt="Pratinjau Gambar" class="img-fluid rounded-3 border shadow-xs" style="max-height: 500px; object-fit: contain; border-color: var(--tblr-border-color, #e2e8f0) !important;">
+                </div>
+            </div>
+            <div class="modal-footer border-top py-2.5 px-4 d-flex justify-content-between" style="border-color: var(--tblr-border-color, #e2e8f0) !important; background: var(--tblr-bg-surface-secondary, #f8fafc);">
+                <a id="previewEditDocDownload" href="" download class="btn btn-sm btn-primary">
+                    <i class="ti ti-download me-1"></i> Unduh File
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include('admin._partials.master-data-styles')
 @endsection
 
@@ -137,6 +185,47 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadUrl: '{{ route('admin.upload.chunk') }}',
         cancelUrl: '{{ route('admin.upload.chunk.cancel') }}'
     });
+
+    // Preview File Saat Ini
+    var modalDocEl = document.getElementById('modalPreviewDocEdit');
+    if (modalDocEl) {
+        var modalDoc = new bootstrap.Modal(modalDocEl);
+        document.querySelectorAll('.btn-preview-current-file').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var fileUrl = this.getAttribute('data-url');
+                var fileType = this.getAttribute('data-type');
+
+                document.getElementById('previewEditDocDownload').href = fileUrl;
+
+                var pdfWrap = document.getElementById('previewEditPdfWrap');
+                var imgWrap = document.getElementById('previewEditImgWrap');
+                var pdfIframe = document.getElementById('previewEditPdfIframe');
+                var imgEl = document.getElementById('previewEditImgEl');
+
+                pdfWrap.classList.add('d-none');
+                imgWrap.classList.add('d-none');
+                pdfIframe.src = '';
+                imgEl.src = '';
+
+                if (fileType === 'pdf') {
+                    pdfIframe.src = fileUrl;
+                    pdfWrap.classList.remove('d-none');
+                } else if (fileType === 'image') {
+                    imgEl.src = fileUrl;
+                    imgWrap.classList.remove('d-none');
+                }
+
+                modalDoc.show();
+            });
+        });
+
+        modalDocEl.addEventListener('hidden.bs.modal', function() {
+            var pdfIframe = document.getElementById('previewEditPdfIframe');
+            var imgEl = document.getElementById('previewEditImgEl');
+            if (pdfIframe) pdfIframe.src = '';
+            if (imgEl) imgEl.src = '';
+        });
+    }
 });
 </script>
 @endpush
