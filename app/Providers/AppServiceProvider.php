@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Carbon\Carbon::setLocale('id');
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
 
         ResetPassword::toMailUsing(function ($notifiable, $token) {
             $url = route('password.reset', [
