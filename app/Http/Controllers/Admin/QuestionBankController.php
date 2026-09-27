@@ -371,7 +371,7 @@ class QuestionBankController extends Controller
     public function importDocument(Request $request, DocumentQuestionParserService $parser): RedirectResponse
     {
         $request->validate([
-            'document_file' => ['nullable', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+            'document_file' => ['nullable', 'file', 'mimes:docx,pdf,txt,doc,md', 'max:20480'],
             'document_chunk_path' => ['nullable', 'string'],
             'original_filename' => ['nullable', 'string'],
         ]);
@@ -524,7 +524,7 @@ class QuestionBankController extends Controller
     public function parseDocument(Request $request, DocumentQuestionParserService $parser): JsonResponse
     {
         $request->validate([
-            'document_file' => ['nullable', 'file', 'mimes:docx,pdf,txt,doc', 'max:20480'],
+            'document_file' => ['nullable', 'file', 'mimes:docx,pdf,txt,doc,md', 'max:20480'],
             'document_chunk_path' => ['nullable', 'string'],
         ]);
 

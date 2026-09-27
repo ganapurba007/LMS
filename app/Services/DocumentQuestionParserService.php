@@ -8,7 +8,7 @@ use ZipArchive;
 class DocumentQuestionParserService
 {
     /**
-     * Ekstraksi teks dari file dokumen yang diunggah (.docx, .pdf, .txt).
+     * Ekstraksi teks dari file dokumen yang diunggah (.docx, .pdf, .txt, .md).
      */
     public function extractTextFromFile(string $filePath, string $extension): string
     {
@@ -22,16 +22,20 @@ class DocumentQuestionParserService
             return $this->extractFromPdf($filePath);
         }
 
-        if ($extension === 'txt') {
+        if ($extension === 'txt' || $extension === 'md') {
             return file_get_contents($filePath) ?: '';
         }
 
-        throw new Exception("Format file .{$extension} tidak didukung. Harap gunakan file Word (.docx), PDF (.pdf), atau teks (.txt).");
+        throw new Exception("Format file .{$extension} tidak didukung. Harap gunakan file Word (.docx), PDF (.pdf), teks (.txt), atau Markdown (.md).");
     }
 
     /**
      * Ekstraksi teks dari file Word (.docx) berbasis XML internal (ZipArchive),
      * lengkap dengan ekstraksi tabel (Markdown) dan gambar embedded.
+     */
+    /**
+     * Ekstraksi teks dari file Word (.docx) berbasis XML internal (ZipArchive),
+     * lengkap dengan rekonstruksi numbering list otomatis, ekstraksi tabel (Markdown), dan gambar embedded.
      */
     public function extractFromDocx(string $filePath): string
     {
@@ -74,7 +78,39 @@ class DocumentQuestionParserService
             }
         }
 
-        // 2. Baca word/document.xml
+        // 2. Ekstraksi format list numbering dari word/numbering.xml
+        $numberingMap = [];
+        if (($numIndex = $zip->locateName('word/numbering.xml')) !== false) {
+            $numXml = $zip->getFromIndex($numIndex);
+            if ($numXml) {
+                $abstractFmts = [];
+                if (preg_match_all('/<w:abstractNum\b[^>]*w:abstractNumId="(\d+)"[^>]*>(.*?)<\/w:abstractNum>/s', $numXml, $absMatches, PREG_SET_ORDER)) {
+                    foreach ($absMatches as $abs) {
+                        $absId = $abs[1];
+                        $absContent = $abs[2];
+                        $fmt = 'decimal';
+                        if (preg_match('/<w:numFmt\b[^>]*w:val="([^"]+)"/', $absContent, $fmtMatch)) {
+                            $fmt = $fmtMatch[1];
+                        }
+                        $abstractFmts[$absId] = $fmt;
+                    }
+                }
+
+                if (preg_match_all('/<w:num\b[^>]*w:numId="(\d+)"[^>]*>.*?<w:abstractNumId\b[^>]*w:val="(\d+)"/s', $numXml, $numMatches, PREG_SET_ORDER)) {
+                    foreach ($numMatches as $nm) {
+                        $numId = $nm[1];
+                        $absId = $nm[2];
+                        $fmt = $abstractFmts[$absId] ?? 'decimal';
+                        $numberingMap[$numId] = [
+                            'fmt' => $fmt,
+                            'count' => 0,
+                        ];
+                    }
+                }
+            }
+        }
+
+        // 3. Baca word/document.xml
         $content = '';
         if (($index = $zip->locateName('word/document.xml')) !== false) {
             $xmlData = $zip->getFromIndex($index);
@@ -140,8 +176,27 @@ class DocumentQuestionParserService
                     return "\n\n" . implode("\n", $mdRows) . "\n\n";
                 }, $xmlData);
 
-                // Konversi tag <w:p> (paragraf) menjadi baris baru
-                $xmlData = preg_replace('/<\/w:p>/', "\n", $xmlData);
+                // Rekonstruksi prefix numbering list Word (<w:numPr>) pada setiap paragraf <w:p>
+                $xmlData = preg_replace_callback('/<w:p\b[^>]*>(.*?)<\/w:p>/s', function ($pMatch) use (&$numberingMap) {
+                    $pXml = $pMatch[1];
+                    $prefix = '';
+                    if (preg_match('/<w:numPr>.*?<w:numId\b[^>]*w:val="(\d+)".*?<\/w:numPr>/s', $pXml, $numMatch)) {
+                        $numId = $numMatch[1];
+                        if (isset($numberingMap[$numId])) {
+                            $numberingMap[$numId]['count']++;
+                            $count = $numberingMap[$numId]['count'];
+                            $fmt = $numberingMap[$numId]['fmt'];
+                            if ($fmt === 'upperLetter') {
+                                $letter = chr(65 + ($count - 1));
+                                $prefix = "{$letter}. ";
+                            } else {
+                                $prefix = "{$count}. ";
+                            }
+                        }
+                    }
+                    return "\n" . $prefix . $pXml . "\n";
+                }, $xmlData);
+
                 $xmlData = preg_replace('/<w:tab\/>/', "\t", $xmlData);
 
                 // Hilangkan semua tag XML lainnya
@@ -214,11 +269,14 @@ class DocumentQuestionParserService
         // Cek apakah dokumen menggunakan penomoran soal (1. / Soal 1)
         $hasNumberedQuestions = false;
         foreach ($lines as $rawLine) {
-            if (preg_match('/^(\d+[\.\)]|\bsoal\s*\d+[\.\:]?)/i', trim($rawLine))) {
+            $tr = trim($rawLine);
+            if (preg_match('/^(\d+[\.\)]|\bsoal\s*\d+[\.\:]?)/i', $tr)) {
                 $hasNumberedQuestions = true;
                 break;
             }
         }
+
+        $lastLineWasKey = false;
 
         foreach ($lines as $rawLine) {
             $line = trim($rawLine);
@@ -226,7 +284,11 @@ class DocumentQuestionParserService
                 continue;
             }
 
-            $isNewQuestion = preg_match('/^(\d+[\.\)]|\bsoal\s*\d+[\.\:]?)/i', $line);
+            $isNumbered = preg_match('/^(\d+[\.\)]|\bsoal\s*\d+[\.\:]?)/i', $line);
+            $isKeyLine = preg_match('/^(?:[\s\-\*\+\•\>\#]*)(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*(benar|salah|true|false|[A-Ea-e]\b)/i', $line);
+
+            // Jika nomor soal baru terdeteksi ATAU baris sebelumnya adalah Kunci dan sekarang baris teks baru
+            $isNewQuestion = $isNumbered || ($lastLineWasKey && !$isKeyLine && count($currentBlock) > 0);
 
             if ($isNewQuestion) {
                 if (count($currentBlock) > 0) {
@@ -234,8 +296,13 @@ class DocumentQuestionParserService
                 }
                 $currentBlock = [$line];
                 $hasStartedFirstQuestion = true;
+                $lastLineWasKey = false;
             } elseif ($hasStartedFirstQuestion || !$hasNumberedQuestions) {
                 $currentBlock[] = $line;
+            }
+
+            if ($isKeyLine) {
+                $lastLineWasKey = true;
             }
         }
 
@@ -256,14 +323,15 @@ class DocumentQuestionParserService
             $inOptions = false;
             $hasExplicitKey = false;
 
-            // Pass 1: Identifikasi apakah blok memiliki opsi A-D atau kunci eksplisit
+            // Pass 1: Identifikasi apakah blok memiliki opsi A-E atau kunci eksplisit
             $hasOptions = false;
             foreach ($block as $l) {
-                $tr = trim($l);
-                if (preg_match('/^([A-Da-d])[\.\)]\s*(.*)$/', $tr)) {
+                $cleanL = preg_replace('/^[\s\-\*\+\•\>\#]+\s*/u', '', trim($l));
+                $normL = preg_replace('/(?<=[a-z0-9\)\”\”\'\.\,\;\:\!\?])(?=[B-Eb-e]\.\s*)/u', ' ', $cleanL);
+                if (preg_match('/^([A-Ea-e])[\.\)]\s*(.*)$/', $normL)) {
                     $hasOptions = true;
                 }
-                if (preg_match('/^(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*(benar|salah|true|false|[A-Ea-e]\b)/i', $tr)) {
+                if (preg_match('/^(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*(benar|salah|true|false|[A-Ea-e]\b)/i', $cleanL)) {
                     $hasExplicitKey = true;
                 }
             }
@@ -274,13 +342,16 @@ class DocumentQuestionParserService
                     continue;
                 }
 
-                $optMatch = [];
+                $isTableOrImageLine = str_starts_with($line, '|') || str_starts_with($line, '!') || str_starts_with($line, '<img') || str_starts_with($line, '<table');
+
+                // Hilangkan bullet markdown list seperti "- ", "* ", "• " di awal baris
+                $cleanLine = preg_replace('/^[\s\-\*\+\•\>\#]+\s*/u', '', $line);
+
                 $keyMatch = [];
                 $pairMatch = [];
 
-                $isTableOrImageLine = str_starts_with($line, '|') || str_starts_with($line, '!') || str_starts_with($line, '<img') || str_starts_with($line, '<table');
-
-                if (preg_match('/^(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*(benar|salah|true|false|[A-Ea-e]\b)/i', $line, $keyMatch)) {
+                // 1. Cek Kunci Jawaban di baris mandiri
+                if (preg_match('/^(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*(benar|salah|true|false|[A-Ea-e]\b)/i', $cleanLine, $keyMatch)) {
                     $ans = strtolower(trim($keyMatch[1]));
                     if ($ans === 'benar' || $ans === 'true') {
                         $qType = 'true_false';
@@ -294,32 +365,79 @@ class DocumentQuestionParserService
                             $correctOpt = $letterCode;
                         }
                     }
-                } elseif (!$isTableOrImageLine && preg_match('/^([A-Da-d])[\.\)]\s*(.*)$/', $line, $optMatch)) {
+                    continue;
+                }
+
+                // Normalisasi opsi yang menempel tanpa spasi (misal: "diperbaruiB. tidak")
+                $normalizedLine = preg_replace('/(?<=[a-z0-9\)\”\”\'\.\,\;\:\!\?])(?=[B-Eb-e]\.\s*)/u', ' ', $cleanLine);
+
+                // 2. Cek apakah baris merupakan opsi (misal: "A. Opsi", "- A. Opsi", atau "A. Opsi 1 B. Opsi 2")
+                if (!$isTableOrImageLine && preg_match('/^([A-Ea-e])[\.\)]\s*(.*)$/', $normalizedLine)) {
                     $inOptions = true;
-                    $options[] = trim($optMatch[2]);
-                } elseif (!$inOptions && !$hasOptions && !$isTableOrImageLine && preg_match('/^(.{1,60}?)\s*(?:=|->|—)\s*(.{1,60})$/', $line, $pairMatch) && !preg_match('/^(\d+[\.\)]|\bsoal|\bperhatikan|\bberapakah|\btentukan|\bjika|\bhitung|\bapakah)/i', $line) && !str_ends_with($line, '?')) {
+
+                    // Pisahkan jika ada opsi ganda dalam satu baris (contoh: "A. teks A B. teks B")
+                    $inlineParts = preg_split('/(?=(?:^|\s+)[B-Eb-e][\.\)]\s*)/', $normalizedLine, -1, PREG_SPLIT_NO_EMPTY);
+
+                    foreach ($inlineParts as $part) {
+                        $cleanPart = preg_replace('/^[\s\-\*\+\•\>\#]+\s*/u', '', trim($part));
+                        if (preg_match('/^([A-Ea-e])[\.\)]\s*(.*)$/', $cleanPart, $optSubMatch)) {
+                            $optLetter = strtoupper($optSubMatch[1]);
+                            $optContent = trim($optSubMatch[2]);
+
+                            // Cek jika ada trailing "Kunci X" yang menempel di akhir kalimat opsi
+                            if (preg_match('/[\s,;]+(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*([A-Ea-e]|benar|salah|true|false)\s*$/i', $optContent, $trailingKeyMatch)) {
+                                $trailingAns = strtolower(trim($trailingKeyMatch[1]));
+                                if ($trailingAns === 'benar' || $trailingAns === 'true') {
+                                    $qType = 'true_false';
+                                    $correctTf = 'Benar';
+                                } elseif ($trailingAns === 'salah' || $trailingAns === 'false') {
+                                    $qType = 'true_false';
+                                    $correctTf = 'Salah';
+                                } else {
+                                    $letterCode = ord(strtoupper($trailingAns)) - 65;
+                                    if ($letterCode >= 0 && $letterCode <= 4) {
+                                        $correctOpt = $letterCode;
+                                    }
+                                }
+                                $optContent = trim(preg_replace('/[\s,;]+(?:kunci|jawaban|kunci\s*jawaban|key|ans)\s*[\:\=]?\s*([A-Ea-e]|benar|salah|true|false)\s*$/i', '', $optContent));
+                            }
+
+                            $options[] = $optContent;
+                        }
+                    }
+                    continue;
+                }
+
+                // 3. Cek format Menjodohkan (Matching Pair: "Premis = Jawaban" atau "Premis -> Jawaban")
+                if (!$inOptions && !$hasOptions && !$isTableOrImageLine && preg_match('/^(.{1,60}?)\s*(?:=|->|—)\s*(.{1,60})$/', $cleanLine, $pairMatch) && !preg_match('/^(\d+[\.\)]|\bsoal|\bperhatikan|\bberapakah|\btentukan|\bjika|\bhitung|\bapakah)/i', $cleanLine) && !str_ends_with($cleanLine, '?')) {
                     $pairs[] = [
                         'premise' => trim($pairMatch[1]),
                         'match' => trim($pairMatch[2]),
                     ];
-                } elseif (!$inOptions) {
-                    $clean = preg_replace('/^(\d+[\.\)]|\bsoal\s*\d+[\.\:]?)\s*/i', '', $line);
-                    $qText .= ($qText !== '' ? "\n" : '') . $clean;
+                    continue;
+                }
+
+                // 4. Baris teks pertanyaan soal
+                if (!$inOptions) {
+                    $cleanQText = preg_replace('/^(\d+[\.\)]|\bsoal\s*\d+[\.\:]?)\s*/i', '', $line);
+                    $qText .= ($qText !== '' ? "\n" : '') . $cleanQText;
                 }
             }
 
+            // Tentukan tipe soal
             if (count($pairs) >= 2 && !$hasOptions) {
                 $qType = 'matching';
             } elseif ($qType === 'true_false') {
                 // Tetap true_false
             } elseif (count($options) >= 2 || $hasOptions) {
                 $qType = 'multiple_choice';
-            } elseif (stripos($qText, 'benar') !== false || stripos($qText, 'salah') !== false) {
-                $qType = 'true_false';
             }
 
-            while (count($options) < 4) {
-                $options[] = '';
+            // Pastikan minimal 4 slot opsi untuk kestabilan UI form builder jika multiple choice
+            if ($qType === 'multiple_choice') {
+                while (count($options) < 4) {
+                    $options[] = '';
+                }
             }
 
             // Hindari memasukkan blok yang hanya berupa judul template tanpa isi soal
@@ -330,7 +448,7 @@ class DocumentQuestionParserService
             $parsedQuestions[] = [
                 'question_text' => $qText ?: 'Pertanyaan Soal',
                 'question_type' => $qType,
-                'options' => array_slice($options, 0, 4),
+                'options' => $options,
                 'correct_option' => $correctOpt,
                 'correct_tf' => $correctTf,
                 'pairs' => count($pairs) >= 2 ? $pairs : [

@@ -241,5 +241,66 @@ class QuestionBankCrudTest extends TestCase
         $responseTxt->assertHeader('content-disposition', 'attachment; filename="Template_Format_Soal_LMS.txt"');
         $this->assertStringContainsString('FORMAT PENULISAN NASKAH SOAL KUIS', $responseTxt->getContent());
     }
+
+    public function test_guru_can_import_markdown_document_with_bulleted_options_and_5_options(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        $content = "1. Sumber daya alam merupakan segala sesuatu yang berasal dari alam dan dapat dimanfaatkan untuk memenuhi kebutuhan manusia. Berdasarkan sifatnya, minyak bumi, batu bara, dan gas alam termasuk sumber daya alam ....\n\n   - A. dapat diperbarui\n\n   - B. tidak dapat diperbarui\n\n   - C. tidak dapat dimanfaatkan\n\n   - D. hayati\n\n   - E. permanen\n\nKunci B\n\n2. Perhatikan kondisi berikut!\n\nSebuah daerah mengalami penebangan hutan secara berlebihan.\n\nHubungan yang paling tepat antara pemanfaatan SDA dengan permasalahan tersebut adalah ....\n\n   - A. penebangan hutan meningkatkan kemampuan tanah menyerap air B. berkurangnya hutan dapat mengurangi fungsi vegetasi dalam menahan air dan tanah\n\n   - C. banjir terjadi karena jumlah penduduk berkurang\n\n   - D. tanah longsor hanya disebabkan oleh curah hujan\n\n   - E. hutan tidak memiliki hubungan\n\n   - Kunci B";
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('Template_Format_Soal_LMS.md', $content);
+
+        $response = $this->actingAs($guru)->post('/admin/question-banks/import-document', [
+            'document_file' => $file,
+        ]);
+
+        $response->assertRedirect('/admin/question-banks');
+        $response->assertSessionHas('success');
+
+        // Pastikan 2 butir soal berhasil masuk ke database
+        $this->assertEquals(2, \App\Models\QuestionBank::where('instructor_id', $guru->id)->count());
+
+        // Verifikasi soal #1, #2 (inline options), #8 (trailing key), dan #10
+        $this->assertDatabaseHas('question_bank', [
+            'instructor_id' => $guru->id,
+            'question_type' => 'multiple_choice',
+        ]);
+
+        $q1 = \App\Models\QuestionBank::where('instructor_id', $guru->id)->where('question_text', 'like', '%Sumber daya alam%')->first();
+        $this->assertNotNull($q1);
+        $this->assertCount(5, $q1->options);
+        $this->assertTrue($q1->options[1]->is_correct); // Kunci B
+
+        $q2 = \App\Models\QuestionBank::where('instructor_id', $guru->id)->where('question_text', 'like', '%Hubungan yang paling tepat antara pemanfaatan SDA%')->first();
+        $this->assertNotNull($q2);
+        $this->assertCount(5, $q2->options);
+        $this->assertTrue($q2->options[1]->is_correct); // Kunci B
+    }
+
+    public function test_guru_can_import_docx_document_with_word_numbering_and_inline_options(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+        $docxPath = base_path('Template_Format_Soal_LMS.docx');
+
+        if (!file_exists($docxPath)) {
+            $this->markTestSkipped('File Template_Format_Soal_LMS.docx tidak ditemukan.');
+        }
+
+        $file = new \Illuminate\Http\UploadedFile($docxPath, 'Template_Format_Soal_LMS.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', null, true);
+
+        $response = $this->actingAs($guru)->post('/admin/question-banks/import-document', [
+            'document_file' => $file,
+        ]);
+
+        $response->assertRedirect('/admin/question-banks');
+        $response->assertSessionHas('success');
+
+        // Pastikan seluruh 10 butir soal dari Word docx berhasil masuk ke database
+        $this->assertEquals(10, \App\Models\QuestionBank::where('instructor_id', $guru->id)->count());
+
+        $q1 = \App\Models\QuestionBank::where('instructor_id', $guru->id)->where('question_text', 'like', '%Sumber daya alam%')->first();
+        $this->assertNotNull($q1);
+        $this->assertCount(5, $q1->options);
+        $this->assertTrue($q1->options[1]->is_correct); // Kunci B
+    }
 }
 

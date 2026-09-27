@@ -743,7 +743,90 @@
     color: #38bdf8 !important;
 }
 [data-theme="dark"] .qb-option-row {
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(15, 23, 42, 0.65) !important;
+    border-color: #334155 !important;
+}
+[data-theme="dark"] .qb-option-row:hover {
+    border-color: #475569 !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+}
+[data-theme="dark"] .qb-option-row:focus-within {
+    border-color: #38bdf8 !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="dark"] .qb-opt-radio-wrap {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .qb-opt-radio-wrap input:checked ~ span {
+    color: #34d399 !important;
+}
+[data-theme="dark"] .qb-option-input {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qb-option-input::placeholder {
+    color: #64748b !important;
+}
+[data-theme="dark"] .qb-format-pill label {
+    background: #151e32 !important;
+    border-color: #334155 !important;
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .qb-format-pill label:hover {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qb-format-pill input:checked + label {
+    background: rgba(2, 132, 199, 0.2) !important;
+    border-color: #38bdf8 !important;
+    color: #38bdf8 !important;
+    box-shadow: 0 2px 6px rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="dark"] .qb-btn-add-more {
+    background: #151e32 !important;
+    border-color: #0284c7 !important;
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .qb-btn-add-more:hover {
+    background: rgba(2, 132, 199, 0.15) !important;
+    border-color: #38bdf8 !important;
+    color: #7dd3fc !important;
+}
+[data-theme="dark"] .qb-info-alert {
+    background: rgba(8, 145, 178, 0.12) !important;
+    border-color: rgba(8, 145, 178, 0.25) !important;
+    color: #67e8f9 !important;
+}
+[data-theme="dark"] .qb-live-preview-box {
+    background: #0f172a !important;
+    border-color: #0284c7 !important;
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] .qb-live-preview-box *,
+[data-theme="dark"] .qb-preview-content,
+[data-theme="dark"] .qb-preview-content * {
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] .md-form-card textarea.form-control,
+[data-theme="dark"] .md-form-card input.form-control {
+    border-color: #334155 !important;
+    background-color: rgba(15, 23, 42, 0.75) !important;
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .md-form-card textarea.form-control:focus,
+[data-theme="dark"] .md-form-card input.form-control:focus {
+    border-color: #38bdf8 !important;
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="dark"] .md-form-card textarea.form-control::placeholder,
+[data-theme="dark"] .md-form-card input.form-control::placeholder {
+    color: #64748b !important;
+}
+[data-theme="dark"] .qb-builder-item .border-bottom {
+    border-bottom-color: #243049 !important;
 }
 /* Image Attachment Box - Clean Preview Only */
 .qb-image-box {
@@ -2134,14 +2217,43 @@
     background: rgba(245, 158, 11, 0.18) !important;
     color: #fde68a !important;
 }
-[data-theme="dark"] .qb-doc-btn-cancel {
+.qb-doc-preview-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    border-radius: 8px;
+    padding: .85rem 1rem;
+    font-size: .82rem;
+    transition: all .15s ease;
+}
+.qb-preview-item-title {
+    color: #0f172a;
+    font-weight: 700;
+}
+.qb-preview-item-body {
+    color: #334155;
+    line-height: 1.6;
+}
+
+[data-theme="dark"] .qb-doc-preview-item {
+    background: #111928 !important;
+    border-color: #243049 !important;
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] .qb-preview-item-title {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] .qb-preview-item-body,
+[data-theme="dark"] .qb-preview-item-body * {
+    color: #f1f5f9 !important;
+}
+[data-theme="dark"] #docParseStatusText {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] #docRawTextarea {
     background: #0f172a !important;
     border-color: #334155 !important;
     color: #cbd5e1 !important;
-}
-[data-theme="dark"] .qb-doc-btn-cancel:hover {
-    background: #1e293b !important;
-    color: #f8fafc !important;
 }
 </style>
 
@@ -2324,7 +2436,8 @@
         card.setAttribute('data-current-type', qType);
 
         let optionsHtml = '';
-        for (let i = 0; i < 4; i++) {
+        const optCount = Math.max(4, options.length);
+        for (let i = 0; i < optCount; i++) {
             const letter = String.fromCharCode(65 + i);
             const val = options[i] || '';
             const isChecked = (parseInt(correctOpt) === i) ? 'checked' : '';
@@ -4364,8 +4477,7 @@
 
         questions.forEach((q, idx) => {
             const item = document.createElement('div');
-            item.className = 'p-3 rounded-2 border bg-white';
-            item.style.fontSize = '.8rem';
+            item.className = 'qb-doc-preview-item mb-2';
             
             let typeBadge = '<span class="badge bg-primary-subtle text-primary">Pilihan Ganda</span>';
             if (q.question_type === 'true_false') {
@@ -4375,11 +4487,11 @@
             }
 
             item.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
-                    <span class="fw-bold text-dark">Butir Soal #${idx + 1}</span>
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom" style="border-color: var(--tblr-border-color, #e2e8f0) !important;">
+                    <span class="fw-bold qb-preview-item-title">Butir Soal #${idx + 1}</span>
                     ${typeBadge}
                 </div>
-                <div class="mb-2 text-dark">
+                <div class="mb-2 qb-preview-item-body">
                     ${formatQuestionPreviewHtml(q.question_text)}
                 </div>
             `;

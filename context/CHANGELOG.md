@@ -2,6 +2,19 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 50] Universal Question Document Parser & Dark Mode Contrast Refinement — 2026-09-27
+
+### Ditambahkan & Diperbarui
+- **Penyempurnaan Parser Naskah Dokumen Bank Soal ([`DocumentQuestionParserService.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Services/DocumentQuestionParserService.php))**:
+  - **Dukungan Word Auto-Numbering**: Membaca struktur `word/numbering.xml` dan `<w:numPr>` untuk merekonstruksi penomoran soal dan opsi secara otomatis tanpa kehilangan nomor urut.
+  - **Normalisasi Opsi Sebaris & Markdown List**: Mengakomodasi opsi berformat bullet list (`- A.`, `- B.`, dst.) serta opsi yang menempel tanpa spasi (`...diperbaruiB. tidak...`).
+  - **Dukungan 5 Opsi (A–E) & Deteksi Batas Soal Berbasis Kunci**: Menampung opsi pilihan ganda hingga opsi E serta mendeteksi pergantian soal baru setelah baris kunci jawaban.
+  - **Dukungan Ekstensi Markdown (.md)**: Menambahkan format `.md` pada parser dan endpoint controller ([`QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php)).
+- **Perbaikan Kontras UI Mode Gelap (*Dark Mode*) ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**:
+  - Memperbaiki kontras teks pada modal pratinjau dokumen hasil ekstraksi (`.qb-doc-preview-item`), input opsi jawaban (`.qb-option-input`), textarea soal, dan kotak live preview (`.qb-live-preview-box`) agar teks terlihat kontras dan jelas saat tema gelap aktif.
+- **Pengujian & Regresi**:
+  - Penambahan feature test baru untuk import naskah `.docx` dan `.md` pada [`QuestionBankCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuestionBankCrudTest.php) (12 passed, 62 assertions).
+
 ## [Fase 49] Responsive Pagination Styling & SVG Normalization — 2026-09-27
 
 ### Ditambahkan & Diperbarui
