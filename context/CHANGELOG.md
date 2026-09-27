@@ -2,6 +2,22 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 51] Question Bank Folder-Based 10-Item Grouping System & Form Save Validation Fix — 2026-09-27
+
+### Ditambahkan & Diperbarui
+- **Pengelompokan Otomatis 10 Soal per Folder di Index Bank Soal ([`QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php))**:
+  - Mengelompokkan butir soal milik guru menjadi unit folder per 10 soal (`$allQuestions->chunk(10)`).
+  - Setiap folder dilengkapi penomoran (`Folder 1`, `Folder 2`, dst.), rentang nomor soal (`Soal #1 – #10`), jumlah total butir, serta ringkasan format soal (PG, Benar/Salah, Menjodohkan).
+- **Tampilan Interaktif Berbasis Folder ([`index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/index.blade.php))**:
+  - **Bilah Navigasi & Tab Folder Cepat**: Memungkinkan perpindahan instan antar-folder tanpa reload halaman atau melihat semua folder sekaligus.
+  - **Struktur Kartu Akordion Per-Folder**: Setiap folder hadir dalam kartu berikon folder yang dapat diciutkan/dibentangkan (*collapse/expand*) secara mandiri maupun serentak (*Buka Semua / Tutup Semua*).
+- **Perbaikan Masalah Tombol Simpan Tidak Berfungsi ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**:
+  - **Penyebab**: Atribut HTML5 `required` terpasang secara hardcoded pada input pasangan menjodohkan (*matching pairs*) di dalam kartu builder, meskipun format soal yang aktif adalah Pilihan Ganda (sehingga kontainer pasangan berstatus tersembunyi/`d-none`). Browser memblokir pengiriman form secara diam-diam (*silent validation block*) karena elemen `required` tidak dapat difokuskan saat tersembunyi.
+  - **Solusi**: Menyesuaikan atribut `required` secara dinamis sesuai tipe soal aktif (`qType === 'multiple_choice'` atau `qType === 'matching'`), memperbarui `switchQbItemType`, serta memperbaiki lookup `cardIndex` pada submit event listener.
+- **Pengujian & Regresi**:
+  - Feature test `test_guru_views_question_bank_grouped_in_folders_of_ten` dan suite CRUD pada [`QuestionBankCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuestionBankCrudTest.php) (11 passed, 1 skipped).
+  - Verifikasi end-to-end browser otomatis pembuatan soal pilihan ganda berhasil tersimpan dan teralihkan ke halaman bank soal.
+
 ## [Fase 50] Universal Question Document Parser & Dark Mode Contrast Refinement — 2026-09-27
 
 ### Ditambahkan & Diperbarui

@@ -102,7 +102,7 @@
                         <i class="ti ti-file-type-doc"></i>
                     </div>
                     <div>
-                        <h6 class="md-title mb-0" style="font-size:1.05rem;">Generate Soal dari File Dokumen</h6>
+                        <h6 class="md-modal-title mb-0" style="font-size:1.05rem; font-weight:800;">Generate Soal dari File Dokumen</h6>
                         <div class="text-muted small" style="font-size:.76rem;">Mendukung berkas Microsoft Word (.docx) &amp; PDF (.pdf)</div>
                     </div>
                 </div>
@@ -206,12 +206,12 @@
                     <div class="md-page-icon" style="background:rgba(245,158,11,.1);color:#d97706;width:34px;height:34px;font-size:.9rem;">
                         <i class="ti ti-bolt"></i>
                     </div>
-                    <h6 class="md-title mb-0" style="font-size:1rem;">Input Cepat Soal dari Teks</h6>
+                    <h6 class="md-modal-title mb-0" style="font-size:1rem; font-weight:800;">Input Cepat Soal dari Teks</h6>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <p class="md-subtitle mb-3" style="font-size:.8rem;">
+            <p class="md-modal-text mb-3" style="font-size:.82rem; line-height: 1.5;">
                 Tempelkan naskah soal Anda. Sistem otomatis mendeteksi format Pilihan Ganda, Benar/Salah, dan Menjodohkan.
             </p>
 
@@ -253,7 +253,7 @@
                         <i class="ti ti-photo"></i>
                     </div>
                     <div>
-                        <h6 class="md-title mb-0" style="font-size:1rem;">Lampirkan Gambar ke Soal</h6>
+                        <h6 class="md-modal-title mb-0" style="font-size:1rem; font-weight:800;">Lampirkan Gambar ke Soal</h6>
                         <div class="text-muted small" style="font-size:.75rem;">Gambar akan otomatis terpasang rapi tanpa kode rumit.</div>
                     </div>
                 </div>
@@ -311,7 +311,7 @@
                     <div class="md-page-icon" style="background:rgba(245,158,11,.1);color:#d97706;width:34px;height:34px;">
                         <i class="ti ti-math-function"></i>
                     </div>
-                    <h6 class="md-title mb-0" style="font-size:1rem;">Simbol Matematika &amp; Sains</h6>
+                    <h6 class="md-modal-title mb-0" style="font-size:1rem; font-weight:800;">Simbol Matematika &amp; Sains</h6>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -344,7 +344,7 @@
                         <i class="ti ti-table fs-2"></i>
                     </div>
                     <div>
-                        <h6 class="md-title mb-0" style="font-size:1.05rem;">Sisipkan Tabel Baru</h6>
+                        <h6 class="md-modal-title mb-0" style="font-size:1.05rem; font-weight:800;">Sisipkan Tabel Baru</h6>
                         <span class="text-muted small" style="font-size:0.75rem;">Atur jumlah kolom &amp; baris tabel</span>
                     </div>
                 </div>
@@ -2441,7 +2441,7 @@
             const letter = String.fromCharCode(65 + i);
             const val = options[i] || '';
             const isChecked = (parseInt(correctOpt) === i) ? 'checked' : '';
-            const req = (i < 2) ? 'required' : '';
+            const req = (qType === 'multiple_choice' && i < 2) ? 'required' : '';
             optionsHtml += `
                 <div class="qb-option-row mb-2">
                     <label class="qb-opt-radio-wrap m-0">
@@ -2455,16 +2455,17 @@
 
         let pairsHtml = '';
         pairs.forEach((p, pIdx) => {
+            const isMatchReq = (qType === 'matching') ? 'required' : '';
             pairsHtml += `
                 <div class="row g-2 align-items-center mb-2 qb-pair-row">
                     <div class="col-12 col-md-5">
-                        <input type="text" name="questions[${index}][pairs][${pIdx}][premise]" class="form-control form-control-sm" placeholder="Premis / Pernyataan ${pIdx + 1}" value="${escapeHtml(p.premise || '')}" required>
+                        <input type="text" name="questions[${index}][pairs][${pIdx}][premise]" class="form-control form-control-sm" placeholder="Premis / Pernyataan ${pIdx + 1}" value="${escapeHtml(p.premise || '')}" ${isMatchReq}>
                     </div>
                     <div class="d-none d-md-flex col-md-1 align-items-center justify-content-center" style="color:#0891b2;">
                         <i class="ti ti-arrow-right"></i>
                     </div>
                     <div class="col-10 col-md-5">
-                        <input type="text" name="questions[${index}][pairs][${pIdx}][match]" class="form-control form-control-sm" placeholder="Pasangan Jawaban ${pIdx + 1}" value="${escapeHtml(p.match || '')}" required>
+                        <input type="text" name="questions[${index}][pairs][${pIdx}][match]" class="form-control form-control-sm" placeholder="Pasangan Jawaban ${pIdx + 1}" value="${escapeHtml(p.match || '')}" ${isMatchReq}>
                     </div>
                     <div class="col-2 col-md-1 text-center">
                         <button type="button" class="md-icon-btn red" onclick="removeQbPairRow(this)" title="Hapus pasangan">
@@ -4182,11 +4183,13 @@
         if (form) {
             form.addEventListener('submit', function(e) {
                 const cards = document.querySelectorAll('.qb-builder-item');
-                cards.forEach((card, idx) => {
+                cards.forEach((card) => {
+                    const cardIndex = card.id ? card.id.replace('qbCard_', '') : null;
+                    if (cardIndex === null) return;
                     const textarea = card.querySelector('textarea[name*="[question_text]"]');
                     if (textarea) {
-                        syncRichTableToState(idx);
-                        const state = qbCardsState[idx] || {};
+                        syncRichTableToState(cardIndex);
+                        const state = qbCardsState[cardIndex] || {};
                         const compiled = compileFinalQuestionText(textarea.value, state.imageUrl, state.tableHtml);
                         textarea.value = compiled;
                     }

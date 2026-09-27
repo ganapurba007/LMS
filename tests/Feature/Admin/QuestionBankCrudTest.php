@@ -302,5 +302,44 @@ class QuestionBankCrudTest extends TestCase
         $this->assertCount(5, $q1->options);
         $this->assertTrue($q1->options[1]->is_correct); // Kunci B
     }
+
+    public function test_guru_views_question_bank_grouped_in_folders_of_ten(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        // Buat 25 butir soal (harus terbagi menjadi 3 folder: Folder 1 (10), Folder 2 (10), Folder 3 (5))
+        for ($i = 1; $i <= 25; $i++) {
+            $qb = QuestionBank::create([
+                'instructor_id' => $guru->id,
+                'question_type' => 'multiple_choice',
+                'question_text' => "Pertanyaan butir nomor {$i}",
+            ]);
+            QuestionBankOption::create([
+                'question_bank_id' => $qb->id,
+                'option_text' => 'Pilihan Jawaban',
+                'is_correct' => true,
+            ]);
+        }
+
+        $response = $this->actingAs($guru)->get('/admin/question-banks');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('folders');
+        $response->assertViewHas('totalFolders', 3);
+        $response->assertViewHas('totalQuestions', 25);
+
+        $folders = $response->viewData('folders');
+        $this->assertCount(3, $folders);
+        $this->assertEquals(10, $folders[0]->count);
+        $this->assertEquals(10, $folders[1]->count);
+        $this->assertEquals(5, $folders[2]->count);
+
+        $response->assertSee('Folder 1');
+        $response->assertSee('Folder 2');
+        $response->assertSee('Folder 3');
+        $response->assertSee('Soal #1 – #10');
+        $response->assertSee('Soal #11 – #20');
+        $response->assertSee('Soal #21 – #25');
+    }
 }
 
