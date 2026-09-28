@@ -40,6 +40,17 @@ class QuestionBank extends Model
             || (bool) preg_match('/!\[.*?\]\(.*?\)/', $this->question_text);
     }
 
+    public function getImageUrl(): ?string
+    {
+        if (preg_match('/!\[.*?\]\((.*?)\)/', $this->question_text, $m)) {
+            return trim($m[2]);
+        }
+        if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $this->question_text, $m)) {
+            return trim($m[1]);
+        }
+        return null;
+    }
+
     public function hasTable(): bool
     {
         return str_contains($this->question_text, '<table')

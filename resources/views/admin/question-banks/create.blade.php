@@ -4453,6 +4453,39 @@
             docFileInput.addEventListener('change', handleDocumentFileSelect);
         }
 
+        const modalImgFileInput = document.getElementById('modalImgFileInput');
+        if (modalImgFileInput) {
+            modalImgFileInput.addEventListener('change', function() {
+                const previewWrap = document.getElementById('modalImgPreviewWrap');
+                const previewEl = document.getElementById('modalImgPreviewEl');
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    if (previewEl && previewWrap) {
+                        previewEl.src = URL.createObjectURL(file);
+                        previewWrap.classList.remove('d-none');
+                    }
+                } else if (previewWrap) {
+                    previewWrap.classList.add('d-none');
+                }
+            });
+        }
+
+        const modalImgUrlInput = document.getElementById('modalImgUrlInput');
+        if (modalImgUrlInput) {
+            modalImgUrlInput.addEventListener('input', function() {
+                const previewWrap = document.getElementById('modalImgPreviewWrap');
+                const previewEl = document.getElementById('modalImgPreviewEl');
+                if (this.value.trim()) {
+                    if (previewEl && previewWrap) {
+                        previewEl.src = this.value.trim();
+                        previewWrap.classList.remove('d-none');
+                    }
+                } else if (previewWrap) {
+                    previewWrap.classList.add('d-none');
+                }
+            });
+        }
+
         const dropZone = document.getElementById('docDropZone');
         if (dropZone) {
             ['dragenter', 'dragover'].forEach(eventName => {

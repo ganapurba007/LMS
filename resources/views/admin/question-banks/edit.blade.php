@@ -3557,6 +3557,39 @@
             updateCardLivePreviewEdit();
         }
 
+        const modalImgFileInputEdit = document.getElementById('modalImgFileInputEdit');
+        if (modalImgFileInputEdit) {
+            modalImgFileInputEdit.addEventListener('change', function() {
+                const previewWrap = document.getElementById('modalImgPreviewWrapEdit');
+                const previewEl = document.getElementById('modalImgPreviewElEdit');
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    if (previewEl && previewWrap) {
+                        previewEl.src = URL.createObjectURL(file);
+                        previewWrap.classList.remove('d-none');
+                    }
+                } else if (previewWrap) {
+                    previewWrap.classList.add('d-none');
+                }
+            });
+        }
+
+        const modalImgUrlInputEdit = document.getElementById('modalImgUrlInputEdit');
+        if (modalImgUrlInputEdit) {
+            modalImgUrlInputEdit.addEventListener('input', function() {
+                const previewWrap = document.getElementById('modalImgPreviewWrapEdit');
+                const previewEl = document.getElementById('modalImgPreviewElEdit');
+                if (this.value.trim()) {
+                    if (previewEl && previewWrap) {
+                        previewEl.src = this.value.trim();
+                        previewWrap.classList.remove('d-none');
+                    }
+                } else if (previewWrap) {
+                    previewWrap.classList.add('d-none');
+                }
+            });
+        }
+
         // On form submit: compile final question_text
         const form = document.getElementById('editQbForm');
         if (form) {
