@@ -138,7 +138,7 @@ class QuizController extends Controller
             ->with('success', 'Kuis berhasil dibuat. Silakan tambahkan atau impor butir soal ke dalam kuis.');
     }
 
-    public function show(Quiz $quiz): View
+    public function show(Quiz $quiz, Request $request): View
     {
         $user = Auth::user();
         if ($user) {
@@ -150,9 +150,16 @@ class QuizController extends Controller
         }
 
         $quiz->load(['questions.options', 'questions.questionBank', 'subject', 'schoolClass']);
+        
+        $questions = $quiz->questions()
+            ->with(['options', 'questionBank'])
+            ->orderBy('id', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
         $questionBanks = QuestionBank::with('options')->get();
 
-        return view('admin.quizzes.show', compact('quiz', 'questionBanks'));
+        return view('admin.quizzes.show', compact('quiz', 'questions', 'questionBanks'));
     }
 
     public function edit(Quiz $quiz): View

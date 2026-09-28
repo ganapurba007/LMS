@@ -400,5 +400,50 @@ class QuizCrudTest extends TestCase
             'id' => $attempt->id,
         ]);
     }
+
+    public function test_guru_can_view_paginated_quiz_questions(): void
+    {
+        $quiz = Quiz::create([
+            'title' => 'Kuis Paginasi Soal',
+            'duration_minutes' => 60,
+            'points_per_question' => 5,
+            'deadline' => now()->addDays(5),
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
+        for ($i = 1; $i <= 25; $i++) {
+            $q = QuizQuestion::create([
+                'quiz_id' => $quiz->id,
+                'question_text' => "Soal Ujian Nomor {$i}",
+                'question_type' => 'multiple_choice',
+            ]);
+            $q->options()->create([
+                'option_text' => 'Pilihan A',
+                'is_correct' => true,
+            ]);
+        }
+
+        // Halaman 1
+        $response = $this->actingAs($this->guru)->get(route('admin.quizzes.show', $quiz));
+        $response->assertStatus(200);
+        $response->assertViewHas('questions');
+        $response->assertSee('Soal 1');
+        $response->assertSee('Soal 10');
+        $response->assertDontSee('Soal 11');
+
+        // Halaman 2
+        $responsePage2 = $this->actingAs($this->guru)->get(route('admin.quizzes.show', [$quiz, 'page' => 2]));
+        $responsePage2->assertStatus(200);
+        $responsePage2->assertSee('Soal 11');
+        $responsePage2->assertSee('Soal 20');
+
+        // Halaman 3
+        $responsePage3 = $this->actingAs($this->guru)->get(route('admin.quizzes.show', [$quiz, 'page' => 3]));
+        $responsePage3->assertStatus(200);
+        $responsePage3->assertSee('Soal 21');
+        $responsePage3->assertSee('Soal 25');
+    }
 }
 

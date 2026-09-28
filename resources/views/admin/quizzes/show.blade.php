@@ -81,11 +81,14 @@
                 </h5>
             </div>
             <div class="card-body p-0">
-                @forelse($quiz->questions as $index => $q)
+                @forelse($questions as $index => $q)
+                    @php
+                        $questionNum = ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration;
+                    @endphp
                     <div class="qz-question-item {{ $loop->last ? 'last' : '' }}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                <h6 class="qz-question-num mb-0">Soal {{ $index + 1 }}</h6>
+                                <h6 class="qz-question-num mb-0">Soal {{ $questionNum }}</h6>
                                 @if($q->isMatching())
                                     <span class="md-badge qb-badge-matching">
                                         <i class="ti ti-arrows-left-right"></i> Menjodohkan
@@ -183,6 +186,11 @@
                     </div>
                 @endforelse
             </div>
+            @if($questions->hasPages())
+                <div class="card-footer bg-transparent border-top p-3 d-flex justify-content-center">
+                    {{ $questions->links() }}
+                </div>
+            @endif
         </div>
     </div>
 

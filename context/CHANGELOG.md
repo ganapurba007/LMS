@@ -2,6 +2,18 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 57] Quiz Questions List Pagination (10 per page) — 2026-09-28
+
+### Ditambahkan & Diperbarui
+- **Paginasi Daftar Soal Kuis ([`QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php), [`show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**:
+  - Menambahkan paginasi 10 butir soal per halaman pada daftar soal kuis/ujian (`admin/quizzes/{quiz}`).
+  - Menyesuaikan penomoran soal di tampilan agar otomatis menghitung nomor urut absolut halaman (`($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration`).
+  - Menambahkan baris navigasi pagination di footer kartu daftar soal kuis.
+  - Mempertahankan penghitungan total butir soal lengkap pada header kartu.
+- **Pengujian & Verifikasi ([`QuizCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuizCrudTest.php))**:
+  - Menambahkan pengujian `test_guru_can_view_paginated_quiz_questions` untuk memverifikasi pemisahan halaman 1, 2, dan 3.
+  - Seluruh test suite (187 passed, 708 assertions) sukses 100%.
+
 ## [Fase 56] Question Images Hosting Compatibility & Streaming Fallback — 2026-09-28
 
 ### Ditambahkan & Diperbarui
