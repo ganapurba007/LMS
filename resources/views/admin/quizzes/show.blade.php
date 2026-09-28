@@ -187,7 +187,7 @@
                 @endforelse
             </div>
             @if($questions->hasPages())
-                <div class="card-footer bg-transparent border-top p-3 d-flex justify-content-center">
+                <div class="md-card-footer">
                     {{ $questions->links() }}
                 </div>
             @endif
