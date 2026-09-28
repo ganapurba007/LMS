@@ -484,7 +484,7 @@
                                     </div>
                                 </div>
                                 <div class="shrink-0 mt-2 mt-sm-0">
-                                    <a href="{{ route('student.materials.download', $material) }}" class="btn text-white rounded-pill px-4 py-2 font-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift w-100 w-sm-auto" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.82rem;">
+                                    <a href="{{ \Illuminate\Support\Facades\Route::has('student.materials.download') ? route('student.materials.download', $material) : url('student/materials/' . $material->id . '/download') }}" class="btn text-white rounded-pill px-4 py-2 font-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift w-100 w-sm-auto" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.82rem;">
                                         <i class="ti ti-download fs-5"></i> Unduh Dokumen
                                     </a>
                                 </div>

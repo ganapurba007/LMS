@@ -148,7 +148,7 @@
                                 <div class="text-muted small" style="font-size:.72rem;">{{ basename($material->document_path) }}</div>
                             </div>
                         </div>
-                        <a href="{{ route('admin.materials.download', $material) }}" class="md-btn-primary" style="padding:.3rem .75rem;font-size:.75rem;">
+                        <a href="{{ \Illuminate\Support\Facades\Route::has('admin.materials.download') ? route('admin.materials.download', $material) : url('admin/materials/' . $material->id . '/download') }}" class="md-btn-primary" style="padding:.3rem .75rem;font-size:.75rem;">
                             <i class="ti ti-download"></i> Unduh
                         </a>
                     </div>
