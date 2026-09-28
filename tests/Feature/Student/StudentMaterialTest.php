@@ -235,4 +235,15 @@ class StudentMaterialTest extends TestCase
         $response = $this->actingAs($this->siswa)->get(route('student.materials.download', $this->materialClassB));
         $response->assertStatus(403);
     }
+
+    public function test_siswa_download_missing_file_redirects_back_with_error(): void
+    {
+        Storage::fake('public');
+        $this->materialClassA->document_path = 'materials/non_existent_file.pdf';
+        $this->materialClassA->save();
+
+        $response = $this->actingAs($this->siswa)->get(route('student.materials.download', $this->materialClassA));
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+    }
 }

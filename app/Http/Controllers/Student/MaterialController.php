@@ -158,20 +158,47 @@ class MaterialController extends Controller
         }
 
         if (!$material->document_path) {
-            abort(404, 'Dokumen lampiran materi tidak ditemukan.');
+            return back()->with('error', 'Dokumen lampiran materi belum diunggah.');
         }
 
         $cleanPath = ltrim(preg_replace('/^(public\/|storage\/)/', '', $material->document_path), '/');
 
-        if (!Storage::disk('public')->exists($cleanPath)) {
-            abort(404, 'File lampiran tidak tersedia di server.');
+        // 1. Check via Storage public disk
+        if (Storage::disk('public')->exists($cleanPath)) {
+            $extension = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION)) ?: 'pdf';
+            $sanitizedTitle = Str::slug($material->title, '_');
+            $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+            return Storage::disk('public')->download($cleanPath, $downloadFileName);
         }
 
-        $extension = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION)) ?: 'pdf';
-        $sanitizedTitle = Str::slug($material->title, '_');
-        $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+        // 2. Check via storage_path('app/public/...')
+        $fullPathPublic = storage_path('app/public/' . $cleanPath);
+        if (file_exists($fullPathPublic)) {
+            $extension = strtolower(pathinfo($fullPathPublic, PATHINFO_EXTENSION)) ?: 'pdf';
+            $sanitizedTitle = Str::slug($material->title, '_');
+            $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+            return response()->download($fullPathPublic, $downloadFileName);
+        }
 
-        return Storage::disk('public')->download($cleanPath, $downloadFileName);
+        // 3. Check via public_path('storage/...')
+        $publicPathStorage = public_path('storage/' . $cleanPath);
+        if (file_exists($publicPathStorage)) {
+            $extension = strtolower(pathinfo($publicPathStorage, PATHINFO_EXTENSION)) ?: 'pdf';
+            $sanitizedTitle = Str::slug($material->title, '_');
+            $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+            return response()->download($publicPathStorage, $downloadFileName);
+        }
+
+        // 4. Check via storage_path('app/...')
+        $fullPathApp = storage_path('app/' . $cleanPath);
+        if (file_exists($fullPathApp)) {
+            $extension = strtolower(pathinfo($fullPathApp, PATHINFO_EXTENSION)) ?: 'pdf';
+            $sanitizedTitle = Str::slug($material->title, '_');
+            $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+            return response()->download($fullPathApp, $downloadFileName);
+        }
+
+        return back()->with('error', 'Berkas dokumen materi fisik tidak ditemukan di server.');
     }
 
     public function toggleComplete(Material $material)
