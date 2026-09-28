@@ -158,7 +158,7 @@ class QuestionBank extends Model
             $isHeader = true;
             $inBody = false;
 
-            $tableHtml = '<div class="table-responsive my-2.5"><table class="table table-bordered table-sm table-striped align-middle mb-0">';
+            $tableHtml = '<div class="table-responsive my-2.5"><table class="table table-bordered table-sm table-striped align-middle mb-0" style="width: 100%; table-layout: auto;">';
 
             foreach ($tableBuffer as $idx => $rowStr) {
                 $trimmed = trim($rowStr);
@@ -170,7 +170,7 @@ class QuestionBank extends Model
                 if ($isHeader && $idx === 0) {
                     $tableHtml .= '<thead class="table-light"><tr>';
                     foreach ($cells as $cell) {
-                        $tableHtml .= '<th class="text-center fw-bold text-nowrap">' . trim($cell) . '</th>';
+                        $tableHtml .= '<th class="text-center fw-bold" style="white-space: normal; word-break: break-word;">' . trim($cell) . '</th>';
                     }
                     $tableHtml .= '</tr></thead><tbody>';
                     $isHeader = false;
@@ -182,7 +182,7 @@ class QuestionBank extends Model
                     }
                     $tableHtml .= '<tr>';
                     foreach ($cells as $cell) {
-                        $tableHtml .= '<td class="text-center">' . trim($cell) . '</td>';
+                        $tableHtml .= '<td class="text-center" style="white-space: normal; word-break: break-word;">' . trim($cell) . '</td>';
                     }
                     $tableHtml .= '</tr>';
                 }

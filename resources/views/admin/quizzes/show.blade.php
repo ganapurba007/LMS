@@ -656,12 +656,15 @@
     border: 1px solid var(--tblr-border-color, #e2e8f0);
     overflow-x: auto;
     background: #ffffff;
+    max-width: 100%;
 }
 .qz-question-text table {
     margin-bottom: 0 !important;
     font-size: 0.84rem;
     font-weight: normal;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100%;
+    table-layout: auto;
 }
 .qz-question-text table th {
     background-color: #f8fafc;
@@ -669,10 +672,16 @@
     color: #334155;
     padding: 0.45rem 0.65rem;
     border-color: var(--tblr-border-color, #e2e8f0);
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 .qz-question-text table td {
     padding: 0.45rem 0.65rem;
     border-color: var(--tblr-border-color, #e2e8f0);
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 [data-bs-theme="dark"] .qz-question-text,
@@ -2075,7 +2084,7 @@ body.theme-dark .qz-question-text img {
 
         const flushTbl = () => {
             if (tblBuf.length === 0) return;
-            let tblHtml = '<div class="table-responsive my-2"><table class="table table-bordered table-sm table-striped align-middle mb-0">';
+            let tblHtml = '<div class="table-responsive my-2"><table class="table table-bordered table-sm table-striped align-middle mb-0" style="width: 100%; table-layout: auto;">';
             let isHdr = true;
             let inBdy = false;
 
@@ -2086,14 +2095,14 @@ body.theme-dark .qz-question-text img {
 
                 if (isHdr && idx === 0) {
                     tblHtml += '<thead class="table-light"><tr>';
-                    cells.forEach(c => { tblHtml += `<th class="text-center fw-bold text-nowrap">${c.trim()}</th>`; });
+                    cells.forEach(c => { tblHtml += `<th class="text-center fw-bold" style="white-space: normal; word-break: break-word;">${c.trim()}</th>`; });
                     tblHtml += '</tr></thead><tbody>';
                     isHdr = false;
                     inBdy = true;
                 } else {
                     if (!inBdy) { tblHtml += '<tbody>'; inBdy = true; }
                     tblHtml += '<tr>';
-                    cells.forEach(c => { tblHtml += `<td class="text-center">${c.trim()}</td>`; });
+                    cells.forEach(c => { tblHtml += `<td class="text-center" style="white-space: normal; word-break: break-word;">${c.trim()}</td>`; });
                     tblHtml += '</tr>';
                 }
             });
