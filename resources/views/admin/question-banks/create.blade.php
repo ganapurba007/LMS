@@ -2217,24 +2217,173 @@
     background: rgba(245, 158, 11, 0.18) !important;
     color: #fde68a !important;
 }
+#modalDocUpload .modal-dialog {
+    max-width: 860px;
+    width: 95%;
+    margin: 1.75rem auto;
+}
+#modalDocUpload .md-modal-content {
+    max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+#docExtractedSection {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+#docQuestionsPreviewList {
+    width: 100%;
+    max-width: 100%;
+    max-height: 380px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scrollbar-width: thin;
+}
+#docRawTextarea {
+    width: 100%;
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
+}
 .qb-doc-preview-item {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     color: #1e293b;
-    border-radius: 8px;
-    padding: .85rem 1rem;
-    font-size: .82rem;
+    border-radius: 10px;
+    padding: .9rem 1.1rem;
+    font-size: .835rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
     transition: all .15s ease;
 }
 .qb-preview-item-title {
     color: #0f172a;
     font-weight: 700;
+    font-size: .86rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 .qb-preview-item-body {
     color: #334155;
-    line-height: 1.6;
+    line-height: 1.65;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+.qb-preview-item-body p,
+.qb-preview-item-body div,
+.qb-preview-item-body span,
+.qb-preview-item-body code {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+.qb-preview-item-body pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.qb-preview-item-body img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 6px;
+}
+.qb-preview-item-body .table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: .5rem 0;
+}
+.qb-preview-item-body table {
+    width: 100%;
+    max-width: 100%;
+    word-break: break-word;
 }
 
+/* Options & Pairs Preview Styling */
+.qb-preview-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: .5rem;
+    width: 100%;
+    max-width: 100%;
+}
+.qb-preview-opt-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    padding: .45rem .65rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: .79rem;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.qb-preview-opt-item.is-correct {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+.qb-preview-opt-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #334155;
+    font-weight: 700;
+    font-size: .7rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.qb-preview-opt-item.is-correct .qb-preview-opt-letter {
+    background: #10b981;
+    color: #ffffff;
+}
+.qb-preview-opt-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+.qb-preview-pair-row {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: .35rem .6rem;
+    font-size: .78rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+}
+.qb-preview-pair-premise,
+.qb-preview-pair-match {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+/* Modal Document Upload - Dark Mode */
 [data-theme="dark"] .qb-doc-preview-item {
     background: #111928 !important;
     border-color: #243049 !important;
@@ -2246,6 +2395,29 @@
 [data-theme="dark"] .qb-preview-item-body,
 [data-theme="dark"] .qb-preview-item-body * {
     color: #f1f5f9 !important;
+}
+[data-theme="dark"] .qb-preview-opt-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] .qb-preview-opt-item.is-correct {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+    color: #6ee7b7 !important;
+}
+[data-theme="dark"] .qb-preview-opt-letter {
+    background: #334155 !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] .qb-preview-opt-item.is-correct .qb-preview-opt-letter {
+    background: #10b981 !important;
+    color: #ffffff !important;
+}
+[data-theme="dark"] .qb-preview-pair-row {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
 }
 [data-theme="dark"] #docParseStatusText {
     color: #f8fafc !important;
@@ -3971,12 +4143,22 @@
         modal.show();
     }
 
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     function formatQuestionPreviewHtml(raw) {
         if (!raw || !raw.trim()) return '<em class="text-muted">Belum ada teks pertanyaan...</em>';
 
         // 1. Render Markdown images: ![alt](url)
         let html = raw.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
-            return `<div class="text-center my-2 q-media-wrap"><img src="${url}" alt="${alt || 'Gambar Soal'}" class="img-fluid rounded border shadow-xs" style="max-height: 280px; object-fit: contain;"></div>`;
+            return `<div class="text-center my-2 q-media-wrap"><img src="${url}" alt="${alt || 'Gambar Soal'}" class="img-fluid rounded border shadow-xs" style="max-height: 280px; max-width: 100%; object-fit: contain;"></div>`;
         });
 
         // 2. Render Markdown tables: | col1 | col2 |
@@ -3986,7 +4168,7 @@
 
         const flushTbl = () => {
             if (tblBuf.length === 0) return;
-            let tblHtml = '<div class="table-responsive my-2"><table class="table table-bordered table-sm table-striped align-middle mb-0">';
+            let tblHtml = '<div class="table-responsive my-2" style="max-width:100%; overflow-x:auto;"><table class="table table-bordered table-sm table-striped align-middle mb-0" style="word-break:break-word; width:100%;">';
             let isHdr = true;
             let inBdy = false;
 
@@ -3997,14 +4179,14 @@
 
                 if (isHdr && idx === 0) {
                     tblHtml += '<thead class="table-light"><tr>';
-                    cells.forEach(c => { tblHtml += `<th class="text-center fw-bold text-nowrap">${c.trim()}</th>`; });
+                    cells.forEach(c => { tblHtml += `<th class="text-center fw-bold" style="word-break:break-word; white-space:normal;">${c.trim()}</th>`; });
                     tblHtml += '</tr></thead><tbody>';
                     isHdr = false;
                     inBdy = true;
                 } else {
                     if (!inBdy) { tblHtml += '<tbody>'; inBdy = true; }
                     tblHtml += '<tr>';
-                    cells.forEach(c => { tblHtml += `<td class="text-center">${c.trim()}</td>`; });
+                    cells.forEach(c => { tblHtml += `<td class="text-center" style="word-break:break-word; white-space:normal;">${c.trim()}</td>`; });
                     tblHtml += '</tr>';
                 }
             });
@@ -4028,7 +4210,7 @@
         return out.map(l => {
             let trm = l.trim();
             if (trm.startsWith('<div') || trm.startsWith('<table') || trm.startsWith('<p')) return l;
-            return trm ? `<div class="mb-1">${trm}</div>` : '<div class="my-1"></div>';
+            return trm ? `<div class="mb-1" style="overflow-wrap:anywhere; word-break:break-word; white-space:normal;">${trm}</div>` : '<div class="my-1"></div>';
         }).join('\n');
     }
 
@@ -4470,39 +4652,90 @@
         parsedDocQuestionsList = questions;
 
         const countBadge = document.getElementById('docExtractedCountBadge');
-        countBadge.innerHTML = `<i class="ti ti-circle-check text-success me-1"></i> ${questions.length} Butir Soal Terdeteksi`;
+        if (countBadge) {
+            countBadge.innerHTML = `<i class="ti ti-circle-check text-success me-1"></i> ${questions.length} Butir Soal Terdeteksi`;
+        }
 
         const rawTextarea = document.getElementById('docRawTextarea');
-        rawTextarea.value = rawText || '';
+        if (rawTextarea) {
+            rawTextarea.value = rawText || '';
+        }
 
         const previewList = document.getElementById('docQuestionsPreviewList');
+        if (!previewList) return;
         previewList.innerHTML = '';
 
         questions.forEach((q, idx) => {
             const item = document.createElement('div');
-            item.className = 'qb-doc-preview-item mb-2';
+            item.className = 'qb-doc-preview-item mb-2.5';
             
-            let typeBadge = '<span class="badge bg-primary-subtle text-primary">Pilihan Ganda</span>';
+            let typeBadge = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 font-bold">Pilihan Ganda</span>';
             if (q.question_type === 'true_false') {
-                typeBadge = '<span class="badge bg-warning-subtle text-warning">Benar / Salah</span>';
+                typeBadge = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 font-bold">Benar / Salah</span>';
             } else if (q.question_type === 'matching') {
-                typeBadge = '<span class="badge bg-info-subtle text-info">Menjodohkan</span>';
+                typeBadge = '<span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 font-bold">Menjodohkan</span>';
+            }
+
+            let optionsHtml = '';
+            if (q.question_type === 'multiple_choice' && q.options && q.options.length > 0) {
+                optionsHtml = '<div class="qb-preview-options-grid mt-2 pt-2 border-top border-dashed">';
+                q.options.forEach((opt, optIdx) => {
+                    if (!opt || !opt.trim()) return;
+                    const optLetter = String.fromCharCode(65 + optIdx);
+                    const isCorrect = (optIdx === q.correct_option);
+                    optionsHtml += `
+                        <div class="qb-preview-opt-item ${isCorrect ? 'is-correct' : ''}">
+                            <span class="qb-preview-opt-letter">${optLetter}</span>
+                            <span class="qb-preview-opt-text">${escapeHtml(opt)}</span>
+                            ${isCorrect ? '<i class="ti ti-check ms-auto text-success fw-bold flex-shrink-0" title="Kunci Jawaban"></i>' : ''}
+                        </div>
+                    `;
+                });
+                optionsHtml += '</div>';
+            } else if (q.question_type === 'true_false') {
+                optionsHtml = `
+                    <div class="mt-2 pt-2 border-top border-dashed small d-flex align-items-center gap-2 flex-wrap">
+                        <span class="text-muted fw-semibold">Kunci Jawaban:</span>
+                        <span class="badge ${q.correct_tf === 'Benar' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} fw-bold px-2 py-0.5">${escapeHtml(q.correct_tf || 'Benar')}</span>
+                    </div>
+                `;
+            } else if (q.question_type === 'matching' && q.pairs && q.pairs.length > 0) {
+                optionsHtml = '<div class="qb-preview-pairs-list mt-2 pt-2 border-top border-dashed d-flex flex-column gap-1.5">';
+                q.pairs.forEach((pair, pIdx) => {
+                    if (!pair.premise && !pair.match) return;
+                    optionsHtml += `
+                        <div class="qb-preview-pair-row d-flex align-items-center gap-2 flex-wrap">
+                            <span class="badge bg-secondary-subtle text-secondary small px-1.5 py-0.5">#${pIdx + 1}</span>
+                            <span class="qb-preview-pair-premise">${escapeHtml(pair.premise)}</span>
+                            <i class="ti ti-arrow-right text-muted small flex-shrink-0"></i>
+                            <span class="qb-preview-pair-match text-primary fw-semibold">${escapeHtml(pair.match)}</span>
+                        </div>
+                    `;
+                });
+                optionsHtml += '</div>';
             }
 
             item.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom" style="border-color: var(--tblr-border-color, #e2e8f0) !important;">
-                    <span class="fw-bold qb-preview-item-title">Butir Soal #${idx + 1}</span>
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-1.5 border-bottom flex-wrap gap-1.5" style="border-color: var(--tblr-border-color, #e2e8f0) !important;">
+                    <span class="fw-bold qb-preview-item-title d-flex align-items-center gap-1.5">
+                        <i class="ti ti-help-circle text-primary"></i> Butir Soal #${idx + 1}
+                    </span>
                     ${typeBadge}
                 </div>
-                <div class="mb-2 qb-preview-item-body">
+                <div class="qb-preview-item-body">
                     ${formatQuestionPreviewHtml(q.question_text)}
+                    ${optionsHtml}
                 </div>
             `;
             previewList.appendChild(item);
         });
 
-        document.getElementById('docExtractedSection').classList.remove('d-none');
-        document.getElementById('btnApplyExtractedDoc').disabled = (questions.length === 0);
+        const extractedSec = document.getElementById('docExtractedSection');
+        if (extractedSec) extractedSec.classList.remove('d-none');
+        
+        const applyBtn = document.getElementById('btnApplyExtractedDoc');
+        if (applyBtn) applyBtn.disabled = (questions.length === 0);
+        
         const directSaveBtn = document.getElementById('btnDirectSaveDoc');
         if (directSaveBtn) {
             directSaveBtn.disabled = (questions.length === 0);

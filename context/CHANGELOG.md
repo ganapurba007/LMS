@@ -2,6 +2,17 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 53] Question Bank Document Upload Modal Responsive & Text Wrap Refinement — 2026-09-28
+
+### Ditambahkan & Diperbarui
+- **Perbaikan Responsif Modal Unggah & Ekstraksi Dokumen Soal ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**:
+  - Menerapkan pembatasan `max-width: 100%`, `overflow-x: hidden`, serta aturan wrapping teks `word-break: break-word` dan `overflow-wrap: anywhere` pada modal upload dokumen (`#modalDocUpload`), kartu pratinjau soal hasil ekstraksi (`.qb-doc-preview-item`), badan soal (`.qb-preview-item-body`), dan textarea teks mentah (`#docRawTextarea`).
+  - Menghindari pelebaran modal ke arah kanan (*horizontal overflow*) saat dokumen soal memuat teks pertanyaan panjang tanpa spasi, rumus, URL, maupun tabel markdown.
+  - Memperbarui `formatQuestionPreviewHtml` agar tabel render memiliki pembungkus responsif (`.table-responsive`), `table-layout: auto`, serta menghapus `text-nowrap` yang sebelumnya memaksa kolom tabel melebar tak terbatas.
+  - Menambahkan pratinjau visual pilihan ganda (A, B, C, D) dengan grid responsif (`.qb-preview-options-grid`), penanda kunci jawaban hijau, serta penataan rapi untuk tipe Benar/Salah dan Menjodohkan.
+- **Pengujian & Verifikasi**:
+  - Seluruh test suite (183 passed, 688 assertions) sukses 100%.
+
 ## [Fase 52] Material Document Attachment Dedicated Download System & Dynamic Metadata Display — 2026-09-28
 
 ### Ditambahkan & Diperbarui
