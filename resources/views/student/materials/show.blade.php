@@ -353,6 +353,13 @@
                 <button type="button" class="btn-close ms-auto shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show border-0 rounded-4 shadow-sm mb-3 mb-md-4 d-flex align-items-center gap-2 p-3" role="alert" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca !important;">
+                <i class="ti ti-alert-circle fs-4 shrink-0"></i>
+                <div class="fw-semibold small">{{ session('error') }}</div>
+                <button type="button" class="btn-close ms-auto shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="row g-3 g-lg-4">
             
