@@ -138,7 +138,7 @@ class QuizController extends Controller
             ->with('success', 'Kuis berhasil dibuat. Silakan tambahkan atau impor butir soal ke dalam kuis.');
     }
 
-    public function show(Quiz $quiz, Request $request): View
+    public function show(Quiz $quiz): View
     {
         $user = Auth::user();
         if ($user) {

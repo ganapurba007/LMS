@@ -228,7 +228,7 @@
                     </div>
                     <div class="qz-qb-scroll mb-3" id="importQbScrollContainer">
                         @forelse($questionBanks as $qb)
-                            <label class="qz-qb-item d-flex align-items-center gap-2 mb-1.5" for="qb_{{ $qb->id }}" data-text="{{ strtolower($qb->question_text) }}">
+                            <label class="qz-qb-item d-flex align-items-center gap-2 mb-1.5" for="qb_{{ $qb->id }}" data-text="{{ strtolower($qb->question_text ?? '') }}">
                                 <input class="form-check-input mt-0 flex-shrink-0 qb-import-checkbox" type="checkbox" name="question_bank_ids[]" value="{{ $qb->id }}" id="qb_{{ $qb->id }}" onchange="updateSelectedQbCounter()">
                                 @if($qb->isMatching())
                                     <span class="md-badge qb-badge-matching qz-mini-badge">Menjodohkan</span>
