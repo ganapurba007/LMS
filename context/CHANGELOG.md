@@ -11,13 +11,15 @@
 - **Material Download Action & Authorization ([`Student/MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/MaterialController.php), [`Admin/MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/MaterialController.php), [`Admin/MaterialBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/MaterialBankController.php))**:
   - Mengimplementasikan `downloadDocument` dan `previewFile` dengan validasi kepemilikan kelas untuk siswa dan validasi mata pelajaran untuk guru.
   - Normalisasi path penyimpanan (`ltrim(preg_replace('/^(public\/|storage\/)/', '', $path), '/')`) dan pengiriman file dengan header `Content-Disposition: attachment; filename="Nama_Materi.ext"`, memastikan file terunduh persis sesuai dokumen yang diunggah dan tidak terpotong nama acak hash storage.
-- **Tampilan Lampiran Dokumen Dinamis & Responsif ([`student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php), [`admin/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/materials/show.blade.php), [`admin/material-banks/index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/index.blade.php), [`admin/material-banks/edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/edit.blade.php))**:
+- **Tampilan Lampiran Dokumen Dinamis, Responsif & Resilient Hosting ([`student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php), [`admin/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/materials/show.blade.php), [`admin/material-banks/index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/index.blade.php), [`admin/material-banks/edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/material-banks/edit.blade.php))**:
   - Mendeteksi ekstensi file secara dinamis (`pdf`, `docx`, `pptx`, `xlsx`, `gambar`, `zip`) dengan ikon dan badge warna yang sesuai.
   - Menampilkan ukuran file terformat (KB/MB) dengan penanganan `try-catch` yang aman terhadap lingkungan hosting.
+  - Menambahkan perlindungan fallback rute `Route::has(...) ? route(...) : url(...)` pada pemanggilan endpoint unduh untuk mencegah error 500 jika cache rute di server hosting belum ter-refresh.
+  - Menambahkan banner notifikasi alert `session('error')` jika file lampiran fisik belum terunggah atau tidak ditemukan di server.
   - Tombol pratinjau dan unduh langsung mengarah ke endpoint controller.
 - **Pengujian & Verifikasi**:
   - Penambahan pengujian unit dan fitur pada [`StudentMaterialTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentMaterialTest.php) dan [`MaterialCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/MaterialCrudTest.php).
-  - Seluruh test suite (182 passed, 686 assertions) sukses 100%.
+  - Seluruh test suite (183 passed, 688 assertions) sukses 100%.
 
 ## [Fase 51] Question Bank Folder-Based 10-Item Grouping System & Form Save Validation Fix — 2026-09-27
 
