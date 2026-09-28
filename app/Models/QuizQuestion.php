@@ -67,6 +67,10 @@ class QuizQuestion extends Model
             return null;
         }
 
+        if (preg_match('#(?:https?://[^/]+)?/storage/(question-images/[^"\'>\s]+|questions/[^"\'>\s]+)#i', $rawUrl, $matches)) {
+            return url('storage-file/' . $matches[1]);
+        }
+
         if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
             if (str_starts_with($rawUrl, '/storage-file/')) {
                 return url(ltrim($rawUrl, '/'));

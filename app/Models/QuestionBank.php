@@ -53,6 +53,10 @@ class QuestionBank extends Model
             return null;
         }
 
+        if (preg_match('#(?:https?://[^/]+)?/storage/(question-images/[^"\'>\s]+|questions/[^"\'>\s]+)#i', $rawUrl, $matches)) {
+            return url('storage-file/' . $matches[1]);
+        }
+
         if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
             if (str_starts_with($rawUrl, '/storage-file/')) {
                 return url(ltrim($rawUrl, '/'));
@@ -99,47 +103,48 @@ class QuestionBank extends Model
 
         $text = trim($content);
 
-        // 1. Render Markdown Images: ![alt](url)
-        $text = preg_replace_callback('/!\[(.*?)\]\((.*?)\)/s', function ($m) {
-            $alt = htmlspecialchars($m[1] ?: 'Gambar Soal', ENT_QUOTES, 'UTF-8');
-            $rawUrl = trim($m[2]);
+        $normalizeUrl = function (string $rawUrl): string {
+            $rawUrl = trim($rawUrl);
+            if (empty($rawUrl)) {
+                return '';
+            }
+
+            if (preg_match('#(?:https?://[^/]+)?/storage/(question-images/[^"\'>\s]+|questions/[^"\'>\s]+)#i', $rawUrl, $matches)) {
+                return url('storage-file/' . $matches[1]);
+            }
+
             if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
                 if (str_starts_with($rawUrl, '/storage-file/')) {
-                    $rawUrl = url(ltrim($rawUrl, '/'));
+                    return url(ltrim($rawUrl, '/'));
                 } elseif (str_starts_with($rawUrl, 'storage-file/')) {
-                    $rawUrl = url($rawUrl);
+                    return url($rawUrl);
                 } elseif (str_starts_with($rawUrl, '/storage/')) {
-                    $rawUrl = url('storage-file/' . substr($rawUrl, 9));
+                    return url('storage-file/' . substr($rawUrl, 9));
                 } elseif (str_starts_with($rawUrl, 'storage/')) {
-                    $rawUrl = url('storage-file/' . substr($rawUrl, 8));
+                    return url('storage-file/' . substr($rawUrl, 8));
                 } elseif (str_starts_with($rawUrl, 'question-images/') || str_starts_with($rawUrl, 'questions/')) {
-                    $rawUrl = url('storage-file/' . $rawUrl);
+                    return url('storage-file/' . $rawUrl);
                 }
             }
+
+            return $rawUrl;
+        };
+
+        // 1. Render Markdown Images: ![alt](url)
+        $text = preg_replace_callback('/!\[(.*?)\]\((.*?)\)/s', function ($m) use ($normalizeUrl) {
+            $alt = htmlspecialchars($m[1] ?: 'Gambar Soal', ENT_QUOTES, 'UTF-8');
+            $rawUrl = $normalizeUrl($m[2]);
             $url = htmlspecialchars($rawUrl, ENT_QUOTES, 'UTF-8');
-            return "\n<div class=\"text-center my-2.5 q-media-wrap\"><img src=\"{$url}\" alt=\"{$alt}\" class=\"img-fluid rounded border shadow-xs\" style=\"max-height: 320px; object-fit: contain;\"></div>\n";
+            return "\n<div class=\"text-center my-2.5 q-media-wrap\"><img src=\"{$url}\" alt=\"{$alt}\" class=\"img-fluid rounded border shadow-xs\" style=\"max-height: 320px; object-fit: contain;\" onerror=\"if(this.dataset.tried!=='1'){this.dataset.tried='1';if(this.src.includes('/storage/')){this.src=this.src.replace('/storage/','/storage-file/');}else if(!this.src.includes('/storage-file/')){this.src=this.src.replace(window.location.origin+'/', window.location.origin+'/storage-file/');}}\"></div>\n";
         }, $text);
 
         // 1b. Rewrite existing <img> tags pointing to storage to storage-file
-        $text = preg_replace_callback('/<img([^>]+)src=["\']([^"\']+)["\']([^>]*)>/i', function ($m) {
+        $text = preg_replace_callback('/<img([^>]+)src=["\']([^"\']+)["\']([^>]*)>/i', function ($m) use ($normalizeUrl) {
             $before = $m[1];
-            $rawUrl = trim($m[2]);
+            $rawUrl = $normalizeUrl($m[2]);
             $after = $m[3];
-
-            if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
-                if (str_starts_with($rawUrl, '/storage-file/')) {
-                    $rawUrl = url(ltrim($rawUrl, '/'));
-                } elseif (str_starts_with($rawUrl, 'storage-file/')) {
-                    $rawUrl = url($rawUrl);
-                } elseif (str_starts_with($rawUrl, '/storage/')) {
-                    $rawUrl = url('storage-file/' . substr($rawUrl, 9));
-                } elseif (str_starts_with($rawUrl, 'storage/')) {
-                    $rawUrl = url('storage-file/' . substr($rawUrl, 8));
-                } elseif (str_starts_with($rawUrl, 'question-images/') || str_starts_with($rawUrl, 'questions/')) {
-                    $rawUrl = url('storage-file/' . $rawUrl);
-                }
-            }
-            return '<img' . $before . 'src="' . htmlspecialchars($rawUrl, ENT_QUOTES, 'UTF-8') . '"' . $after . '>';
+            $url = htmlspecialchars($rawUrl, ENT_QUOTES, 'UTF-8');
+            return '<img' . $before . 'src="' . $url . '"' . $after . ' onerror="if(this.dataset.tried!==\'1\'){this.dataset.tried=\'1\';if(this.src.includes(\'/storage/\')){this.src=this.src.replace(\'/storage/\',\'/storage-file/\');}else if(!this.src.includes(\'/storage-file/\')){this.src=this.src.replace(window.location.origin+\'/\', window.location.origin+\'/storage-file/\');}}">';
         }, $text);
 
         // 2. Render Markdown Tables: | col1 | col2 |

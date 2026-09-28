@@ -103,14 +103,14 @@
                                     </span>
                                 @endif
 
-                                @if(str_contains($q->question_text, '![') || str_contains($q->question_text, '<img'))
+                                @if($q->hasImage())
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1.5 py-0.5" style="font-size: 0.68rem; font-weight: 700;">
-                                        <i class="ti ti-photo me-0.5"></i> Gambar
+                                        <i class="ti ti-photo me-0.5"></i> (gambar)
                                     </span>
                                 @endif
-                                @if(str_contains($q->question_text, '<table') || str_contains($q->question_text, '|'))
+                                @if($q->hasTable())
                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5" style="font-size: 0.68rem; font-weight: 700;">
-                                        <i class="ti ti-table me-0.5"></i> Tabel
+                                        <i class="ti ti-table me-0.5"></i> (tabel)
                                     </span>
                                 @endif
                             </div>
@@ -237,7 +237,22 @@
                                 @else
                                     <span class="md-badge qb-badge-mc qz-mini-badge">Pilgan</span>
                                 @endif
-                                <span class="qz-qb-item-text">{{ Str::limit($qb->question_text, 65) }}</span>
+                                <span class="qz-qb-item-text">
+                                    @if($qb->hasImage())
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1" style="font-size: .68rem; font-weight: 600;"><i class="ti ti-photo me-0.5"></i> (gambar)</span>
+                                    @endif
+                                    @if($qb->hasTable())
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle me-1" style="font-size: .68rem; font-weight: 600;"><i class="ti ti-table me-0.5"></i> (tabel)</span>
+                                    @endif
+                                    @php
+                                        $cleanQbText = trim(preg_replace('/!\[.*?\]\(.*?\)/', '', strip_tags($qb->question_text)));
+                                    @endphp
+                                    @if($cleanQbText !== '')
+                                        {{ Str::limit($cleanQbText, 65) }}
+                                    @else
+                                        <span class="text-muted fst-italic small">Konten {{ $qb->hasImage() ? '(gambar)' : '' }} {{ $qb->hasTable() ? '(tabel)' : '' }}</span>
+                                    @endif
+                                </span>
                             </label>
                         @empty
                             <div class="small text-muted py-2">Bank Soal masih kosong.</div>
