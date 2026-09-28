@@ -117,14 +117,6 @@
                                 @else
                                     <span class="text-muted fst-italic small">Konten {{ $qb->hasImage() ? '(gambar)' : '' }} {{ $qb->hasTable() ? '(tabel)' : '' }}</span>
                                 @endif
-
-                                @if($qb->hasImage() && $qb->getImageUrl())
-                                    <div class="mt-1.5">
-                                        <a href="{{ $qb->getImageUrl() }}" target="_blank" class="d-inline-block text-decoration-none" title="Klik untuk melihat gambar ukuran penuh">
-                                            <img src="{{ $qb->getImageUrl() }}" alt="Gambar Soal" class="rounded border shadow-xs" style="max-height: 52px; max-width: 95px; object-fit: contain; background: #fafafa; padding: 2px;">
-                                        </a>
-                                    </div>
-                                @endif
                             </div>
                             {{-- Mobile Answer Key Preview --}}
                             <div class="d-lg-none mt-1">

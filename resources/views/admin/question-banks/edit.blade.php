@@ -1993,6 +1993,39 @@
             .replace(/'/g, '&#039;');
     }
 
+    function resolveMediaUrl(url) {
+        if (!url) return '';
+        let u = String(url).trim();
+        if (u.startsWith('data:') || u.startsWith('blob:')) {
+            return u;
+        }
+        if (u.startsWith('http://') || u.startsWith('https://')) {
+            try {
+                const parsed = new URL(u);
+                if (parsed.pathname.startsWith('/storage/')) {
+                    return parsed.origin + '/storage-file/' + parsed.pathname.substring(9);
+                }
+            } catch(e) {}
+            return u;
+        }
+        if (u.startsWith('/storage-file/')) {
+            return u;
+        }
+        if (u.startsWith('storage-file/')) {
+            return '/' + u;
+        }
+        if (u.startsWith('/storage/')) {
+            return '/storage-file/' + u.substring(9);
+        }
+        if (u.startsWith('storage/')) {
+            return '/storage-file/' + u.substring(8);
+        }
+        if (u.startsWith('question-images/') || u.startsWith('questions/')) {
+            return '/storage-file/' + u;
+        }
+        return u;
+    }
+
     function extractMediaAndTableFromText(rawText) {
         if (!rawText) return { cleanText: '', imageUrl: null, tableHtml: null };
 
@@ -2003,7 +2036,7 @@
         // 1. Extract Markdown image: ![alt](url)
         const mdImgMatch = text.match(/!\[(.*?)\]\((.*?)\)/);
         if (mdImgMatch) {
-            imageUrl = mdImgMatch[2];
+            imageUrl = resolveMediaUrl(mdImgMatch[2]);
             text = text.replace(mdImgMatch[0], '');
         }
 
@@ -2011,7 +2044,7 @@
         if (!imageUrl) {
             const htmlImgMatch = text.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
             if (htmlImgMatch) {
-                imageUrl = htmlImgMatch[1];
+                imageUrl = resolveMediaUrl(htmlImgMatch[1]);
                 text = text.replace(/<div[^>]*>\s*<img[^>]+>\s*<\/div>/i, '').replace(htmlImgMatch[0], '');
             }
         }
@@ -2140,9 +2173,11 @@
             return;
         }
 
+        const resolvedSrc = resolveMediaUrl(editCardState.imageUrl);
+
         wrap.innerHTML = `
             <div class="qb-image-box shadow-xs" id="edit_img_box">
-                <img src="${editCardState.imageUrl}" alt="Pratinjau Gambar Soal">
+                <img src="${resolvedSrc}" alt="Pratinjau Gambar Soal" onerror="if(!this.dataset.retry){this.dataset.retry='1'; if(this.src.includes('/storage/')) this.src=this.src.replace('/storage/', '/storage-file/');}">
                 <div class="d-flex align-items-center gap-2 mt-1">
                     <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2.5" style="font-size: .74rem; font-weight: 600;" onclick="openInsertImageModalEdit()">
                         <i class="ti ti-refresh"></i> Ganti Gambar
@@ -2156,7 +2191,7 @@
     }
 
     function attachImageEdit(url) {
-        editCardState.imageUrl = url;
+        editCardState.imageUrl = resolveMediaUrl(url);
         renderImageAttachmentWidgetEdit();
         updateCardLivePreviewEdit();
     }
@@ -3349,7 +3384,14 @@
 
         // 1. Render Markdown images: ![alt](url)
         let html = raw.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
-            return `<div class="text-center my-2.5 q-media-wrap"><img src="${url}" alt="${alt || 'Gambar Soal'}" class="img-fluid rounded border shadow-xs" style="max-height: 280px; object-fit: contain;"></div>`;
+            const resolved = resolveMediaUrl(url);
+            return `<div class="text-center my-2.5 q-media-wrap"><img src="${resolved}" alt="${alt || 'Gambar Soal'}" class="img-fluid rounded border shadow-xs" style="max-height: 280px; object-fit: contain;" onerror="if(!this.dataset.retry){this.dataset.retry='1'; if(this.src.includes('/storage/')) this.src=this.src.replace('/storage/', '/storage-file/');}"></div>`;
+        });
+
+        // 1b. Rewrite existing <img> tags
+        html = html.replace(/<img([^>]+)src=["']([^"']+)["']([^>]*)>/gi, (match, before, src, after) => {
+            const resolved = resolveMediaUrl(src);
+            return `<img${before}src="${resolved}"${after} onerror="if(!this.dataset.retry){this.dataset.retry='1'; if(this.src.includes('/storage/')) this.src=this.src.replace('/storage/', '/storage-file/');}">`;
         });
 
         // 2. If it contains raw HTML table or markdown table

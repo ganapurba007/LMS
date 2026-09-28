@@ -370,5 +370,30 @@ class QuestionBankCrudTest extends TestCase
         $response->assertSee('Pertanyaan butir nomor 1');
         $response->assertSee('Pertanyaan butir nomor 10');
     }
+
+    public function test_guru_views_paginated_question_bank_with_images_on_page_3(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        // Create 25 questions, some with markdown images and html images
+        for ($i = 1; $i <= 25; $i++) {
+            $imageSnippet = ($i % 2 === 0) ? "\n\n![Diagram Soal](/storage/question-images/diagram_{$i}.png)" : '';
+            $qb = QuestionBank::create([
+                'instructor_id' => $guru->id,
+                'question_type' => 'multiple_choice',
+                'question_text' => "Pertanyaan butir nomor {$i}" . $imageSnippet,
+            ]);
+            QuestionBankOption::create([
+                'question_bank_id' => $qb->id,
+                'option_text' => 'Pilihan Jawaban',
+                'is_correct' => true,
+            ]);
+        }
+
+        $responsePage3 = $this->actingAs($guru)->get('/admin/question-banks?page=3');
+        $responsePage3->assertStatus(200);
+        $responsePage3->assertSee('Pertanyaan butir nomor 21');
+        $responsePage3->assertSee('(gambar)');
+    }
 }
 

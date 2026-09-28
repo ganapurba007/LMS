@@ -9,15 +9,21 @@
   - Menambahkan route streaming `GET /storage-file/{path}` (`storage.file`) yang memuat dan mengalirkan file gambar soal/media secara aman dengan MIME type header yang tepat.
   - Mengatasi kendala hosting/cPanel di mana symlink `public/storage` sering kali tidak aktif atau terputus, serta menghindari pencegatan route internal Laravel 11 `storage/{path}` yang meminta signature URL (403 Forbidden).
   - Dilengkapi sanitasi perlindungan directory traversal (`..` & null byte stripping) dan multi-fallback path (`Storage::disk('public')`, `public_path('storage/...')`, dan `storage_path('app/public/...')`).
+- **Frontend Image URL Resolver & Form Resilience ([`edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/edit.blade.php), [`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php), [`quizzes/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**:
+  - Menambahkan fungsi helper `resolveMediaUrl(url)` pada script builder/edit soal untuk memetakan path penyimpanan lokal ke `/storage-file/...` saat memuat pratinjau lampiran maupun live preview.
+  - Menambahkan penanganan `onerror` retry fallback otomatis pada tag `<img>`.
 - **Model Gambar Soal & Formatter ([`QuestionBank.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuestionBank.php), [`QuizQuestion.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuizQuestion.php))**:
+  - Memperbaiki indeks capture group regex ekstraksi gambar Markdown menjadi `$m[1]`, mengatasi potensi error 500 (`Undefined array key 2`).
   - Memperbarui `getImageUrl()` dan `renderFormattedText()` agar otomatis memetakan path gambar penyimpanan internal (`storage/...`, `question-images/...`, `questions/...`) menuju endpoint `url('storage-file/' . $path)`.
   - Otomatis mengubah tag `<img>` bertautan lokal menjadi `storage-file` tanpa merusak konten database lama.
+- **Penyederhanaan Index Bank Soal ([`index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/index.blade.php))**:
+  - Menghapus thumbnail preview gambar pada tabel index, menggantikannya dengan badge indikator `(gambar)` dan `(tabel)` yang rapi dan ringkas.
 - **Service & Controller Penyimpanan Gambar ([`DocumentQuestionParserService.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Services/DocumentQuestionParserService.php), [`QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php))**:
   - Saat mengekstrak gambar dari Word/PDF maupun upload manual via editor, gambar disimpan ganda di `storage/app/public` dan `public/storage` sebagai jaminan redundansi file pada lingkungan hosting.
   - Return URL upload diarahkan ke route streaming `storage-file`.
-- **Pengujian & Keamanan ([`SecurityAuditTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/SecurityAuditTest.php))**:
-  - Menambahkan pengujian `test_storage_streaming_serves_existing_files_and_prevents_directory_traversal`.
-  - Seluruh test suite (185 passed, 694 assertions) lulus 100%.
+- **Pengujian & Keamanan ([`SecurityAuditTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/SecurityAuditTest.php), [`QuestionBankCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuestionBankCrudTest.php))**:
+  - Menambahkan pengujian `test_storage_streaming_serves_existing_files_and_prevents_directory_traversal` dan `test_guru_views_paginated_question_bank_with_images_on_page_3`.
+  - Seluruh test suite (186 passed, 697 assertions) lulus 100%.
 
 ## [Fase 55] Multiple Choice Options Expansion to 5 Choices (A to E) — 2026-09-28
 

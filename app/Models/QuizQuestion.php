@@ -58,7 +58,7 @@ class QuizQuestion extends Model
     {
         $rawUrl = null;
         if (preg_match('/!\[.*?\]\((.*?)\)/', $this->question_text, $m)) {
-            $rawUrl = trim($m[2]);
+            $rawUrl = trim($m[1]);
         } elseif (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $this->question_text, $m)) {
             $rawUrl = trim($m[1]);
         }
