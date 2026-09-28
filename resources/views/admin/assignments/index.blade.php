@@ -54,7 +54,7 @@
                         <tr>
                             <td class="md-td-no text-center">{{ $loop->iteration }}</td>
                             <td>
-                                <div class="fw-bold text-dark" style="font-size: .85rem;">
+                                <div class="fw-bold" style="font-size: .85rem;">
                                     {{ $assignment->title }}
                                 </div>
                                 <div class="text-muted" style="font-size: .73rem;">

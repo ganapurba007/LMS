@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MaterialController extends Controller
@@ -144,6 +145,33 @@ class MaterialController extends Controller
         }
 
         return view('student.materials.show', compact('material', 'isCompleted', 'teacherStats'));
+    }
+
+    public function downloadDocument(Material $material)
+    {
+        $user = Auth::user();
+        if ($user->isGuru() && $material->instructor_id !== $user->id) {
+            abort(403, 'Materi ini bukan milik Anda.');
+        }
+        if ($user->isSiswa() && $material->class_id !== $user->class_id) {
+            abort(403, 'Materi ini tidak ditujukan untuk kelas Anda.');
+        }
+
+        if (!$material->document_path) {
+            abort(404, 'Dokumen lampiran materi tidak ditemukan.');
+        }
+
+        $cleanPath = ltrim(preg_replace('/^(public\/|storage\/)/', '', $material->document_path), '/');
+
+        if (!Storage::disk('public')->exists($cleanPath)) {
+            abort(404, 'File lampiran tidak tersedia di server.');
+        }
+
+        $extension = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION)) ?: 'pdf';
+        $sanitizedTitle = Str::slug($material->title, '_');
+        $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+
+        return Storage::disk('public')->download($cleanPath, $downloadFileName);
     }
 
     public function toggleComplete(Material $material)

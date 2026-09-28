@@ -11,6 +11,7 @@ use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class StudentMaterialTest extends TestCase
@@ -206,5 +207,32 @@ class StudentMaterialTest extends TestCase
         $this->assertDatabaseMissing('material_discussions', [
             'id' => $comment->id,
         ]);
+    }
+
+    public function test_siswa_can_download_material_document(): void
+    {
+        Storage::fake('public');
+        $filePath = 'materials/dummy_doc_123.pdf';
+        Storage::disk('public')->put($filePath, 'PDF content');
+
+        $this->materialClassA->document_path = $filePath;
+        $this->materialClassA->save();
+
+        $response = $this->actingAs($this->siswa)->get(route('student.materials.download', $this->materialClassA));
+        $response->assertStatus(200);
+        $response->assertHeader('content-disposition', 'attachment; filename=Hukum_Newton_I.pdf');
+    }
+
+    public function test_siswa_cannot_download_material_document_from_other_class(): void
+    {
+        Storage::fake('public');
+        $filePath = 'materials/dummy_doc_456.pdf';
+        Storage::disk('public')->put($filePath, 'PDF content');
+
+        $this->materialClassB->document_path = $filePath;
+        $this->materialClassB->save();
+
+        $response = $this->actingAs($this->siswa)->get(route('student.materials.download', $this->materialClassB));
+        $response->assertStatus(403);
     }
 }

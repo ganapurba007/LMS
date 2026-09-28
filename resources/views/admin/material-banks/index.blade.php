@@ -89,7 +89,9 @@
                                data-title="{{ $mb->title }}"
                                data-subject="{{ $mb->subject ? $mb->subject->name : 'Umum / Semua Mata Pelajaran' }}"
                                data-type="{{ $mb->content_type }}"
-                               data-doc="{{ $mb->document_path ? asset('storage/' . $mb->document_path) : '' }}"
+                               data-doc="{{ $mb->document_path ? route('admin.material-banks.preview-file', $mb) : '' }}"
+                               data-download="{{ $mb->document_path ? route('admin.material-banks.download', $mb) : '' }}"
+                               data-ext="{{ $mb->document_path ? strtolower(pathinfo($mb->document_path, PATHINFO_EXTENSION)) : '' }}"
                                data-video="{{ $mb->video_url ?? '' }}"
                                data-edit="{{ route('admin.material-banks.edit', $mb) }}">
                                 {{ $mb->title }}
@@ -123,7 +125,9 @@
                                         data-title="{{ $mb->title }}"
                                         data-subject="{{ $mb->subject ? $mb->subject->name : 'Umum / Semua Mata Pelajaran' }}"
                                         data-type="{{ $mb->content_type }}"
-                                        data-doc="{{ asset('storage/' . $mb->document_path) }}"
+                                        data-doc="{{ route('admin.material-banks.preview-file', $mb) }}"
+                                        data-download="{{ route('admin.material-banks.download', $mb) }}"
+                                        data-ext="{{ $docExt }}"
                                         data-video="{{ $mb->video_url ?? '' }}"
                                         data-edit="{{ route('admin.material-banks.edit', $mb) }}">
                                     <i class="ti {{ $docIcon }} flex-shrink-0" style="font-size:0.95rem;"></i>
@@ -400,6 +404,8 @@ body.dark-mode .preview-material-content a {
             var title = $btn.data('title') || $btn.attr('data-title') || 'Pratinjau Materi';
             var videoUrl = $btn.data('video') || $btn.attr('data-video') || '';
             var docUrl = $btn.data('doc') || $btn.attr('data-doc') || '';
+            var downloadUrl = $btn.data('download') || $btn.attr('data-download') || docUrl;
+            var docExt = ($btn.data('ext') || $btn.attr('data-ext') || '').toLowerCase();
             var editUrl = $btn.data('edit') || $btn.attr('data-edit') || '';
 
             // Ambil konten teks dari elemen DOM tersembunyi
@@ -433,7 +439,7 @@ body.dark-mode .preview-material-content a {
             if (docUrl) {
                 if (docWrap) docWrap.classList.remove('d-none');
 
-                var ext = docUrl.split('.').pop().toLowerCase().split('?')[0];
+                var ext = docExt || docUrl.split('.').pop().toLowerCase().split('?')[0];
                 if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
                     if (docImgEl) docImgEl.src = docUrl;
                     if (docImgWrap) docImgWrap.classList.remove('d-none');
@@ -441,7 +447,7 @@ body.dark-mode .preview-material-content a {
                     if (docPdfIframe) docPdfIframe.src = docUrl;
                     if (docPdfWrap) docPdfWrap.classList.remove('d-none');
                 } else {
-                    if (docOfficeDownloadBtn) docOfficeDownloadBtn.href = docUrl;
+                    if (docOfficeDownloadBtn) docOfficeDownloadBtn.href = downloadUrl;
                     if (docOfficeWrap) docOfficeWrap.classList.remove('d-none');
                 }
             } else if (videoUrl) {

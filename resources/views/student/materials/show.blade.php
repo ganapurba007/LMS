@@ -411,30 +411,73 @@
 
                 <!-- 2.3 Lampiran Dokumen Pembelajaran (If Available) -->
                 @if($material->document_path)
+                    @php
+                        $cleanDocPath = ltrim(preg_replace('/^(public\/|storage\/)/', '', $material->document_path), '/');
+                        $docExt = strtolower(pathinfo($cleanDocPath, PATHINFO_EXTENSION)) ?: 'pdf';
+                        $docSize = null;
+                        try {
+                            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanDocPath)) {
+                                $docSize = \Illuminate\Support\Facades\Storage::disk('public')->size($cleanDocPath);
+                            }
+                        } catch (\Throwable $e) {
+                            $docSize = null;
+                        }
+                        $docSizeFormatted = $docSize ? ($docSize >= 1048576 ? round($docSize / 1048576, 1) . ' MB' : round($docSize / 1024, 1) . ' KB') : null;
+                        
+                        $docIcon = match($docExt) {
+                            'pdf' => 'ti-file-type-pdf',
+                            'doc', 'docx' => 'ti-file-type-doc',
+                            'xls', 'xlsx' => 'ti-file-type-xls',
+                            'ppt', 'pptx' => 'ti-file-type-ppt',
+                            'png', 'jpg', 'jpeg', 'webp' => 'ti-photo',
+                            'zip', 'rar', '7z' => 'ti-file-zip',
+                            default => 'ti-file-text'
+                        };
+                        $docBadgeBg = match($docExt) {
+                            'pdf' => 'linear-gradient(135deg, #EF4444, #DC2626)',
+                            'doc', 'docx' => 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                            'xls', 'xlsx' => 'linear-gradient(135deg, #059669, #047857)',
+                            'ppt', 'pptx' => 'linear-gradient(135deg, #D97706, #B45309)',
+                            default => 'linear-gradient(135deg, #475569, #334155)'
+                        };
+                    @endphp
                     <div class="content-card-modern">
                         <div class="content-card-header">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0" style="background: #D97706; width: 30px; height: 30px;">
-                                    <i class="ti ti-file-download fs-5"></i>
+                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center shrink-0" style="background: #3368A0; width: 30px; height: 30px;">
+                                    <i class="ti ti-paperclip fs-5"></i>
                                 </div>
                                 <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Jost', sans-serif; font-size: 0.98rem;">
-                                    Lampiran Dokumen
+                                    Lampiran Dokumen Materi
                                 </h5>
                             </div>
+                            <span class="badge rounded-pill px-2.5 py-1 font-bold text-uppercase" style="background: rgba(51, 104, 160, 0.12); color: #20456E; font-size: 0.72rem;">
+                                <i class="ti ti-file-certificate me-0.5"></i> {{ strtoupper($docExt) }}
+                            </span>
                         </div>
                         <div class="p-3 p-md-4">
-                            <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between p-3 p-sm-3.5 rounded-3 rounded-md-4 border gap-3" style="background: #F8FAFC;">
-                                <div class="d-flex align-items-center gap-2.5 gap-sm-3">
-                                    <div class="rounded-3 text-white d-flex align-items-center justify-content-center shadow-sm shrink-0" style="background: linear-gradient(135deg, #D97706, #F59E0B); width: 42px; height: 42px;">
-                                        <i class="ti ti-file-type-pdf fs-3"></i>
+                            <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between p-3 p-sm-3.5 rounded-3 rounded-md-4 border gap-3" style="background: var(--tblr-bg-surface-secondary, #F8FAFC);">
+                                <div class="d-flex align-items-center gap-2.5 gap-sm-3 min-w-0">
+                                    <div class="rounded-3 text-white d-flex align-items-center justify-content-center shadow-sm shrink-0" style="background: {{ $docBadgeBg }}; width: 44px; height: 44px;">
+                                        <i class="ti {{ $docIcon }} fs-2"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <h6 class="fw-bold mb-0.5 text-dark" style="font-size: 0.92rem;">Dokumen Pendukung Materi</h6>
-                                        <div class="text-muted small" style="font-size: 0.76rem; line-height: 1.35;">Unduh materi ini untuk dibaca secara offline.</div>
+                                        <h6 class="fw-bold mb-0.5 text-dark text-truncate" style="font-size: 0.92rem;" title="{{ $material->title }}">
+                                            {{ $material->title }}
+                                        </h6>
+                                        <div class="text-muted small d-flex align-items-center gap-2 flex-wrap" style="font-size: 0.76rem; line-height: 1.35;">
+                                            <span>Format: <strong class="text-uppercase text-dark">{{ $docExt }}</strong></span>
+                                            @if($docSizeFormatted)
+                                                <span>•</span>
+                                                <span>Ukuran: <strong class="text-dark">{{ $docSizeFormatted }}</strong></span>
+                                            @endif
+                                            <span>•</span>
+                                            <span>Tersedia Offline</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="shrink-0 mt-2 mt-sm-0">
-                                    <a href="{{ asset('storage/'.$material->document_path) }}" target="_blank" download class="btn text-white rounded-pill px-3.5 py-2 font-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift w-100 w-sm-auto" style="background: linear-gradient(135deg, #D97706, #F59E0B); font-size: 0.82rem;">
+                                    <a href="{{ route('student.materials.download', $material) }}" class="btn text-white rounded-pill px-4 py-2 font-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 hover-lift w-100 w-sm-auto" style="background: linear-gradient(135deg, #20456E 0%, #3368A0 100%); font-size: 0.82rem;">
                                         <i class="ti ti-download fs-5"></i> Unduh Dokumen
                                     </a>
                                 </div>

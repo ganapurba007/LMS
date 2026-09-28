@@ -69,12 +69,17 @@ class MaterialCrudTest extends TestCase
     {
         Event::fake();
 
-        $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
+        $bankItem = \App\Models\MaterialBank::create([
             'title' => 'Pengenalan Aljabar',
+            'instructor_id' => $this->guru->id,
             'subject_id' => $this->subject->id,
-            'class_id' => $this->class->id,
             'content_type' => 'text',
             'content' => 'Aljabar adalah cabang matematika...',
+        ]);
+
+        $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
+            'material_bank_id' => $bankItem->id,
+            'class_id' => $this->class->id,
             'order' => 1,
         ]);
 
@@ -95,14 +100,20 @@ class MaterialCrudTest extends TestCase
         Event::fake();
         Storage::fake('public');
 
-        $file = UploadedFile::fake()->create('modul_aljabar.pdf', 500, 'application/pdf');
+        $docPath = 'material-banks/modul_aljabar.pdf';
+        Storage::disk('public')->put($docPath, 'PDF content');
+
+        $bankItem = \App\Models\MaterialBank::create([
+            'title' => 'Modul PDF Aljabar',
+            'instructor_id' => $this->guru->id,
+            'subject_id' => $this->subject->id,
+            'content_type' => 'document',
+            'document_path' => $docPath,
+        ]);
 
         $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
-            'title' => 'Modul PDF Aljabar',
-            'subject_id' => $this->subject->id,
+            'material_bank_id' => $bankItem->id,
             'class_id' => $this->class->id,
-            'content_type' => 'document',
-            'document_file' => $file,
             'order' => 2,
         ]);
 
@@ -118,12 +129,17 @@ class MaterialCrudTest extends TestCase
     {
         Event::fake();
 
-        $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
+        $bankItem = \App\Models\MaterialBank::create([
             'title' => 'Video Pembelajaran Aljabar',
+            'instructor_id' => $this->guru->id,
             'subject_id' => $this->subject->id,
-            'class_id' => $this->class->id,
             'content_type' => 'youtube',
             'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        ]);
+
+        $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
+            'material_bank_id' => $bankItem->id,
+            'class_id' => $this->class->id,
             'order' => 3,
         ]);
 
@@ -139,15 +155,20 @@ class MaterialCrudTest extends TestCase
     {
         Event::fake();
 
-        $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
+        $bankItem = \App\Models\MaterialBank::create([
             'title' => 'Fisika Dasar',
+            'instructor_id' => $this->guru->id,
             'subject_id' => $this->unassignedSubject->id,
-            'class_id' => $this->class->id,
             'content_type' => 'text',
             'content' => 'Fisika adalah...',
         ]);
 
-        $response->assertSessionHasErrors(['subject_id']);
+        $response = $this->actingAs($this->guru)->post(route('admin.materials.store'), [
+            'material_bank_id' => $bankItem->id,
+            'class_id' => $this->class->id,
+        ]);
+
+        $response->assertSessionHasErrors(['material_bank_id']);
         $this->assertDatabaseMissing('materials', [
             'title' => 'Fisika Dasar',
         ]);
@@ -166,12 +187,17 @@ class MaterialCrudTest extends TestCase
         $material->instructor_id = $this->guru->id;
         $material->save();
 
-        $updateResponse = $this->actingAs($this->guru)->put(route('admin.materials.update', $material), [
+        $bankItem = \App\Models\MaterialBank::create([
             'title' => 'Judul Baru Update',
+            'instructor_id' => $this->guru->id,
             'subject_id' => $this->subject->id,
-            'class_id' => $this->class->id,
             'content_type' => 'text',
             'content' => 'Isi materi baru',
+        ]);
+
+        $updateResponse = $this->actingAs($this->guru)->put(route('admin.materials.update', $material), [
+            'material_bank_id' => $bankItem->id,
+            'class_id' => $this->class->id,
             'order' => 5,
         ]);
 
@@ -186,6 +212,50 @@ class MaterialCrudTest extends TestCase
         $this->assertDatabaseMissing('materials', [
             'id' => $material->id,
         ]);
+    }
+
+    public function test_guru_can_download_material_document(): void
+    {
+        Storage::fake('public');
+        $filePath = 'materials/admin_doc_test.pdf';
+        Storage::disk('public')->put($filePath, 'PDF doc');
+
+        $material = Material::create([
+            'title' => 'Modul Geometri',
+            'content_type' => 'document',
+            'document_path' => $filePath,
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+            'order' => 1,
+        ]);
+
+        $response = $this->actingAs($this->guru)->get(route('admin.materials.download', $material));
+        $response->assertStatus(200);
+        $response->assertHeader('content-disposition', 'attachment; filename=Modul_Geometri.pdf');
+    }
+
+    public function test_guru_can_preview_and_download_material_bank_document(): void
+    {
+        Storage::fake('public');
+        $filePath = 'material-banks/doc_bank_test.pdf';
+        Storage::disk('public')->put($filePath, 'PDF doc content');
+
+        $bankItem = \App\Models\MaterialBank::create([
+            'title' => 'Master Modul Bank',
+            'content_type' => 'document',
+            'document_path' => $filePath,
+            'subject_id' => $this->subject->id,
+            'instructor_id' => $this->guru->id,
+        ]);
+
+        $previewResponse = $this->actingAs($this->guru)->get(route('admin.material-banks.preview-file', $bankItem));
+        $previewResponse->assertStatus(200);
+        $previewResponse->assertHeader('content-type', 'application/pdf');
+
+        $downloadResponse = $this->actingAs($this->guru)->get(route('admin.material-banks.download', $bankItem));
+        $downloadResponse->assertStatus(200);
+        $downloadResponse->assertHeader('content-disposition', 'attachment; filename=Master_Modul_Bank.pdf');
     }
 
     public function test_siswa_cannot_access_material_crud(): void

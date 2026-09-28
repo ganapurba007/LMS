@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MaterialBankController extends Controller
@@ -196,9 +197,56 @@ class MaterialBankController extends Controller
             'content_type' => $materialBank->content_type,
             'content' => $materialBank->content,
             'document_path' => $materialBank->document_path,
-            'document_url' => $materialBank->document_path ? asset('storage/' . $materialBank->document_path) : null,
+            'document_url' => $materialBank->document_path ? route('admin.material-banks.preview-file', $materialBank) : null,
             'document_filename' => $materialBank->document_path ? basename($materialBank->document_path) : null,
             'video_url' => $materialBank->video_url,
         ]);
+    }
+
+    public function previewFile(MaterialBank $materialBank)
+    {
+        if ($materialBank->instructor_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke materi bank ini.');
+        }
+
+        if (!$materialBank->document_path) {
+            abort(404, 'Dokumen lampiran tidak ditemukan.');
+        }
+
+        $cleanPath = ltrim(preg_replace('/^(public\/|storage\/)/', '', $materialBank->document_path), '/');
+
+        if (!Storage::disk('public')->exists($cleanPath)) {
+            abort(404, 'File lampiran tidak tersedia di server.');
+        }
+
+        $mimeType = Storage::disk('public')->mimeType($cleanPath) ?: 'application/octet-stream';
+
+        return Storage::disk('public')->response($cleanPath, basename($cleanPath), [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($cleanPath) . '"',
+        ]);
+    }
+
+    public function downloadDocument(MaterialBank $materialBank)
+    {
+        if ($materialBank->instructor_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke materi bank ini.');
+        }
+
+        if (!$materialBank->document_path) {
+            abort(404, 'Dokumen lampiran tidak ditemukan.');
+        }
+
+        $cleanPath = ltrim(preg_replace('/^(public\/|storage\/)/', '', $materialBank->document_path), '/');
+
+        if (!Storage::disk('public')->exists($cleanPath)) {
+            abort(404, 'File lampiran tidak tersedia di server.');
+        }
+
+        $extension = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION)) ?: 'pdf';
+        $sanitizedTitle = Str::slug($materialBank->title, '_');
+        $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+
+        return Storage::disk('public')->download($cleanPath, $downloadFileName);
     }
 }

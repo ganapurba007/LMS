@@ -115,6 +115,35 @@ class MaterialController extends Controller
         return view('admin.materials.show', compact('material', 'totalStudents', 'completedStudentsCount'));
     }
 
+    public function downloadDocument(Material $material)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $user->loadMissing('subjects');
+        }
+        $userSubjects = $user ? $user->subjects : collect();
+
+        if ($userSubjects->isNotEmpty() && !$userSubjects->contains('id', $material->subject_id)) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
+        if (!$material->document_path) {
+            abort(404, 'Dokumen lampiran materi tidak ditemukan.');
+        }
+
+        $cleanPath = ltrim(preg_replace('/^(public\/|storage\/)/', '', $material->document_path), '/');
+
+        if (!Storage::disk('public')->exists($cleanPath)) {
+            abort(404, 'File lampiran tidak tersedia di server.');
+        }
+
+        $extension = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION)) ?: 'pdf';
+        $sanitizedTitle = Str::slug($material->title, '_');
+        $downloadFileName = ($sanitizedTitle ?: 'Dokumen_Materi') . '.' . $extension;
+
+        return Storage::disk('public')->download($cleanPath, $downloadFileName);
+    }
+
     public function create(): View
     {
         $user = Auth::user();

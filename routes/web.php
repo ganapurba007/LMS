@@ -53,6 +53,7 @@ Route::get('/dashboard', [StudentDashboardController::class, 'index'])
 // Route Siswa Materials, Assignments, Quizzes, Report & Discussion
 Route::middleware(['auth'])->prefix('student')->as('student.')->group(function () {
     Route::get('materials', [StudentMaterialController::class, 'index'])->name('materials.index');
+    Route::get('materials/{material}/download', [StudentMaterialController::class, 'downloadDocument'])->name('materials.download');
     Route::get('materials/{material}', [StudentMaterialController::class, 'show'])->name('materials.show');
     Route::post('materials/{material}/complete', [StudentMaterialController::class, 'toggleComplete'])->name('materials.complete');
     Route::post('materials/{material}/toggle-complete', [StudentMaterialController::class, 'toggleComplete'])->name('materials.toggle-complete');
@@ -103,6 +104,8 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     Route::resource('question-banks', QuestionBankController::class);
 
     // Master Bank Materi CRUD & JSON API
+    Route::get('material-banks/{materialBank}/preview-file', [MaterialBankController::class, 'previewFile'])->name('material-banks.preview-file');
+    Route::get('material-banks/{materialBank}/download', [MaterialBankController::class, 'downloadDocument'])->name('material-banks.download');
     Route::get('material-banks/{materialBank}/json', [MaterialBankController::class, 'getDetailJson'])->name('material-banks.json');
     Route::resource('material-banks', MaterialBankController::class);
 
@@ -111,6 +114,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     Route::resource('assignment-banks', AssignmentBankController::class);
 
     // Master Materi CRUD & Diskusi
+    Route::get('materials/{material}/download', [MaterialController::class, 'downloadDocument'])->name('materials.download');
     Route::resource('materials', MaterialController::class);
     Route::post('materials/{material}/discussions', [MaterialController::class, 'storeComment'])->name('materials.discussions');
     Route::delete('materials/{material}/discussions/{discussion}', [MaterialController::class, 'destroyComment'])->name('materials.discussions.destroy');

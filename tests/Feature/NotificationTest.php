@@ -215,12 +215,17 @@ class NotificationTest extends TestCase
         $subject = \App\Models\Subject::create(['code' => 'KIM02', 'name' => 'Kimia 2']);
         $guru->subjects()->attach($subject->id);
 
-        $response = $this->actingAs($guru)->post(route('admin.materials.store'), [
+        $bankItem = \App\Models\MaterialBank::create([
             'title' => 'Termokimia & Entalpi',
+            'instructor_id' => $guru->id,
             'subject_id' => $subject->id,
-            'class_id' => $this->user->class_id,
             'content_type' => 'text',
             'content' => 'Materi tentang perubahan entalpi reaksi',
+        ]);
+
+        $response = $this->actingAs($guru)->post(route('admin.materials.store'), [
+            'material_bank_id' => $bankItem->id,
+            'class_id' => $this->user->class_id,
         ]);
 
         $response->assertRedirect(route('admin.materials.index'));

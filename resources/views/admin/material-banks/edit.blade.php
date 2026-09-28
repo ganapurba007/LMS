@@ -107,14 +107,14 @@
                             <div class="mt-2 d-flex align-items-center gap-2">
                                 @if($canPreview)
                                     <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2.5 btn-preview-current-file d-inline-flex align-items-center gap-1" 
-                                            data-url="{{ asset('storage/' . $materialBank->document_path) }}" 
+                                            data-url="{{ route('admin.material-banks.preview-file', $materialBank) }}" 
                                             data-name="{{ basename($materialBank->document_path) }}" 
                                             data-type="{{ $isPdf ? 'pdf' : 'image' }}"
                                             style="font-size: 0.75rem;">
                                         <i class="ti ti-eye"></i> Pratinjau
                                     </button>
                                 @endif
-                                <a href="{{ asset('storage/' . $materialBank->document_path) }}" download class="btn btn-sm btn-primary py-1 px-2.5 d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                <a href="{{ route('admin.material-banks.download', $materialBank) }}" class="btn btn-sm btn-primary py-1 px-2.5 d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                     <i class="ti ti-download"></i> Unduh
                                 </a>
                             </div>
@@ -161,9 +161,11 @@
                 </div>
             </div>
             <div class="modal-footer border-top py-2.5 px-4 d-flex justify-content-between" style="border-color: var(--tblr-border-color, #e2e8f0) !important; background: var(--tblr-bg-surface-secondary, #f8fafc);">
-                <a id="previewEditDocDownload" href="" download class="btn btn-sm btn-primary">
-                    <i class="ti ti-download me-1"></i> Unduh File
-                </a>
+                @if($materialBank->document_path)
+                    <a id="previewEditDocDownload" href="{{ route('admin.material-banks.download', $materialBank) }}" class="btn btn-sm btn-primary">
+                        <i class="ti ti-download me-1"></i> Unduh File
+                    </a>
+                @endif
                 <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>

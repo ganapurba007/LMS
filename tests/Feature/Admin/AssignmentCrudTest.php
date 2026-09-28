@@ -66,14 +66,19 @@ class AssignmentCrudTest extends TestCase
     {
         Event::fake();
 
+        $bankItem = \App\Models\AssignmentBank::create([
+            'title' => 'Tugas Struktur Sel',
+            'description' => 'Kerjakan latihan soal halaman 45',
+            'instructor_id' => $this->guru->id,
+            'subject_id' => $this->subject->id,
+        ]);
+
         $dueDate = now()->addDays(7)->format('Y-m-d H:i:s');
 
         $response = $this->actingAs($this->guru)->post(route('admin.assignments.store'), [
-            'title' => 'Tugas Struktur Sel',
-            'description' => 'Kerjakan latihan soal halaman 45',
-            'due_date' => $dueDate,
-            'subject_id' => $this->subject->id,
+            'assignment_bank_id' => $bankItem->id,
             'class_id' => $this->class->id,
+            'due_date' => $dueDate,
         ]);
 
         $response->assertRedirect(route('admin.assignments.index'));
@@ -91,17 +96,22 @@ class AssignmentCrudTest extends TestCase
     {
         Event::fake();
 
+        $bankItem = \App\Models\AssignmentBank::create([
+            'title' => 'Tugas Reaksi Redoks',
+            'description' => 'Jawablah soal berikut...',
+            'instructor_id' => $this->guru->id,
+            'subject_id' => $this->unassignedSubject->id,
+        ]);
+
         $dueDate = now()->addDays(7)->format('Y-m-d H:i:s');
 
         $response = $this->actingAs($this->guru)->post(route('admin.assignments.store'), [
-            'title' => 'Tugas Reaksi Redoks',
-            'description' => 'Jawablah soal berikut...',
-            'due_date' => $dueDate,
-            'subject_id' => $this->unassignedSubject->id,
+            'assignment_bank_id' => $bankItem->id,
             'class_id' => $this->class->id,
+            'due_date' => $dueDate,
         ]);
 
-        $response->assertSessionHasErrors(['subject_id']);
+        $response->assertSessionHasErrors(['assignment_bank_id']);
         $this->assertDatabaseMissing('assignments', [
             'title' => 'Tugas Reaksi Redoks',
         ]);
@@ -120,14 +130,19 @@ class AssignmentCrudTest extends TestCase
         $assignment->instructor_id = $this->guru->id;
         $assignment->save();
 
+        $bankItem = \App\Models\AssignmentBank::create([
+            'title' => 'Tugas Revisi Terbaru',
+            'description' => 'Deskripsi diperbarui',
+            'instructor_id' => $this->guru->id,
+            'subject_id' => $this->subject->id,
+        ]);
+
         $newDueDate = now()->addDays(10)->format('Y-m-d H:i:s');
 
         $updateResponse = $this->actingAs($this->guru)->put(route('admin.assignments.update', $assignment), [
-            'title' => 'Tugas Revisi Terbaru',
-            'description' => 'Deskripsi diperbarui',
-            'due_date' => $newDueDate,
-            'subject_id' => $this->subject->id,
+            'assignment_bank_id' => $bankItem->id,
             'class_id' => $this->class->id,
+            'due_date' => $newDueDate,
         ]);
 
         $updateResponse->assertRedirect(route('admin.assignments.index'));

@@ -35,7 +35,7 @@
             <!-- Search Input -->
             <div class="col-12 col-md-4">
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="ti ti-search"></i></span>
+                    <span class="input-group-text bg-light border-end-0 text-dark"><i class="ti ti-search"></i></span>
                     <input type="text" name="search" class="form-control form-control-sm border-start-0"
                         placeholder="Cari nama siswa, email, atau tugas..." value="{{ request('search') }}">
                 </div>

@@ -38,7 +38,7 @@
     <form method="GET" action="{{ route('admin.quizzes.index') }}" class="row g-2 align-items-center">
         <div class="col-12 col-md-4">
             <div class="input-group input-group-sm">
-                <span class="input-group-text bg-light border-end-0 text-muted"><i class="ti ti-search"></i></span>
+                <span class="input-group-text bg-light border-end-0 text-dark"><i class="ti ti-search"></i></span>
                 <input type="text" name="search" class="form-control form-control-sm border-start-0" placeholder="Cari judul kuis..." value="{{ $search }}">
             </div>
         </div>
