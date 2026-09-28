@@ -186,9 +186,16 @@
                     </div>
                 @endforelse
             </div>
-            @if($questions->hasPages())
-                <div class="md-card-footer">
-                    {{ $questions->links() }}
+            @if($questions->total() > 0)
+                <div class="md-card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 p-3">
+                    <span class="text-muted" style="font-size: .78rem;">
+                        Menampilkan <strong>{{ $questions->firstItem() }}</strong> – <strong>{{ $questions->lastItem() }}</strong> dari <strong>{{ $questions->total() }}</strong> butir soal
+                    </span>
+                    @if($questions->hasPages())
+                        <div class="ms-auto">
+                            {{ $questions->links() }}
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>
@@ -211,13 +218,17 @@
             <div class="card-body p-3">
                 <form action="{{ route('admin.quizzes.import-questions', $quiz) }}" method="POST" id="formImportQuestionBank">
                     @csrf
+                    <div class="input-group input-group-sm mb-2">
+                        <span class="input-group-text bg-transparent text-muted"><i class="ti ti-search"></i></span>
+                        <input type="text" class="form-control" id="searchImportQbInput" placeholder="Cari isi bank soal..." onkeyup="filterImportQbList(this.value)">
+                    </div>
                     <div class="d-flex justify-content-between align-items-center mb-2 px-1">
                         <span class="small text-muted" style="font-size:0.75rem;">Pilih butir soal yang ingin dimasukkan:</span>
                         <span class="badge bg-primary-subtle text-primary fw-bold" id="badgeSelectedQbCount" style="font-size:0.72rem;">0 dipilih</span>
                     </div>
-                    <div class="qz-qb-scroll mb-3">
+                    <div class="qz-qb-scroll mb-3" id="importQbScrollContainer">
                         @forelse($questionBanks as $qb)
-                            <label class="qz-qb-item d-flex align-items-center gap-2 mb-1.5" for="qb_{{ $qb->id }}">
+                            <label class="qz-qb-item d-flex align-items-center gap-2 mb-1.5" for="qb_{{ $qb->id }}" data-text="{{ strtolower($qb->question_text) }}">
                                 <input class="form-check-input mt-0 flex-shrink-0 qb-import-checkbox" type="checkbox" name="question_bank_ids[]" value="{{ $qb->id }}" id="qb_{{ $qb->id }}" onchange="updateSelectedQbCounter()">
                                 @if($qb->isMatching())
                                     <span class="md-badge qb-badge-matching qz-mini-badge">Menjodohkan</span>
@@ -3899,6 +3910,19 @@ body.theme-dark .qz-question-text img {
         if (modal) modal.hide();
 
         document.getElementById('batchQuestionForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function filterImportQbList(query) {
+        const q = (query || '').toLowerCase().trim();
+        const items = document.querySelectorAll('#importQbScrollContainer .qz-qb-item');
+        items.forEach(item => {
+            const text = (item.dataset.text || '').toLowerCase();
+            if (!q || text.includes(q)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
     }
 </script>
 @endsection
