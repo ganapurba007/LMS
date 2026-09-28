@@ -433,9 +433,9 @@ class DocumentQuestionParserService
                 $qType = 'multiple_choice';
             }
 
-            // Pastikan minimal 4 slot opsi untuk kestabilan UI form builder jika multiple choice
+            // Pastikan minimal 5 slot opsi untuk kestabilan UI form builder jika multiple choice
             if ($qType === 'multiple_choice') {
-                while (count($options) < 4) {
+                while (count($options) < 5) {
                     $options[] = '';
                 }
             }
@@ -571,6 +571,7 @@ class DocumentQuestionParserService
             . "B. 12 cm\n"
             . "C. 14 cm\n"
             . "D. 16 cm\n"
+            . "E. 18 cm\n"
             . "Kunci: A\n\n"
             . "2. Perhatikan tabel data penjualan buku berikut:\n"
             . "| Hari | Jumlah Terjual |\n"
@@ -583,12 +584,14 @@ class DocumentQuestionParserService
             . "B. 60\n"
             . "C. 70\n"
             . "D. 80\n"
+            . "E. 90\n"
             . "Kunci: B\n\n"
             . "3. Apa ibukota negara Indonesia saat ini?\n"
             . "A. Jakarta\n"
             . "B. Bandung\n"
             . "C. Surabaya\n"
             . "D. Medan\n"
+            . "E. Makassar\n"
             . "Kunci: A\n\n"
             . "4. Bumi mengelilingi matahari dalam kurun waktu satu tahun penuh (revolusi bumi).\n"
             . "Kunci: Benar\n\n"

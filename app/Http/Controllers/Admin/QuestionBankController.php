@@ -223,23 +223,52 @@ class QuestionBankController extends Controller
         } else {
             $request->validate([
                 'question_text' => ['required', 'string'],
-                'options' => ['required', 'array', 'min:2'],
-                'options.*' => ['required', 'string'],
+                'options' => ['required', 'array'],
                 'correct_option' => ['required', 'integer', 'min:0'],
             ]);
 
-            DB::transaction(function () use ($request) {
+            $rawOptions = (array) $request->input('options', []);
+            $filteredOptions = [];
+            $rawCorrectOpt = (int) $request->input('correct_option', 0);
+            $correctOptText = $rawOptions[$rawCorrectOpt] ?? null;
+
+            foreach ($rawOptions as $idx => $optText) {
+                $t = trim((string) $optText);
+                if ($t !== '') {
+                    $filteredOptions[] = [
+                        'text' => $t,
+                        'is_correct' => ($idx === $rawCorrectOpt || ($correctOptText !== null && $t === trim($correctOptText)))
+                    ];
+                }
+            }
+
+            if (count($filteredOptions) < 2) {
+                return back()->withErrors(['options' => 'Minimal 2 pilihan jawaban harus diisi.'])->withInput();
+            }
+
+            DB::transaction(function () use ($request, $filteredOptions) {
                 $questionBank = QuestionBank::create([
                     'instructor_id' => Auth::id(),
                     'question_text' => trim($request->question_text),
                     'question_type' => 'multiple_choice',
                 ]);
 
-                foreach ($request->options as $index => $optionText) {
+                $hasCorrect = false;
+                foreach ($filteredOptions as $fOpt) {
+                    if ($fOpt['is_correct']) {
+                        $hasCorrect = true;
+                        break;
+                    }
+                }
+                if (!$hasCorrect && isset($filteredOptions[0])) {
+                    $filteredOptions[0]['is_correct'] = true;
+                }
+
+                foreach ($filteredOptions as $fOpt) {
                     QuestionBankOption::create([
                         'question_bank_id' => $questionBank->id,
-                        'option_text' => trim($optionText),
-                        'is_correct' => (int) $index === (int) $request->correct_option,
+                        'option_text' => $fOpt['text'],
+                        'is_correct' => $fOpt['is_correct'],
                     ]);
                 }
             });
@@ -316,12 +345,30 @@ class QuestionBankController extends Controller
         } else {
             $request->validate([
                 'question_text' => ['required', 'string'],
-                'options' => ['required', 'array', 'min:2'],
-                'options.*' => ['required', 'string'],
+                'options' => ['required', 'array'],
                 'correct_option' => ['required', 'integer', 'min:0'],
             ]);
 
-            DB::transaction(function () use ($request, $questionBank) {
+            $rawOptions = (array) $request->input('options', []);
+            $filteredOptions = [];
+            $rawCorrectOpt = (int) $request->input('correct_option', 0);
+            $correctOptText = $rawOptions[$rawCorrectOpt] ?? null;
+
+            foreach ($rawOptions as $idx => $optText) {
+                $t = trim((string) $optText);
+                if ($t !== '') {
+                    $filteredOptions[] = [
+                        'text' => $t,
+                        'is_correct' => ($idx === $rawCorrectOpt || ($correctOptText !== null && $t === trim($correctOptText)))
+                    ];
+                }
+            }
+
+            if (count($filteredOptions) < 2) {
+                return back()->withErrors(['options' => 'Minimal 2 pilihan jawaban harus diisi.'])->withInput();
+            }
+
+            DB::transaction(function () use ($request, $questionBank, $filteredOptions) {
                 $questionBank->update([
                     'question_text' => trim($request->question_text),
                     'question_type' => 'multiple_choice',
@@ -329,11 +376,22 @@ class QuestionBankController extends Controller
 
                 $questionBank->options()->delete();
 
-                foreach ($request->options as $index => $optionText) {
+                $hasCorrect = false;
+                foreach ($filteredOptions as $fOpt) {
+                    if ($fOpt['is_correct']) {
+                        $hasCorrect = true;
+                        break;
+                    }
+                }
+                if (!$hasCorrect && isset($filteredOptions[0])) {
+                    $filteredOptions[0]['is_correct'] = true;
+                }
+
+                foreach ($filteredOptions as $fOpt) {
                     QuestionBankOption::create([
                         'question_bank_id' => $questionBank->id,
-                        'option_text' => trim($optionText),
-                        'is_correct' => (int) $index === (int) $request->correct_option,
+                        'option_text' => $fOpt['text'],
+                        'is_correct' => $fOpt['is_correct'],
                     ]);
                 }
             });

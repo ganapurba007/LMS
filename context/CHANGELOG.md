@@ -2,6 +2,22 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 55] Multiple Choice Options Expansion to 5 Choices (A to E) — 2026-09-28
+
+### Ditambahkan & Diperbarui
+- **Dukungan 5 Opsi Pilihan Ganda (A – E) pada Form & Builder Soal**:
+  - **Edit Soal Bank Soal ([`edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/edit.blade.php))**: Menambah slot input radio dan teks opsi hingga opsi E (5 pilihan jawaban).
+  - **Buat Soal Bank Soal ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/question-banks/create.blade.php))**: Memperluas form builder dan kartu ekstraksi dokumen untuk mendukung 5 pilihan jawaban (A, B, C, D, E) tanpa memotong opsi ke-5.
+  - **Buat Soal Kuis ([`quizzes/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**: Memperluas builder butir soal dan parser regex dokumen pada halaman kelola kuis agar mendukung opsi A sampai E.
+- **Backend Storage & Controller Refinement ([`QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php), [`QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php))**:
+  - Memperbarui validasi single question store dan update agar opsi non-kosong difilter secara fleksibel (minimal 2 opsi, mendukung hingga opsi E).
+  - Memastikan opsi E tersimpan dengan kunci jawaban yang sesuai baik di tabel `question_bank_options` maupun `quiz_question_options`.
+- **Ekstraksi Dokumen & Template Teks ([`DocumentQuestionParserService.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Services/DocumentQuestionParserService.php))**:
+  - Memperbarui bantalan slot opsi menjadi 5 pilihan dan memperbarui contoh format naskah soal (.txt / .docx) yang menyertakan opsi A sampai E.
+- **Pengujian & Verifikasi ([`QuestionBankCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuestionBankCrudTest.php))**:
+  - Menambahkan pengujian `test_guru_can_create_and_update_five_options_multiple_choice_question`.
+  - Seluruh test suite (184 passed, 692 assertions) sukses 100%.
+
 ## [Fase 54] Question Bank Index Reverted to Standard Paginated Table View — 2026-09-28
 
 ### Ditambahkan & Diperbarui

@@ -111,7 +111,7 @@
             <div id="sec_edit_mc" class="mb-4 {{ old('question_type', $questionBank->question_type) === 'multiple_choice' ? '' : 'd-none' }}">
                 <label class="md-form-label mb-2">Pilihan Jawaban &amp; Kunci Jawaban <span class="text-danger">*</span></label>
                 <div class="d-flex flex-column gap-2">
-                    @for($i = 0; $i < 4; $i++)
+                    @for($i = 0; $i < 5; $i++)
                         @php
                             $optVal = isset($options[$i]) ? $options[$i]->option_text : '';
                             $letter = chr(65 + $i);

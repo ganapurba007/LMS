@@ -3342,7 +3342,7 @@ body.theme-dark .qz-question-text img {
     function renderQuestionCard(index, data = null) {
         let rawQText = data ? (data.question_text || '') : '';
         const qType = data ? (data.question_type || 'multiple_choice') : 'multiple_choice';
-        const options = (data && data.options) ? data.options : ['', '', '', ''];
+        const options = (data && data.options) ? data.options : ['', '', '', '', ''];
         const correctOpt = (data && typeof data.correct_option !== 'undefined') ? parseInt(data.correct_option) : 0;
         const correctTf = (data && data.correct_tf) ? data.correct_tf : 'Benar';
         const pairs = (data && data.pairs && data.pairs.length >= 2) ? data.pairs : [
@@ -3369,7 +3369,7 @@ body.theme-dark .qz-question-text img {
         card.setAttribute('data-current-type', qType);
 
         let optionsHtml = '';
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 5; i++) {
             const letter = String.fromCharCode(65 + i);
             const val = options[i] || '';
             const checked = (correctOpt === i) ? 'checked' : '';
@@ -3779,8 +3779,8 @@ body.theme-dark .qz-question-text img {
                 const line = rawLine.trim();
                 if (!line) return;
 
-                const optMatch = line.match(/^([A-Da-d])[\.\)]\s*(.*)$/);
-                const keyMatch = line.match(/^(?:kunci|jawaban|key|ans)\s*[\:\=]?\s*([A-Da-d]|benar|salah|true|false)/i);
+                const optMatch = line.match(/^([A-Ea-e])[\.\)]\s*(.*)$/);
+                const keyMatch = line.match(/^(?:kunci|jawaban|key|ans)\s*[\:\=]?\s*([A-Ea-e]|benar|salah|true|false)/i);
                 const pairMatch = line.match(/^(.+?)\s*(?:=|->)\s*(.+)$/);
 
                 if (keyMatch) {
@@ -3822,14 +3822,14 @@ body.theme-dark .qz-question-text img {
                 qType = 'true_false';
             }
 
-            while (options.length < 4) {
+            while (options.length < 5) {
                 options.push('');
             }
 
             parsedQuestions.push({
                 question_text: qText || 'Pertanyaan Kuis',
                 question_type: qType,
-                options: options.slice(0, 4),
+                options: options.slice(0, 5),
                 correct_option: correctOpt,
                 correct_tf: correctTf,
                 pairs: pairs.length >= 2 ? pairs : [{premise: '', match: ''}, {premise: '', match: ''}]

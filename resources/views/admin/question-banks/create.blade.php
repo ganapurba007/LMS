@@ -2638,7 +2638,7 @@
     function renderQbQuestionCard(index, data = null) {
         let rawQText = data ? (data.question_text || '') : '';
         const qType = data ? (data.question_type || 'multiple_choice') : 'multiple_choice';
-        const options = data ? (data.options || ['', '', '', '']) : ['', '', '', ''];
+        const options = data ? (data.options || ['', '', '', '', '']) : ['', '', '', '', ''];
         const correctOpt = data ? (data.correct_option !== undefined ? data.correct_option : 0) : 0;
         const correctTf = data ? (data.correct_tf || 'Benar') : 'Benar';
         const pairs = data ? (data.pairs || [{premise: '', match: ''}, {premise: '', match: ''}]) : [{premise: '', match: ''}, {premise: '', match: ''}];
@@ -2662,7 +2662,7 @@
         card.setAttribute('data-current-type', qType);
 
         let optionsHtml = '';
-        const optCount = Math.max(4, options.length);
+        const optCount = Math.max(5, options.length);
         for (let i = 0; i < optCount; i++) {
             const letter = String.fromCharCode(65 + i);
             const val = options[i] || '';
@@ -4681,7 +4681,7 @@
                 qType = 'true_false';
             }
 
-            while (options.length < 4) {
+            while (options.length < 5) {
                 options.push('');
             }
 
@@ -4692,7 +4692,7 @@
             parsedQuestions.push({
                 question_text: qText || 'Pertanyaan Kuis',
                 question_type: qType,
-                options: options.slice(0, 4),
+                options: options.slice(0, 5),
                 correct_option: correctOpt,
                 correct_tf: correctTf,
                 pairs: pairs.length >= 2 ? pairs : [{premise: '', match: ''}, {premise: '', match: ''}]

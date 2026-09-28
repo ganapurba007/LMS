@@ -89,6 +89,41 @@ class QuestionBankCrudTest extends TestCase
         $this->assertEquals('Opsi Z', $correctOption->option_text);
     }
 
+    public function test_guru_can_create_and_update_five_options_multiple_choice_question(): void
+    {
+        $guru = User::where('email', 'guru@lms.com')->first();
+
+        // 1. Create with 5 options (A, B, C, D, E) where E (index 4) is correct
+        $response = $this->actingAs($guru)->post('/admin/question-banks', [
+            'question_text' => 'Berapa jumlah propinsi di pulau Jawa?',
+            'options' => ['4', '5', '6', '7', '8'],
+            'correct_option' => 4, // '8' (Opsi E)
+        ]);
+
+        $response->assertRedirect('/admin/question-banks');
+        $qb = QuestionBank::where('question_text', 'Berapa jumlah propinsi di pulau Jawa?')->first();
+        $this->assertNotNull($qb);
+        $this->assertCount(5, $qb->options);
+
+        $correctOption = $qb->options()->where('is_correct', true)->first();
+        $this->assertEquals('8', $correctOption->option_text);
+
+        // 2. Update with 5 options (A, B, C, D, E) where D (index 3) is correct
+        $updateResponse = $this->actingAs($guru)->put("/admin/question-banks/{$qb->id}", [
+            'question_text' => 'Soal 5 Opsi Diperbarui',
+            'options' => ['Opsi A', 'Opsi B', 'Opsi C', 'Opsi D', 'Opsi E'],
+            'correct_option' => 3, // Opsi D
+        ]);
+
+        $updateResponse->assertRedirect('/admin/question-banks');
+        $qb->refresh();
+        $this->assertEquals('Soal 5 Opsi Diperbarui', $qb->question_text);
+        $this->assertCount(5, $qb->options);
+
+        $updatedCorrect = $qb->options()->where('is_correct', true)->first();
+        $this->assertEquals('Opsi D', $updatedCorrect->option_text);
+    }
+
     public function test_guru_can_delete_question_bank_item(): void
     {
         $guru = User::where('email', 'guru@lms.com')->first();

@@ -532,23 +532,52 @@ class QuizController extends Controller
             // Default: Multiple Choice
             $request->validate([
                 'question_text' => ['required', 'string'],
-                'options' => ['required', 'array', 'min:2'],
-                'options.*' => ['required', 'string'],
+                'options' => ['required', 'array'],
                 'correct_option' => ['required', 'integer', 'min:0'],
             ]);
 
-            DB::transaction(function () use ($request, $quiz, $instructorId) {
+            $rawOptions = (array) $request->input('options', []);
+            $filteredOptions = [];
+            $rawCorrectOpt = (int) $request->input('correct_option', 0);
+            $correctOptText = $rawOptions[$rawCorrectOpt] ?? null;
+
+            foreach ($rawOptions as $idx => $optText) {
+                $t = trim((string) $optText);
+                if ($t !== '') {
+                    $filteredOptions[] = [
+                        'text' => $t,
+                        'is_correct' => ($idx === $rawCorrectOpt || ($correctOptText !== null && $t === trim($correctOptText)))
+                    ];
+                }
+            }
+
+            if (count($filteredOptions) < 2) {
+                return back()->withErrors(['options' => 'Minimal 2 pilihan jawaban harus diisi.'])->withInput();
+            }
+
+            DB::transaction(function () use ($request, $quiz, $instructorId, $filteredOptions) {
+                $hasCorrect = false;
+                foreach ($filteredOptions as $fOpt) {
+                    if ($fOpt['is_correct']) {
+                        $hasCorrect = true;
+                        break;
+                    }
+                }
+                if (!$hasCorrect && isset($filteredOptions[0])) {
+                    $filteredOptions[0]['is_correct'] = true;
+                }
+
                 $qb = QuestionBank::create([
                     'instructor_id' => $instructorId,
                     'question_text' => trim($request->question_text),
                     'question_type' => 'multiple_choice',
                 ]);
 
-                foreach ($request->options as $index => $optionText) {
+                foreach ($filteredOptions as $fOpt) {
                     QuestionBankOption::create([
                         'question_bank_id' => $qb->id,
-                        'option_text' => trim($optionText),
-                        'is_correct' => ((int) $index === (int) $request->correct_option),
+                        'option_text' => $fOpt['text'],
+                        'is_correct' => $fOpt['is_correct'],
                     ]);
                 }
 
@@ -559,11 +588,11 @@ class QuizController extends Controller
                     'question_type' => 'multiple_choice',
                 ]);
 
-                foreach ($request->options as $index => $optionText) {
+                foreach ($filteredOptions as $fOpt) {
                     QuizQuestionOption::create([
                         'quiz_question_id' => $qq->id,
-                        'option_text' => trim($optionText),
-                        'is_correct' => ((int) $index === (int) $request->correct_option),
+                        'option_text' => $fOpt['text'],
+                        'is_correct' => $fOpt['is_correct'],
                     ]);
                 }
             });
