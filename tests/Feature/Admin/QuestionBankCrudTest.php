@@ -303,11 +303,11 @@ class QuestionBankCrudTest extends TestCase
         $this->assertTrue($q1->options[1]->is_correct); // Kunci B
     }
 
-    public function test_guru_views_question_bank_grouped_in_folders_of_ten(): void
+    public function test_guru_views_paginated_question_bank_list(): void
     {
         $guru = User::where('email', 'guru@lms.com')->first();
 
-        // Buat 25 butir soal (harus terbagi menjadi 3 folder: Folder 1 (10), Folder 2 (10), Folder 3 (5))
+        // Buat 25 butir soal (dengan pagination 10 per halaman, total 3 halaman)
         for ($i = 1; $i <= 25; $i++) {
             $qb = QuestionBank::create([
                 'instructor_id' => $guru->id,
@@ -324,22 +324,16 @@ class QuestionBankCrudTest extends TestCase
         $response = $this->actingAs($guru)->get('/admin/question-banks');
 
         $response->assertStatus(200);
-        $response->assertViewHas('folders');
-        $response->assertViewHas('totalFolders', 3);
-        $response->assertViewHas('totalQuestions', 25);
+        $response->assertViewHas('questionBanks');
 
-        $folders = $response->viewData('folders');
-        $this->assertCount(3, $folders);
-        $this->assertEquals(10, $folders[0]->count);
-        $this->assertEquals(10, $folders[1]->count);
-        $this->assertEquals(5, $folders[2]->count);
+        $paginator = $response->viewData('questionBanks');
+        $this->assertEquals(25, $paginator->total());
+        $this->assertEquals(10, $paginator->perPage());
+        $this->assertEquals(3, $paginator->lastPage());
+        $this->assertEquals(1, $paginator->currentPage());
 
-        $response->assertSee('Folder 1');
-        $response->assertSee('Folder 2');
-        $response->assertSee('Folder 3');
-        $response->assertSee('Soal #1 – #10');
-        $response->assertSee('Soal #11 – #20');
-        $response->assertSee('Soal #21 – #25');
+        $response->assertSee('Pertanyaan butir nomor 1');
+        $response->assertSee('Pertanyaan butir nomor 10');
     }
 }
 

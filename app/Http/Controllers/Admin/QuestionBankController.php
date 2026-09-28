@@ -20,7 +20,10 @@ class QuestionBankController extends Controller
     {
         $search = $request->query('search');
         $type = $request->query('type');
-        $activeFolder = $request->query('folder');
+        $perPage = (int) $request->query('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50, 100])) {
+            $perPage = 10;
+        }
 
         $query = QuestionBank::with('options')
             ->withCount('options')
@@ -33,39 +36,14 @@ class QuestionBankController extends Controller
             $query->where('question_type', $type);
         }
 
-        $allQuestions = $query->orderBy('id', 'asc')->get();
-
-        // Kelompokkan setiap 10 soal menjadi 1 folder
-        $folders = $allQuestions->chunk(10)->map(function ($chunk, $index) {
-            $folderNumber = $index + 1;
-            $startNumber = ($index * 10) + 1;
-            $endNumber = $startNumber + $chunk->count() - 1;
-
-            return (object) [
-                'number' => $folderNumber,
-                'name' => "Folder {$folderNumber}",
-                'range_label' => "Soal #{$startNumber} – #{$endNumber}",
-                'count' => $chunk->count(),
-                'mc_count' => $chunk->where('question_type', 'multiple_choice')->count(),
-                'tf_count' => $chunk->where('question_type', 'true_false')->count(),
-                'matching_count' => $chunk->where('question_type', 'matching')->count(),
-                'questions' => $chunk,
-            ];
-        });
-
-        $totalQuestions = $allQuestions->count();
-        $totalFolders = $folders->count();
-        $questionBanks = $allQuestions;
+        $questionBanks = $query->orderBy('id', 'asc')
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('admin.question-banks.index', compact(
-            'folders',
-            'allQuestions',
             'questionBanks',
-            'totalQuestions',
-            'totalFolders',
             'search',
-            'type',
-            'activeFolder'
+            'type'
         ));
     }
 

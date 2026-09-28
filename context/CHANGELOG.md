@@ -2,6 +2,17 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 54] Question Bank Index Reverted to Standard Paginated Table View — 2026-09-28
+
+### Ditambahkan & Diperbarui
+- **Pengembalian Tampilan Index Bank Soal ke Tabel Standar Terpaginasi ([`QuestionBankController.php`](file:///c:/laragon/www/KELAS\lms_dani\app\Http\Controllers\Admin\QuestionBankController.php), [`index.blade.php`](file:///c:/laragon/www/KELAS\lms_dani\resources\views\admin\question-banks\index.blade.php))**:
+  - Mengembalikan struktur tampilan Bank Soal dari mode folder tab / accordion ke tabel data tunggal yang bersih dengan pagination (`$questionBanks->paginate(...)`).
+  - Menyediakan filter pencarian teks pertanyaan dan dropdown tipe format soal (Pilihan Ganda, Benar / Salah, Menjodohkan).
+  - Menampilkan kolom No urut terpaginasi, badge format, cuplikan teks pertanyaan (dengan badge indikator jika memuat gambar/tabel), jumlah opsi, pratinjau kunci jawaban / pasangan menjodohkan, serta tombol aksi edit & modal hapus.
+- **Pembaruan Pengujian ([`QuestionBankCrudTest.php`](file:///c:/laragon/www/KELAS\lms_dani\tests\Feature\Admin\QuestionBankCrudTest.php))**:
+  - Menyesuaikan pengujian `test_guru_views_paginated_question_bank_list` untuk memverifikasi instans paginator, jumlah butir total, dan navigasi halaman.
+  - Seluruh test suite (183 passed, 682 assertions) sukses 100%.
+
 ## [Fase 53] Question Bank Document Upload Modal Responsive & Text Wrap Refinement — 2026-09-28
 
 ### Ditambahkan & Diperbarui
