@@ -95,94 +95,99 @@
 <!-- Modal Upload & Generate Dokumen (Word & PDF) -->
 <div class="modal fade" id="modalDocUpload" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="md-modal-content text-start p-3 p-sm-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2.5">
+        <div class="modal-content md-modal-content text-start">
+            <!-- Modal Header (Always Visible at Top) -->
+            <div class="modal-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2.5 min-w-0">
                     <div class="md-page-icon" style="background:rgba(8,145,178,.1);color:#0891b2;width:38px;height:38px;font-size:1.05rem;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <i class="ti ti-file-type-doc"></i>
                     </div>
-                    <div>
-                        <h6 class="md-modal-title mb-0" style="font-size:1.05rem; font-weight:800;">Generate Soal dari File Dokumen</h6>
-                        <div class="text-muted small" style="font-size:.76rem;">Mendukung berkas Microsoft Word (.docx) &amp; PDF (.pdf)</div>
+                    <div class="min-w-0">
+                        <h6 class="md-modal-title mb-0 text-truncate" style="font-size:1.05rem; font-weight:800;">Generate Soal dari File Dokumen</h6>
+                        <div class="text-muted small text-truncate" style="font-size:.76rem;">Mendukung berkas Microsoft Word (.docx) &amp; PDF (.pdf)</div>
                     </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Upload Dropzone Area -->
-            <div class="qb-doc-dropzone mb-3" id="docDropZone">
-                <div class="qb-doc-dropzone-icon">
-                    <i class="ti ti-cloud-upload"></i>
-                </div>
-                <h6 class="fw-bold mb-1 qb-doc-dropzone-title">Pilih atau Tarik File Dokumen ke Sini</h6>
-                <p class="text-muted small mb-3">Format didukung: <strong class="text-primary">.docx (Word)</strong> &amp; <strong class="text-danger">.pdf</strong> &bull; Maks. 20MB</p>
-                <input type="file" id="docFileInput" class="d-none" accept=".docx,.pdf,.doc">
-                <button type="button" class="md-btn-secondary px-3 py-1.5" onclick="document.getElementById('docFileInput').click()">
-                    <i class="ti ti-folder-open text-primary me-1"></i> Telusuri File Dokumen
-                </button>
-                <div id="selectedDocName" class="mt-2 fw-semibold text-primary small d-none"></div>
-            </div>
-
-            <!-- Loading Spinner -->
-            <div id="docParseLoading" class="text-center py-4 d-none">
-                <div class="spinner-border text-primary mb-2" role="status"></div>
-                <div class="fw-bold text-dark" id="docParseStatusText">Mengekstrak &amp; mem-parsing naskah soal...</div>
-                <div class="text-muted small">Mohon tunggu sebentar, sistem sedang membaca butir-butir soal.</div>
-            </div>
-
-            <!-- Extracted Preview Section -->
-            <div id="docExtractedSection" class="d-none mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold small" id="docExtractedCountBadge" style="color:var(--tblr-heading-color,#0f172a);">
-                        <i class="ti ti-circle-check text-success me-1"></i> 0 Soal Terdeteksi
-                    </span>
-                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleDocRawText()" style="font-size:.75rem;">
-                        <i class="ti ti-code"></i> Lihat Teks Mentah
+            <!-- Modal Body (Scrollable Middle Section) -->
+            <div class="modal-body">
+                <!-- Upload Dropzone Area -->
+                <div class="qb-doc-dropzone mb-3" id="docDropZone">
+                    <div class="qb-doc-dropzone-icon">
+                        <i class="ti ti-cloud-upload"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1 qb-doc-dropzone-title">Pilih atau Tarik File Dokumen ke Sini</h6>
+                    <p class="text-muted small mb-3">Format didukung: <strong class="text-primary">.docx (Word)</strong> &amp; <strong class="text-danger">.pdf</strong> &bull; Maks. 20MB</p>
+                    <input type="file" id="docFileInput" class="d-none" accept=".docx,.pdf,.doc">
+                    <button type="button" class="md-btn-secondary px-3 py-1.5" onclick="document.getElementById('docFileInput').click()">
+                        <i class="ti ti-folder-open text-primary me-1"></i> Telusuri File Dokumen
                     </button>
+                    <div id="selectedDocName" class="mt-2 fw-semibold text-primary small d-none"></div>
                 </div>
-                <textarea id="docRawTextarea" class="form-control font-monospace mb-3 d-none" rows="5" style="font-size:.78rem;" placeholder="Teks hasil ekstraksi..."></textarea>
-                <div id="docQuestionsPreviewList" class="d-flex flex-column gap-2" style="max-height: 260px; overflow-y: auto;">
-                    <!-- Rendered cards -->
-                </div>
-            </div>
 
-            <!-- Word Template Reference Card -->
-            <div class="qb-doc-template-box mb-3">
-                <div class="qb-doc-template-content">
-                    <div class="qb-doc-template-icon">
-                        <i class="ti ti-file-text"></i>
+                <!-- Loading Spinner -->
+                <div id="docParseLoading" class="text-center py-4 d-none">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <div class="fw-bold text-dark" id="docParseStatusText">Mengekstrak &amp; mem-parsing naskah soal...</div>
+                    <div class="text-muted small">Mohon tunggu sebentar, sistem sedang membaca butir-butir soal.</div>
+                </div>
+
+                <!-- Extracted Preview Section -->
+                <div id="docExtractedSection" class="d-none mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold small" id="docExtractedCountBadge" style="color:var(--tblr-heading-color,#0f172a);">
+                            <i class="ti ti-circle-check text-success me-1"></i> 0 Soal Terdeteksi
+                        </span>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleDocRawText()" style="font-size:.75rem;">
+                            <i class="ti ti-code"></i> Lihat Teks Mentah
+                        </button>
                     </div>
-                    <div>
-                        <div class="qb-doc-template-title">Template Acuan Soal Word</div>
-                        <div class="qb-doc-template-sub">Unduh file acuan Microsoft Word (.docx) untuk panduan format penulisan siap upload</div>
+                    <textarea id="docRawTextarea" class="form-control font-monospace mb-3 d-none" rows="5" style="font-size:.78rem;" placeholder="Teks hasil ekstraksi..."></textarea>
+                    <div id="docQuestionsPreviewList" class="d-flex flex-column gap-2" style="max-height: 320px; overflow-y: auto;">
+                        <!-- Rendered cards -->
                     </div>
                 </div>
-                <a href="{{ route('admin.question-banks.download-template', ['format' => 'docx']) }}" class="btn btn-sm btn-primary qb-doc-template-btn">
-                    <i class="ti ti-download"></i> Unduh Template Word
-                </a>
-            </div>
 
-            <!-- Format Guidelines Card -->
-            <div class="qb-doc-tips-box mb-3">
-                <div class="qb-doc-tips-header">
-                    <i class="ti ti-bulb"></i>
-                    <span>Panduan Format Penulisan Dokumen:</span>
+                <!-- Word Template Reference Card -->
+                <div class="qb-doc-template-box mb-3">
+                    <div class="qb-doc-template-content">
+                        <div class="qb-doc-template-icon">
+                            <i class="ti ti-file-text"></i>
+                        </div>
+                        <div>
+                            <div class="qb-doc-template-title">Template Acuan Soal Word</div>
+                            <div class="qb-doc-template-sub">Unduh file acuan Microsoft Word (.docx) untuk panduan format penulisan siap upload</div>
+                        </div>
+                    </div>
+                    <a href="{{ route('admin.question-banks.download-template', ['format' => 'docx']) }}" class="btn btn-sm btn-primary qb-doc-template-btn">
+                        <i class="ti ti-download"></i> Unduh Template Word
+                    </a>
                 </div>
-                <ul class="qb-doc-tips-list mb-0">
-                    <li><strong>Nomor Soal:</strong> Awali butir pertanyaan dengan nomor urut jelas, misal: <code>1. Pertanyaan...</code></li>
-                    <li><strong>Pilihan Ganda:</strong> Buat baris opsi <code>A. Pilihan 1</code>, <code>B. Pilihan 2</code>, dan sertakan <code>Kunci: A</code>.</li>
-                    <li><strong>Benar / Salah:</strong> Tulis pernyataan dan akhiri dengan baris <code>Kunci: Benar</code> atau <code>Kunci: Salah</code>.</li>
-                    <li><strong>Menjodohkan:</strong> Tulis premis pasangan dengan tanda sama dengan, contoh: <code>Indonesia = Jakarta</code>.</li>
-                </ul>
+
+                <!-- Format Guidelines Card -->
+                <div class="qb-doc-tips-box mb-3">
+                    <div class="qb-doc-tips-header">
+                        <i class="ti ti-bulb"></i>
+                        <span>Panduan Format Penulisan Dokumen:</span>
+                    </div>
+                    <ul class="qb-doc-tips-list mb-0">
+                        <li><strong>Nomor Soal:</strong> Awali butir pertanyaan dengan nomor urut jelas, misal: <code>1. Pertanyaan...</code></li>
+                        <li><strong>Pilihan Ganda:</strong> Buat baris opsi <code>A. Pilihan 1</code>, <code>B. Pilihan 2</code>, dan sertakan <code>Kunci: A</code>.</li>
+                        <li><strong>Benar / Salah:</strong> Tulis pernyataan dan akhiri dengan baris <code>Kunci: Benar</code> atau <code>Kunci: Salah</code>.</li>
+                        <li><strong>Menjodohkan:</strong> Tulis premis pasangan dengan tanda sama dengan, contoh: <code>Indonesia = Jakarta</code>.</li>
+                    </ul>
+                </div>
+
+                <!-- Hidden form for direct server-side document save -->
+                <form id="directDocUploadForm" action="{{ route('admin.question-banks.import-document') }}" method="POST" enctype="multipart/form-data" class="d-none">
+                    @csrf
+                    <input type="file" name="document_file" id="hiddenDirectDocFileInput">
+                </form>
             </div>
 
-            <!-- Hidden form for direct server-side document save -->
-            <form id="directDocUploadForm" action="{{ route('admin.question-banks.import-document') }}" method="POST" enctype="multipart/form-data" class="d-none">
-                @csrf
-                <input type="file" name="document_file" id="hiddenDirectDocFileInput">
-            </form>
-
-            <div class="qb-doc-modal-actions">
+            <!-- Modal Footer (Always Visible at Bottom) -->
+            <div class="modal-footer qb-doc-modal-actions">
                 <button type="button" class="md-btn-light qb-doc-btn-cancel" data-bs-dismiss="modal">Batal</button>
                 <div class="qb-doc-btn-group">
                     <button type="button" id="btnApplyExtractedDoc" class="md-btn-secondary" onclick="applyExtractedDocQuestions()" disabled>
@@ -2220,13 +2225,50 @@
 #modalDocUpload .modal-dialog {
     max-width: 860px;
     width: 95%;
-    margin: 1.75rem auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+#modalDocUpload .modal-dialog-centered {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: calc(100% - 3.5rem) !important;
+    margin-top: 1.75rem !important;
+    margin-bottom: 1.75rem !important;
 }
 #modalDocUpload .md-modal-content {
     max-width: 100%;
     width: 100%;
-    overflow-x: hidden;
+    max-height: calc(100vh - 3.5rem) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
     box-sizing: border-box;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--tblr-border-color, #e2e8f0);
+    background: var(--tblr-card-bg, #ffffff);
+}
+#modalDocUpload .modal-header {
+    background: var(--tblr-card-bg, #ffffff);
+    border-bottom: 1px solid var(--tblr-border-color, #e2e8f0);
+    padding: 1.1rem 1.4rem;
+    flex-shrink: 0;
+}
+#modalDocUpload .modal-body {
+    padding: 1.25rem 1.4rem;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    flex: 1 1 auto;
+    max-height: 100%;
+    scrollbar-width: thin;
+}
+#modalDocUpload .modal-footer {
+    background: var(--tblr-card-bg, #ffffff);
+    border-top: 1px solid var(--tblr-border-color, #e2e8f0);
+    padding: 1rem 1.4rem;
+    flex-shrink: 0;
+    margin-top: 0 !important;
 }
 #docExtractedSection {
     width: 100%;
@@ -2384,6 +2426,18 @@
 }
 
 /* Modal Document Upload - Dark Mode */
+[data-theme="dark"] #modalDocUpload .md-modal-content {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+[data-theme="dark"] #modalDocUpload .modal-header {
+    background: #0f172a !important;
+    border-color: #1e293b !important;
+}
+[data-theme="dark"] #modalDocUpload .modal-footer {
+    background: #0f172a !important;
+    border-color: #1e293b !important;
+}
 [data-theme="dark"] .qb-doc-preview-item {
     background: #111928 !important;
     border-color: #243049 !important;
