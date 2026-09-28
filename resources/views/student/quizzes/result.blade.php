@@ -545,7 +545,7 @@
 
                                 @if($question->image_path)
                                     <div class="mb-3 text-center text-sm-start">
-                                        <img src="{{ asset('storage/' . $question->image_path) }}" 
+                                        <img src="{{ url('storage-file/' . $question->image_path) }}" 
                                              alt="Gambar Soal" 
                                              class="img-fluid rounded-3 border shadow-xs" 
                                              style="max-height: 280px; object-fit: contain;">

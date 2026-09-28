@@ -2,6 +2,23 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 56] Question Images Hosting Compatibility & Streaming Fallback — 2026-09-28
+
+### Ditambahkan & Diperbarui
+- **Streaming Route File Storage ([`routes/web.php`](file:///c:/laragon/www/KELAS/lms_dani/routes/web.php))**:
+  - Menambahkan route streaming `GET /storage-file/{path}` (`storage.file`) yang memuat dan mengalirkan file gambar soal/media secara aman dengan MIME type header yang tepat.
+  - Mengatasi kendala hosting/cPanel di mana symlink `public/storage` sering kali tidak aktif atau terputus, serta menghindari pencegatan route internal Laravel 11 `storage/{path}` yang meminta signature URL (403 Forbidden).
+  - Dilengkapi sanitasi perlindungan directory traversal (`..` & null byte stripping) dan multi-fallback path (`Storage::disk('public')`, `public_path('storage/...')`, dan `storage_path('app/public/...')`).
+- **Model Gambar Soal & Formatter ([`QuestionBank.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuestionBank.php), [`QuizQuestion.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuizQuestion.php))**:
+  - Memperbarui `getImageUrl()` dan `renderFormattedText()` agar otomatis memetakan path gambar penyimpanan internal (`storage/...`, `question-images/...`, `questions/...`) menuju endpoint `url('storage-file/' . $path)`.
+  - Otomatis mengubah tag `<img>` bertautan lokal menjadi `storage-file` tanpa merusak konten database lama.
+- **Service & Controller Penyimpanan Gambar ([`DocumentQuestionParserService.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Services/DocumentQuestionParserService.php), [`QuestionBankController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuestionBankController.php))**:
+  - Saat mengekstrak gambar dari Word/PDF maupun upload manual via editor, gambar disimpan ganda di `storage/app/public` dan `public/storage` sebagai jaminan redundansi file pada lingkungan hosting.
+  - Return URL upload diarahkan ke route streaming `storage-file`.
+- **Pengujian & Keamanan ([`SecurityAuditTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/SecurityAuditTest.php))**:
+  - Menambahkan pengujian `test_storage_streaming_serves_existing_files_and_prevents_directory_traversal`.
+  - Seluruh test suite (185 passed, 694 assertions) lulus 100%.
+
 ## [Fase 55] Multiple Choice Options Expansion to 5 Choices (A to E) — 2026-09-28
 
 ### Ditambahkan & Diperbarui

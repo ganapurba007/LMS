@@ -154,6 +154,39 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+// Storage Streaming Endpoint (Dukungan penuh Shared Hosting / cPanel tanpa kendala symlink & 403 internal)
+Route::get('storage-file/{path}', function (string $path) {
+    // Sanitasi path untuk mencegah Directory Traversal
+    $cleanPath = ltrim(str_replace(['..', "\0"], '', $path), '/');
+
+    // 1. Cek Storage disk public (mendukung runtime & testing fake)
+    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+        return \Illuminate\Support\Facades\Storage::disk('public')->response($cleanPath);
+    }
+
+    // 2. Cek public_path('storage/' . $cleanPath)
+    $publicPath = public_path('storage/' . $cleanPath);
+    if (file_exists($publicPath) && is_file($publicPath)) {
+        $mime = @mime_content_type($publicPath) ?: 'application/octet-stream';
+        return response()->file($publicPath, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    // 3. Cek storage_path('app/public/' . $cleanPath)
+    $storagePath = storage_path('app/public/' . $cleanPath);
+    if (file_exists($storagePath) && is_file($storagePath)) {
+        $mime = @mime_content_type($storagePath) ?: 'application/octet-stream';
+        return response()->file($storagePath, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    abort(404, 'File storage tidak ditemukan.');
+})->where('path', '.*')->name('storage.file');
+
 // Fallback route for non-existent routes -> redirect to dashboard
 Route::fallback(function () {
     return redirect()->route('dashboard');

@@ -119,4 +119,18 @@ class SecurityAuditTest extends TestCase
             $response->assertRedirect(route('login'));
         }
     }
+
+    public function test_storage_streaming_serves_existing_files_and_prevents_directory_traversal(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        \Illuminate\Support\Facades\Storage::disk('public')->put('question-images/test_img.png', 'fake_image_content');
+
+        // Test normal access to storage file via streaming route
+        $response = $this->get('/storage-file/question-images/test_img.png');
+        $response->assertStatus(200);
+
+        // Test directory traversal protection
+        $badResponse = $this->get('/storage-file/../../../.env');
+        $this->assertTrue(in_array($badResponse->status(), [404, 302]));
+    }
 }

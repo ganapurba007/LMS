@@ -56,13 +56,32 @@ class QuizQuestion extends Model
 
     public function getImageUrl(): ?string
     {
+        $rawUrl = null;
         if (preg_match('/!\[.*?\]\((.*?)\)/', $this->question_text, $m)) {
-            return trim($m[2]);
+            $rawUrl = trim($m[2]);
+        } elseif (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $this->question_text, $m)) {
+            $rawUrl = trim($m[1]);
         }
-        if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $this->question_text, $m)) {
-            return trim($m[1]);
+
+        if (!$rawUrl) {
+            return null;
         }
-        return null;
+
+        if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
+            if (str_starts_with($rawUrl, '/storage-file/')) {
+                return url(ltrim($rawUrl, '/'));
+            } elseif (str_starts_with($rawUrl, 'storage-file/')) {
+                return url($rawUrl);
+            } elseif (str_starts_with($rawUrl, '/storage/')) {
+                return url('storage-file/' . substr($rawUrl, 9));
+            } elseif (str_starts_with($rawUrl, 'storage/')) {
+                return url('storage-file/' . substr($rawUrl, 8));
+            } elseif (str_starts_with($rawUrl, 'question-images/') || str_starts_with($rawUrl, 'questions/')) {
+                return url('storage-file/' . $rawUrl);
+            }
+        }
+
+        return $rawUrl;
     }
 
     public function hasTable(): bool

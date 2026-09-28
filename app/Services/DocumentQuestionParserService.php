@@ -53,9 +53,13 @@ class DocumentQuestionParserService
         if (($relsIndex = $zip->locateName('word/_rels/document.xml.rels')) !== false) {
             $relsXml = $zip->getFromIndex($relsIndex);
             if ($relsXml && preg_match_all('/<Relationship\s+[^>]*Id="([^"]+)"[^>]*Type="[^"]*image"[^>]*Target="([^"]+)"/i', $relsXml, $relMatches, PREG_SET_ORDER)) {
-                $storageDir = public_path('storage/questions');
-                if (!is_dir($storageDir)) {
-                    @mkdir($storageDir, 0777, true);
+                $storagePublicDir = storage_path('app/public/questions');
+                if (!is_dir($storagePublicDir)) {
+                    @mkdir($storagePublicDir, 0777, true);
+                }
+                $publicDir = public_path('storage/questions');
+                if (!is_dir($publicDir)) {
+                    @mkdir($publicDir, 0777, true);
                 }
 
                 foreach ($relMatches as $m) {
@@ -70,7 +74,10 @@ class DocumentQuestionParserService
                         if ($imgData) {
                             $ext = pathinfo($zipPath, PATHINFO_EXTENSION) ?: 'png';
                             $filename = 'docx_img_' . uniqid() . '.' . $ext;
-                            file_put_contents($storageDir . '/' . $filename, $imgData);
+                            @file_put_contents($storagePublicDir . '/' . $filename, $imgData);
+                            if ($publicDir !== $storagePublicDir) {
+                                @file_put_contents($publicDir . '/' . $filename, $imgData);
+                            }
                             $imageMap[$rId] = '/storage/questions/' . $filename;
                         }
                     }

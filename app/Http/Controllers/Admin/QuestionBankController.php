@@ -655,7 +655,21 @@ class QuestionBankController extends Controller
             $filename = 'qb_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('question-images', $filename, 'public');
 
-            $url = asset('storage/' . $path);
+            // Fallback copy to public/storage for hosting compatibility without symlink
+            try {
+                $publicDir = public_path('storage/question-images');
+                if (!file_exists($publicDir)) {
+                    @mkdir($publicDir, 0775, true);
+                }
+                $publicDest = public_path('storage/' . $path);
+                if (!file_exists($publicDest) && file_exists(storage_path('app/public/' . $path))) {
+                    @copy(storage_path('app/public/' . $path), $publicDest);
+                }
+            } catch (\Throwable $e) {
+                // Ignore fallback copy error
+            }
+
+            $url = url('storage-file/' . $path);
 
             return response()->json([
                 'location' => $url,

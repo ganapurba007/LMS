@@ -42,13 +42,32 @@ class QuestionBank extends Model
 
     public function getImageUrl(): ?string
     {
+        $rawUrl = null;
         if (preg_match('/!\[.*?\]\((.*?)\)/', $this->question_text, $m)) {
-            return trim($m[2]);
+            $rawUrl = trim($m[2]);
+        } elseif (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $this->question_text, $m)) {
+            $rawUrl = trim($m[1]);
         }
-        if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $this->question_text, $m)) {
-            return trim($m[1]);
+
+        if (!$rawUrl) {
+            return null;
         }
-        return null;
+
+        if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
+            if (str_starts_with($rawUrl, '/storage-file/')) {
+                return url(ltrim($rawUrl, '/'));
+            } elseif (str_starts_with($rawUrl, 'storage-file/')) {
+                return url($rawUrl);
+            } elseif (str_starts_with($rawUrl, '/storage/')) {
+                return url('storage-file/' . substr($rawUrl, 9));
+            } elseif (str_starts_with($rawUrl, 'storage/')) {
+                return url('storage-file/' . substr($rawUrl, 8));
+            } elseif (str_starts_with($rawUrl, 'question-images/') || str_starts_with($rawUrl, 'questions/')) {
+                return url('storage-file/' . $rawUrl);
+            }
+        }
+
+        return $rawUrl;
     }
 
     public function hasTable(): bool
@@ -83,8 +102,44 @@ class QuestionBank extends Model
         // 1. Render Markdown Images: ![alt](url)
         $text = preg_replace_callback('/!\[(.*?)\]\((.*?)\)/s', function ($m) {
             $alt = htmlspecialchars($m[1] ?: 'Gambar Soal', ENT_QUOTES, 'UTF-8');
-            $url = htmlspecialchars($m[2], ENT_QUOTES, 'UTF-8');
+            $rawUrl = trim($m[2]);
+            if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
+                if (str_starts_with($rawUrl, '/storage-file/')) {
+                    $rawUrl = url(ltrim($rawUrl, '/'));
+                } elseif (str_starts_with($rawUrl, 'storage-file/')) {
+                    $rawUrl = url($rawUrl);
+                } elseif (str_starts_with($rawUrl, '/storage/')) {
+                    $rawUrl = url('storage-file/' . substr($rawUrl, 9));
+                } elseif (str_starts_with($rawUrl, 'storage/')) {
+                    $rawUrl = url('storage-file/' . substr($rawUrl, 8));
+                } elseif (str_starts_with($rawUrl, 'question-images/') || str_starts_with($rawUrl, 'questions/')) {
+                    $rawUrl = url('storage-file/' . $rawUrl);
+                }
+            }
+            $url = htmlspecialchars($rawUrl, ENT_QUOTES, 'UTF-8');
             return "\n<div class=\"text-center my-2.5 q-media-wrap\"><img src=\"{$url}\" alt=\"{$alt}\" class=\"img-fluid rounded border shadow-xs\" style=\"max-height: 320px; object-fit: contain;\"></div>\n";
+        }, $text);
+
+        // 1b. Rewrite existing <img> tags pointing to storage to storage-file
+        $text = preg_replace_callback('/<img([^>]+)src=["\']([^"\']+)["\']([^>]*)>/i', function ($m) {
+            $before = $m[1];
+            $rawUrl = trim($m[2]);
+            $after = $m[3];
+
+            if (!str_starts_with($rawUrl, 'http://') && !str_starts_with($rawUrl, 'https://')) {
+                if (str_starts_with($rawUrl, '/storage-file/')) {
+                    $rawUrl = url(ltrim($rawUrl, '/'));
+                } elseif (str_starts_with($rawUrl, 'storage-file/')) {
+                    $rawUrl = url($rawUrl);
+                } elseif (str_starts_with($rawUrl, '/storage/')) {
+                    $rawUrl = url('storage-file/' . substr($rawUrl, 9));
+                } elseif (str_starts_with($rawUrl, 'storage/')) {
+                    $rawUrl = url('storage-file/' . substr($rawUrl, 8));
+                } elseif (str_starts_with($rawUrl, 'question-images/') || str_starts_with($rawUrl, 'questions/')) {
+                    $rawUrl = url('storage-file/' . $rawUrl);
+                }
+            }
+            return '<img' . $before . 'src="' . htmlspecialchars($rawUrl, ENT_QUOTES, 'UTF-8') . '"' . $after . '>';
         }, $text);
 
         // 2. Render Markdown Tables: | col1 | col2 |
