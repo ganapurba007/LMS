@@ -131,7 +131,7 @@
                     </option>
                 </select>
                 <div class="md-form-hint">
-                    <i class="ti ti-info-circle me-0.5 text-primary"></i> <strong>Catatan:</strong> Pilihan jawaban (A, B, C, D) akan tetap otomatis diacak untuk mencegah kecurangan.
+                    <i class="ti ti-info-circle me-0.5 text-primary"></i> <strong>Catatan:</strong> Pilihan jawaban (A, B, C, D, E) akan tetap otomatis diacak untuk mencegah kecurangan.
                 </div>
                 @error('randomize_questions')
                     <div class="invalid-feedback">{{ $message }}</div>
