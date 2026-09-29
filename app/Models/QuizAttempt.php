@@ -61,9 +61,15 @@ class QuizAttempt extends Model
             $quiz->load('questions.options');
         }
 
-        $shuffledQuestions = $quiz->questions->sortBy(function ($q) {
-            return md5($this->id . '_question_' . $q->id);
-        })->values();
+        $shouldRandomize = $quiz->randomize_questions ?? true;
+
+        if ($shouldRandomize) {
+            $shuffledQuestions = $quiz->questions->sortBy(function ($q) {
+                return md5($this->id . '_question_' . $q->id);
+            })->values();
+        } else {
+            $shuffledQuestions = $quiz->questions->sortBy('id')->values();
+        }
 
         foreach ($shuffledQuestions as $q) {
             if ($q->isMultipleChoice()) {

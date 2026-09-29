@@ -16,6 +16,7 @@ class Quiz extends Model
         'points_per_question',
         'deadline',
         'duration_minutes',
+        'randomize_questions',
         'subject_id',
         'class_id',
         'instructor_id',
@@ -27,6 +28,7 @@ class Quiz extends Model
             'deadline' => 'datetime',
             'points_per_question' => 'integer',
             'duration_minutes' => 'integer',
+            'randomize_questions' => 'boolean',
         ];
     }
 

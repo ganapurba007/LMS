@@ -2,6 +2,23 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 58] Quiz Question Randomization Control (Acak / Urutkan Butir Soal) — 2026-09-29
+
+### Ditambahkan & Diperbarui
+- **Fitur Opsi Pengacakan Urutan Butir Soal ([`create.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/create.blade.php), [`edit.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/edit.blade.php), [`QuizController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/QuizController.php))**:
+  - Menambahkan dropdown pilihan pada form Buat Kuis dan Edit Kuis:
+    - `1` (Acak Urutan Soal — Default): Setiap siswa menerima urutan butir soal acak yang berbeda.
+    - `0` (Urutkan Butir Soal — Tidak Diacak): Urutan butir soal ditampilkan konsisten sesuai nomor urut yang disusun guru (sangat penting untuk soal berbasis wacana/tabel/gambar stimulus bersama).
+  - Pilihan jawaban (opsi A, B, C, D) tetap otomatis diacak secara dinamis per sesi pengerjaan siswa.
+- **Skema Database & Model ([`quizzes`](file:///c:/laragon/www/KELAS/lms_dani/context/SCHEMA.md), [`Quiz.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/Quiz.php), [`QuizAttempt.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/QuizAttempt.php))**:
+  - Menambahkan kolom `randomize_questions` (`boolean`, default: `true`) pada tabel `quizzes`.
+  - Memperbarui `QuizAttempt::getOrderedQuestions()` agar memeriksa nilai `$quiz->randomize_questions`. Jika `false`, butir soal diurutkan berdasar ID secara sekuensial.
+- **Tampilan Informasi Kuis ([`index.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/index.blade.php), [`show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/quizzes/show.blade.php))**:
+  - Menambahkan indikator status urutan soal (`Diacak` / `Urut`) pada baris tabel daftar kuis dan kartu overview kuis.
+- **Pengujian & Verifikasi ([`QuizCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/QuizCrudTest.php), [`StudentQuizTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentQuizTest.php))**:
+  - Menambahkan pengujian `test_guru_can_create_and_update_quiz_with_randomize_questions_setting` dan `test_questions_are_not_randomized_when_randomize_questions_is_false`.
+  - Seluruh test suite (189 passed, 718 assertions) sukses 100%.
+
 ## [Fase 57] Quiz Questions List Pagination (10 per page) — 2026-09-28
 
 ### Ditambahkan & Diperbarui

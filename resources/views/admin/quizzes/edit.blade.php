@@ -84,7 +84,7 @@
             </div>
 
             <!-- Durasi, Poin, Deadline -->
-            <div class="row g-3 mb-2">
+            <div class="row g-3 mb-3">
                 <div class="col-12 col-md-4">
                     <label for="duration_minutes" class="md-form-label">Durasi Pengerjaan (Menit) <span class="text-danger">*</span></label>
                     <input type="number" class="form-control @error('duration_minutes') is-invalid @enderror" id="duration_minutes" name="duration_minutes" value="{{ old('duration_minutes', $quiz->duration_minutes) }}" min="1" required>
@@ -111,6 +111,31 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+            </div>
+
+            <!-- Pengacakan Butir Soal -->
+            @php
+                $currentRandomize = old('randomize_questions', $quiz->randomize_questions ?? true);
+                if (is_bool($currentRandomize)) {
+                    $currentRandomize = $currentRandomize ? '1' : '0';
+                }
+            @endphp
+            <div class="mb-2">
+                <label for="randomize_questions" class="md-form-label">Pengacakan Butir Soal <span class="text-danger">*</span></label>
+                <select class="form-select @error('randomize_questions') is-invalid @enderror" id="randomize_questions" name="randomize_questions" required>
+                    <option value="1" {{ (string)$currentRandomize === '1' ? 'selected' : '' }}>
+                        Acak Urutan Soal (Tiap siswa mendapat urutan soal berbeda)
+                    </option>
+                    <option value="0" {{ (string)$currentRandomize === '0' ? 'selected' : '' }}>
+                        Urutkan Butir Soal (Tidak diacak — Cocok untuk soal bertingkat atau tabel/gambar bersama)
+                    </option>
+                </select>
+                <div class="md-form-hint">
+                    <i class="ti ti-info-circle me-0.5 text-primary"></i> <strong>Catatan:</strong> Pilihan jawaban (A, B, C, D) akan tetap otomatis diacak untuk mencegah kecurangan.
+                </div>
+                @error('randomize_questions')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 

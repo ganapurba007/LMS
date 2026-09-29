@@ -54,7 +54,7 @@
                     <span class="qz-meta-label">Mata Pelajaran</span>
                     <div class="qz-meta-val text-primary">{{ $quiz->subject->name ?? '-' }}</div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-2">
                     <span class="qz-meta-label">Kelas Target</span>
                     <div class="qz-meta-val qz-text-main">{{ $quiz->schoolClass->name ?? $quiz->classroom->name ?? '-' }}</div>
                 </div>
@@ -62,9 +62,19 @@
                     <span class="qz-meta-label">Durasi Pengerjaan</span>
                     <div class="qz-meta-val qz-text-main"><i class="ti ti-clock me-1 text-warning"></i>{{ $quiz->formatted_duration }}</div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-2">
                     <span class="qz-meta-label">Poin per Soal</span>
                     <div class="qz-meta-val text-success">{{ $quiz->points_per_question }} Poin</div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <span class="qz-meta-label">Urutan Soal</span>
+                    <div class="qz-meta-val">
+                        @if($quiz->randomize_questions ?? true)
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.75rem;"><i class="ti ti-arrows-shuffle me-0.5"></i> Diacak</span>
+                        @else
+                            <span class="badge bg-info-subtle text-info border border-info-subtle" style="font-size:0.75rem;"><i class="ti ti-list-numbers me-0.5"></i> Urut</span>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

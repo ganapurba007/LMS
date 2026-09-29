@@ -93,6 +93,7 @@ class QuizController extends Controller
             'deadline' => ['required', 'date'],
             'subject_id' => ['required', 'exists:subjects,id'],
             'class_id' => ['required', 'exists:classes,id'],
+            'randomize_questions' => ['nullable', 'boolean'],
         ]);
 
         $user = Auth::user();
@@ -109,6 +110,7 @@ class QuizController extends Controller
         $quiz->duration_minutes = $request->duration_minutes;
         $quiz->points_per_question = $request->points_per_question;
         $quiz->deadline = $request->deadline;
+        $quiz->randomize_questions = $request->has('randomize_questions') ? (bool) $request->randomize_questions : true;
         $quiz->subject_id = $request->subject_id;
         $quiz->class_id = $request->class_id;
         $quiz->instructor_id = Auth::id();
@@ -188,6 +190,7 @@ class QuizController extends Controller
             'deadline' => ['required', 'date'],
             'subject_id' => ['required', 'exists:subjects,id'],
             'class_id' => ['required', 'exists:classes,id'],
+            'randomize_questions' => ['nullable', 'boolean'],
         ]);
 
         $user = Auth::user();
@@ -203,6 +206,7 @@ class QuizController extends Controller
         $quiz->duration_minutes = $request->duration_minutes;
         $quiz->points_per_question = $request->points_per_question;
         $quiz->deadline = $request->deadline;
+        $quiz->randomize_questions = $request->has('randomize_questions') ? (bool) $request->randomize_questions : true;
         $quiz->subject_id = $request->subject_id;
         $quiz->class_id = $request->class_id;
         $quiz->save();

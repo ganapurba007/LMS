@@ -445,5 +445,41 @@ class QuizCrudTest extends TestCase
         $responsePage3->assertSee('Soal 21');
         $responsePage3->assertSee('Soal 25');
     }
+
+    public function test_guru_can_create_and_update_quiz_with_randomize_questions_setting(): void
+    {
+        $deadline = now()->addDays(5)->format('Y-m-d H:i:s');
+
+        // 1. Create with randomize_questions = 0 (false)
+        $response = $this->actingAs($this->guru)->post(route('admin.quizzes.store'), [
+            'title' => 'Kuis Berurutan Tanpa Acak',
+            'duration_minutes' => 30,
+            'points_per_question' => 10,
+            'deadline' => $deadline,
+            'randomize_questions' => 0,
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+        ]);
+
+        $quiz = Quiz::where('title', 'Kuis Berurutan Tanpa Acak')->first();
+        $this->assertNotNull($quiz);
+        $this->assertFalse($quiz->randomize_questions);
+
+        // 2. Update to randomize_questions = 1 (true)
+        $responseUpdate = $this->actingAs($this->guru)->put(route('admin.quizzes.update', $quiz), [
+            'title' => 'Kuis Berurutan Diubah Acak',
+            'duration_minutes' => 45,
+            'points_per_question' => 15,
+            'deadline' => $deadline,
+            'randomize_questions' => 1,
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+        ]);
+
+        $responseUpdate->assertRedirect(route('admin.quizzes.index'));
+        $quiz->refresh();
+        $this->assertTrue($quiz->randomize_questions);
+        $this->assertEquals('Kuis Berurutan Diubah Acak', $quiz->title);
+    }
 }
 

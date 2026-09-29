@@ -12,5 +12,5 @@ RuangTerra adalah platform Learning Management System (LMS) berbasis web untuk m
 - `context/SCHEMA.md` — sumber kebenaran struktur database saat ini, rujuk ini bukan §4 PRD untuk detail skema teknis
 
 ## Status Proyek Saat Ini
-- **Fase Aktif:** Fase 57 (Quiz Questions List Pagination)
-- **Status Pengujian:** 187 passed (708 assertions)
+- **Fase Aktif:** Fase 58 (Quiz Question Randomization Control)
+- **Status Pengujian:** 189 passed (718 assertions)

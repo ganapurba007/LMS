@@ -108,6 +108,12 @@
                                 <span class="text-muted"><i class="ti ti-clock"></i> {{ $quiz->formatted_duration }}</span>
                                 <span class="text-muted">•</span>
                                 <span class="text-muted">{{ $quiz->points_per_question }} Poin/Soal</span>
+                                <span class="text-muted">•</span>
+                                @if($quiz->randomize_questions ?? true)
+                                    <span class="text-primary fw-medium" title="Urutan Soal Diacak"><i class="ti ti-arrows-shuffle"></i> Diacak</span>
+                                @else
+                                    <span class="text-info fw-medium" title="Urutan Soal Sesuai Input Guru"><i class="ti ti-list-numbers"></i> Urut</span>
+                                @endif
 
                                 {{-- Responsive Mobile Badges --}}
                                 <div class="d-md-none mt-1 w-100 d-flex flex-wrap gap-1">

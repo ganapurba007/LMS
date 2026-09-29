@@ -620,6 +620,65 @@ class StudentQuizTest extends TestCase
         $res->assertStatus(200);
         $res->assertSee('Kuis Randomisasi Anti Curang');
     }
+
+    public function test_questions_are_not_randomized_when_randomize_questions_is_false(): void
+    {
+        $studentRole = Role::firstOrCreate(['name' => 'siswa'], ['display_name' => 'Siswa']);
+        $student2 = User::factory()->create([
+            'role_id' => $studentRole->id,
+            'class_id' => $this->class->id,
+        ]);
+
+        $quiz = Quiz::create([
+            'title' => 'Kuis Berurutan Soal Stimulus',
+            'duration_minutes' => 45,
+            'points_per_question' => 10,
+            'deadline' => now()->addDays(3),
+            'randomize_questions' => false,
+            'class_id' => $this->class->id,
+            'subject_id' => $this->quiz->subject_id,
+            'instructor_id' => $this->quiz->instructor_id,
+        ]);
+
+        $expectedIds = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $q = QuizQuestion::create([
+                'quiz_id' => $quiz->id,
+                'question_type' => 'multiple_choice',
+                'question_text' => "Soal Nomor {$i}",
+            ]);
+            $expectedIds[] = $q->id;
+            for ($optIdx = 1; $optIdx <= 4; $optIdx++) {
+                QuizQuestionOption::create([
+                    'quiz_question_id' => $q->id,
+                    'option_text' => "Pilihan {$optIdx} Soal {$i}",
+                    'is_correct' => ($optIdx === 1),
+                ]);
+            }
+        }
+
+        // Student 1 starts quiz
+        $this->actingAs($this->student)->post(route('student.quizzes.start', $quiz));
+        $attempt1 = QuizAttempt::where('student_id', $this->student->id)->where('quiz_id', $quiz->id)->first();
+        $orderedQuestions1 = $attempt1->getOrderedQuestions();
+
+        // Student 2 starts quiz
+        $this->actingAs($student2)->post(route('student.quizzes.start', $quiz));
+        $attempt2 = QuizAttempt::where('student_id', $student2->id)->where('quiz_id', $quiz->id)->first();
+        $orderedQuestions2 = $attempt2->getOrderedQuestions();
+
+        // Both attempts have the EXACT same sequential question order (by ID)
+        $qIds1 = $orderedQuestions1->pluck('id')->toArray();
+        $qIds2 = $orderedQuestions2->pluck('id')->toArray();
+        $this->assertEquals($expectedIds, $qIds1, 'Student 1 question order should strictly match insertion order.');
+        $this->assertEquals($expectedIds, $qIds2, 'Student 2 question order should strictly match insertion order.');
+
+        // Options are still randomized across attempts
+        $opts1 = $orderedQuestions1->first()->options->pluck('id')->toArray();
+        $opts2 = $orderedQuestions2->first()->options->pluck('id')->toArray();
+        $this->assertCount(4, $opts1);
+        $this->assertCount(4, $opts2);
+    }
 }
 
 

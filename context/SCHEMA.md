@@ -153,6 +153,7 @@ quizzes (jadwal & pengaturan kuis kelas)
 ├── points_per_question (integer, default: 10)
 ├── deadline (datetime)
 ├── duration_minutes (integer)
+├── randomize_questions (boolean, default: true) — opsi acak urutan soal vs urutan tetap
 ├── created_at, updated_at (timestamp, nullable)
 └── INDEXES:
     ├── idx_quizzes_class_deadline (class_id, deadline)
