@@ -36,7 +36,7 @@
     <!-- Left Column: Informasi Pengumpulan & Jawaban Siswa -->
     <div class="col-12 col-lg-7">
         <div class="md-card mb-4">
-            <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
                     <div class="md-page-icon" style="background:rgba(32,107,196,.1);color:#206bc4;width:32px;height:32px;font-size:.9rem;">
                         <i class="ti ti-user-check"></i>
@@ -58,12 +58,12 @@
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-sm-6">
                         <span class="text-muted small text-uppercase fw-bold" style="font-size:.68rem;">Nama Siswa</span>
-                        <div class="fw-bold text-dark mt-0.5" style="font-size:.88rem;">{{ $submission->student->name ?? '-' }}</div>
+                        <div class="fw-bold mt-0.5" style="font-size:.88rem;">{{ $submission->student->name ?? '-' }}</div>
                         <div class="text-muted" style="font-size:.75rem;">{{ $submission->student->email ?? '-' }}</div>
                     </div>
                     <div class="col-12 col-sm-6">
                         <span class="text-muted small text-uppercase fw-bold" style="font-size:.68rem;">Kelas Target</span>
-                        <div class="fw-bold text-dark mt-0.5" style="font-size:.88rem;">{{ $submission->assignment->schoolClass->name ?? '-' }}</div>
+                        <div class="fw-bold mt-0.5" style="font-size:.88rem;">{{ $submission->assignment->schoolClass->name ?? '-' }}</div>
                         <div class="text-muted" style="font-size:.75rem;">Mata Pelajaran: {{ $submission->assignment->subject->name ?? '-' }}</div>
                     </div>
                     <div class="col-12 col-sm-6">
@@ -72,7 +72,7 @@
                     </div>
                     <div class="col-12 col-sm-6">
                         <span class="text-muted small text-uppercase fw-bold" style="font-size:.68rem;">Waktu Pengumpulan</span>
-                        <div class="fw-bold text-dark mt-0.5" style="font-size:.88rem;">
+                        <div class="fw-bold mt-0.5" style="font-size:.88rem;">
                             <i class="ti ti-clock me-1 text-warning-emphasis"></i>
                             {{ $submission->submitted_at ? $submission->submitted_at->format('d M Y H:i:s') : '-' }}
                         </div>

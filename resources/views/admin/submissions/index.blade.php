@@ -35,7 +35,7 @@
             <!-- Search Input -->
             <div class="col-12 col-md-4">
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light border-end-0 text-dark"><i class="ti ti-search"></i></span>
+                    <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="ti ti-search"></i></span>
                     <input type="text" name="search" class="form-control form-control-sm border-start-0"
                         placeholder="Cari nama siswa, email, atau tugas..." value="{{ request('search') }}">
                 </div>
@@ -103,7 +103,7 @@
 
                             {{-- Nama Siswa --}}
                             <td>
-                                <div class="fw-bold text-dark" style="font-size:.84rem;">
+                                <div class="fw-bold" style="font-size:.84rem;">
                                     {{ $sub->student->name ?? '-' }}
                                 </div>
                                 <div class="text-muted" style="font-size:.73rem;">
@@ -119,7 +119,7 @@
 
                             {{-- Judul Tugas --}}
                             <td class="d-none d-md-table-cell">
-                                <div class="fw-semibold text-dark" style="font-size:.82rem;">
+                                <div class="fw-semibold" style="font-size:.82rem;">
                                     {{ $sub->assignment->title ?? '-' }}
                                 </div>
                             </td>
@@ -138,7 +138,7 @@
 
                             {{-- Waktu Pengumpulan --}}
                             <td class="d-none d-lg-table-cell">
-                                <div class="text-dark fw-semibold" style="font-size:.78rem;">
+                                <div class="fw-semibold" style="font-size:.78rem;">
                                     <i class="ti ti-clock me-1 text-primary"></i>
                                     {{ $sub->submitted_at ? $sub->submitted_at->format('d M Y H:i') : '-' }}
                                 </div>
@@ -149,7 +149,7 @@
                                 @if (!is_null($sub->grade))
                                     <span class="md-badge teal fw-bold" style="font-size:.78rem;padding:.28rem .65rem;">
                                         <i class="ti ti-check"></i> {{ number_format($sub->grade, 1) }} <span
-                                            class="fw-normal text-muted" style="font-size:.68rem;">/ 100</span>
+                                            class="fw-normal" style="font-size:.68rem;opacity:.8;">/ 100</span>
                                     </span>
                                 @else
                                     <span class="md-badge amber">

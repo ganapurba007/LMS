@@ -365,6 +365,14 @@ table.md-table tbody td.md-td-action { text-align: center !important; padding: .
 .md-badge.purple { background: rgba(139,92,246,.1); border: 1px solid rgba(139,92,246,.2); color: #8b5cf6; }
 .md-badge.muted  { background: rgba(100,116,139,.1);border: 1px solid rgba(100,116,139,.2);color: #64748b; }
 
+[data-theme="dark"] .md-badge.teal, [data-bs-theme="dark"] .md-badge.teal     { background: rgba(12,166,120,.2); border-color: rgba(12,166,120,.35); color: #20c997; }
+[data-theme="dark"] .md-badge.blue, [data-bs-theme="dark"] .md-badge.blue     { background: rgba(102,163,191,.2); border-color: rgba(102,163,191,.35); color: #7ec4e5; }
+[data-theme="dark"] .md-badge.amber, [data-bs-theme="dark"] .md-badge.amber   { background: rgba(245,158,11,.2); border-color: rgba(245,158,11,.35); color: #fbbf24; }
+[data-theme="dark"] .md-badge.rose, [data-bs-theme="dark"] .md-badge.rose     { background: rgba(239,68,68,.2); border-color: rgba(239,68,68,.35); color: #f87171; }
+[data-theme="dark"] .md-badge.purple, [data-bs-theme="dark"] .md-badge.purple { background: rgba(139,92,246,.2); border-color: rgba(139,92,246,.35); color: #a78bfa; }
+[data-theme="dark"] .md-badge.muted, [data-bs-theme="dark"] .md-badge.muted   { background: rgba(100,116,139,.2); border-color: rgba(100,116,139,.35); color: #94a3b8; }
+
+
 /* ── ACTION BUTTONS ── */
 .md-action-group { display: flex; align-items: center; justify-content: flex-end; gap: .35rem; }
 .md-icon-btn {
