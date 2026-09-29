@@ -163,7 +163,7 @@
                                 <div class="md-action-group text-center">
                                     <a href="{{ route('admin.submissions.show', $sub) }}" class="md-icon-btn blue"
                                         title="{{ is_null($sub->grade) ? 'Koreksi & Beri Nilai' : 'Lihat & Edit Nilai' }}">
-                                        <i class="ti ti-pencil-check"></i>
+                                        <i class="ti ti-edit"></i>
                                     </a>
                                 </div>
                             </td>
