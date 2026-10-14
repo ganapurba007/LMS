@@ -412,5 +412,19 @@ class MaterialCrudTest extends TestCase
             'discussion_id' => $studentComment->id,
             'user_id' => $this->guru->id,
         ]);
+
+        // 3. Reaksi via AJAX / JSON (Realtime tanpa reload)
+        $ajaxResponse = $this->actingAs($this->guru)->postJson(
+            route('admin.materials.discussions.react', [$material, $studentComment])
+        );
+
+        $ajaxResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'action' => 'added',
+                'has_reaction' => true,
+                'reactions_count' => 1,
+            ]);
     }
 }
+

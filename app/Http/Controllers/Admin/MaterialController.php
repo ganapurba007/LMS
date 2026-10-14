@@ -482,14 +482,25 @@ class MaterialController extends Controller
             }
         }
 
-        if ($request->wantsJson()) {
-            $teacherReactions = $discussion->reactions()->whereHas('user.role', fn($q) => $q->where('name', 'guru'))->with('user')->get();
+        $teacherReactions = $discussion->reactions()->whereHas('user.role', fn($q) => $q->where('name', 'guru'))->with('user')->get();
+        $reactionsCount = $teacherReactions->count();
+        $reactors = $teacherReactions->pluck('user.name')->values()->all();
+
+        event(new \App\Events\DiscussionReactionToggled(
+            $material->id,
+            $discussion->id,
+            $action,
+            $reactionsCount,
+            $reactors
+        ));
+
+        if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'action' => $action,
                 'has_reaction' => $action === 'added',
-                'reactions_count' => $teacherReactions->count(),
-                'reactors' => $teacherReactions->pluck('user.name')->values(),
+                'reactions_count' => $reactionsCount,
+                'reactors' => $reactors,
                 'message' => $message,
             ]);
         }

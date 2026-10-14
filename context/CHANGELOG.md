@@ -14,12 +14,14 @@
   - Membuat tabel migrasi `material_discussion_reactions` dengan foreign key `discussion_id` & `user_id`, kolom `type` (`thumbs_up`), serta constraint `UNIQUE(discussion_id, user_id, type)`.
   - Menambahkan relasi `reactions()`, helper `isReactedBy(?User $user)`, `teacherReactions()`, dan `hasTeacherReaction()` pada model `MaterialDiscussion`.
   - Memperbarui eager loading di kedua controller (`reactions.user`, `replies.reactions.user`) dan mendistribusikan instance role via `rolesMap` untuk performa query 0 N+1.
-- **Tampilan Interaktif Backend & Frontend ([`admin/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/materials/show.blade.php), [`student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php))**:
-  - Pada panel admin materi: tombol interaktif jempol guru ("Beri Jempol" / "Ditanggapi Guru") dengan counter dan daftar nama guru yang menanggapi.
-  - Pada antarmuka siswa: badge indikator jempol hijau `"Ditanggapi Guru"` yang ramah dan jelas di sisi komentar dan balasan, serta tombol reaksi langsung bagi guru yang membuka modul dari frontend.
+- **Tampilan Interaktif Realtime Tanpa Reload ([`admin/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/materials/show.blade.php), [`student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php), [`DiscussionReactionToggled.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Events/DiscussionReactionToggled.php))**:
+  - Tombol jempol guru pada antarmuka admin maupun antarmuka siswa kini menggunakan pengiriman asinkron (AJAX fetch) tanpa me-reload halaman sama sekali.
+  - Posisi scroll halaman guru tetap terjaga dan tidak berpindah ke atas ketika mengklik tombol reaksi.
+  - State tombol (`Beri Jempol` <-> `Ditanggapi Guru`), warna status, counter angka, dan badge indikator langsung terbarui secara instan (realtime).
+  - Broadcast event `DiscussionReactionToggled` dipicu setiap kali reaksi ditoggle.
 - **Pengujian & Verifikasi ([`MaterialCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/MaterialCrudTest.php), [`StudentMaterialTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentMaterialTest.php))**:
-  - Menambahkan 4 pengujian baru: `test_guru_can_toggle_reaction_to_student_comment_in_admin_panel`, `test_guru_can_toggle_reaction_to_student_comment_in_student_view`, `test_siswa_can_see_ditanggapi_guru_badge_on_reacted_comment`, dan `test_siswa_cannot_react_to_discussion_comment`.
-  - Seluruh test suite (193 passed, 734 assertions) sukses 100%.
+  - Menambahkan verifikasi respons AJAX JSON pada pengujian reaksi guru.
+  - Seluruh test suite (193 passed, 738 assertions) sukses 100%.
 
 ## [Fase 58] Quiz Question Randomization Control (Acak / Urutkan Butir Soal) — 2026-09-29
 

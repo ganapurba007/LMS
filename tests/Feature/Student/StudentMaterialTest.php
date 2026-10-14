@@ -284,7 +284,21 @@ class StudentMaterialTest extends TestCase
             'discussion_id' => $comment->id,
             'user_id' => $this->guru->id,
         ]);
+
+        // Reaksi via AJAX / JSON (Realtime tanpa reload)
+        $ajaxResponse = $this->actingAs($this->guru)->postJson(
+            route('student.materials.discussions.react', [$this->materialClassA, $comment])
+        );
+
+        $ajaxResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'action' => 'added',
+                'has_reaction' => true,
+                'reactions_count' => 1,
+            ]);
     }
+
 
     public function test_siswa_can_see_ditanggapi_guru_badge_on_reacted_comment(): void
     {

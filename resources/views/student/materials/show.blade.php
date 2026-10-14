@@ -564,14 +564,12 @@
                                                         $hasReactedRoot = $disc->isReactedBy(Auth::user());
                                                         $teacherReactorsRoot = $disc->teacherReactions();
                                                     @endphp
-                                                    <form action="{{ route('student.materials.discussions.react', [$material, $disc]) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('student.materials.discussions.react', [$material, $disc]) }}" method="POST" class="d-inline reaction-form" data-type="root" data-id="{{ $disc->id }}">
                                                         @csrf
-                                                        <button type="submit" class="btn-reply-action d-inline-flex align-items-center gap-1 {{ $hasReactedRoot ? 'text-primary fw-bold' : '' }}" style="{{ $hasReactedRoot ? 'background:rgba(37,99,235,.1);color:#1d4ed8 !important;padding:.2rem .55rem;border-radius:999px;' : '' }}" title="{{ $hasReactedRoot ? 'Batalkan jempol' : 'Beri reaksi jempol agar siswa tahu komentarnya sudah ditanggapi' }}">
+                                                        <button type="submit" class="btn-reply-action d-inline-flex align-items-center gap-1 reaction-btn {{ $hasReactedRoot ? 'text-primary fw-bold' : '' }}" style="{{ $hasReactedRoot ? 'background:rgba(37,99,235,.1);color:#1d4ed8 !important;padding:.2rem .55rem;border-radius:999px;' : '' }}" title="{{ $hasReactedRoot ? 'Batalkan jempol' : 'Beri reaksi jempol agar siswa tahu komentarnya sudah ditanggapi' }}">
                                                             <i class="ti ti-thumb-up{{ $hasReactedRoot ? '-filled' : '' }}"></i>
-                                                            <span>{{ $hasReactedRoot ? 'Ditanggapi Guru' : 'Beri Jempol' }}</span>
-                                                            @if($teacherReactorsRoot->count() > 0)
-                                                                <span class="badge rounded-pill bg-primary text-white ms-0.5" style="font-size: 0.62rem;">{{ $teacherReactorsRoot->count() }}</span>
-                                                            @endif
+                                                            <span class="reaction-text">{{ $hasReactedRoot ? 'Ditanggapi Guru' : 'Beri Jempol' }}</span>
+                                                            <span class="badge rounded-pill bg-primary text-white ms-0.5 reaction-count {{ $teacherReactorsRoot->count() > 0 ? '' : 'd-none' }}" style="font-size: 0.62rem;">{{ $teacherReactorsRoot->count() }}</span>
                                                         </button>
                                                     </form>
                                                 @endif
@@ -596,18 +594,19 @@
                                                     </span>
                                                 @endif
 
-                                                @if($disc->hasTeacherReaction())
-                                                    @php
-                                                        $teacherNamesRoot = $disc->teacherReactions()->pluck('user.name')->implode(', ');
-                                                    @endphp
-                                                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1 font-semibold" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 0.22rem 0.55rem;" title="Diberi jempol oleh Guru: {{ $teacherNamesRoot }}">
-                                                        <i class="ti ti-thumb-up-filled text-success" style="font-size: 0.8rem;"></i>
-                                                        <span>Ditanggapi Guru</span>
-                                                        @if($disc->teacherReactions()->count() > 1)
-                                                            <span>({{ $disc->teacherReactions()->count() }})</span>
-                                                        @endif
-                                                    </span>
-                                                @endif
+                                                <div class="reaction-indicator-wrap d-inline" id="reaction-indicator-root-{{ $disc->id }}">
+                                                    @if($disc->hasTeacherReaction())
+                                                        @php
+                                                            $teacherNamesRoot = $disc->teacherReactions()->pluck('user.name')->implode(', ');
+                                                            $reactCountRoot = $disc->teacherReactions()->count();
+                                                        @endphp
+                                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 font-semibold reaction-indicator" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 0.22rem 0.55rem;" title="Diberi jempol oleh Guru: {{ $teacherNamesRoot }}">
+                                                            <i class="ti ti-thumb-up-filled text-success" style="font-size: 0.8rem;"></i>
+                                                            <span>Ditanggapi Guru</span>
+                                                            <span class="indicator-count {{ $reactCountRoot > 1 ? '' : 'd-none' }}">({{ $reactCountRoot }})</span>
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -651,14 +650,12 @@
                                                                     $hasReactedReply = $reply->isReactedBy(Auth::user());
                                                                     $teacherReactorsReply = $reply->teacherReactions();
                                                                 @endphp
-                                                                <form action="{{ route('student.materials.discussions.react', [$material, $reply]) }}" method="POST" class="d-inline">
+                                                                <form action="{{ route('student.materials.discussions.react', [$material, $reply]) }}" method="POST" class="d-inline reaction-form" data-type="reply" data-id="{{ $reply->id }}">
                                                                     @csrf
-                                                                    <button type="submit" class="btn-reply-action d-inline-flex align-items-center gap-1 {{ $hasReactedReply ? 'text-primary fw-bold' : '' }}" style="font-size: 0.7rem; {{ $hasReactedReply ? 'background:rgba(37,99,235,.1);color:#1d4ed8 !important;padding:.15rem .45rem;border-radius:999px;' : '' }}" title="{{ $hasReactedReply ? 'Batalkan jempol' : 'Beri jempol ke balasan siswa' }}">
+                                                                    <button type="submit" class="btn-reply-action d-inline-flex align-items-center gap-1 reaction-btn {{ $hasReactedReply ? 'text-primary fw-bold' : '' }}" style="font-size: 0.7rem; {{ $hasReactedReply ? 'background:rgba(37,99,235,.1);color:#1d4ed8 !important;padding:.15rem .45rem;border-radius:999px;' : '' }}" title="{{ $hasReactedReply ? 'Batalkan jempol' : 'Beri jempol ke balasan siswa' }}">
                                                                         <i class="ti ti-thumb-up{{ $hasReactedReply ? '-filled' : '' }}"></i>
-                                                                        <span>{{ $hasReactedReply ? 'Ditanggapi' : 'Jempol' }}</span>
-                                                                        @if($teacherReactorsReply->count() > 0)
-                                                                            <span class="badge rounded-pill bg-primary text-white ms-0.5" style="font-size: 0.58rem;">{{ $teacherReactorsReply->count() }}</span>
-                                                                        @endif
+                                                                        <span class="reaction-text">{{ $hasReactedReply ? 'Ditanggapi' : 'Jempol' }}</span>
+                                                                        <span class="badge rounded-pill bg-primary text-white ms-0.5 reaction-count {{ $teacherReactorsReply->count() > 0 ? '' : 'd-none' }}" style="font-size: 0.58rem;">{{ $teacherReactorsReply->count() }}</span>
                                                                     </button>
                                                                 </form>
                                                             @endif
@@ -679,15 +676,17 @@
                                                                 </form>
                                                             @endif
 
-                                                            @if($reply->hasTeacherReaction())
-                                                                @php
-                                                                    $teacherNamesReply = $reply->teacherReactions()->pluck('user.name')->implode(', ');
-                                                                @endphp
-                                                                <span class="badge rounded-pill d-inline-flex align-items-center gap-1 font-semibold" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.65rem; padding: 0.18rem 0.45rem;" title="Diberi jempol oleh Guru: {{ $teacherNamesReply }}">
-                                                                    <i class="ti ti-thumb-up-filled text-success" style="font-size: 0.75rem;"></i>
-                                                                    <span>Ditanggapi Guru</span>
-                                                                </span>
-                                                            @endif
+                                                            <div class="reaction-indicator-wrap d-inline" id="reaction-indicator-reply-{{ $reply->id }}">
+                                                                @if($reply->hasTeacherReaction())
+                                                                    @php
+                                                                        $teacherNamesReply = $reply->teacherReactions()->pluck('user.name')->implode(', ');
+                                                                    @endphp
+                                                                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1 font-semibold reaction-indicator" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.65rem; padding: 0.18rem 0.45rem;" title="Diberi jempol oleh Guru: {{ $teacherNamesReply }}">
+                                                                        <i class="ti ti-thumb-up-filled text-success" style="font-size: 0.75rem;"></i>
+                                                                        <span>Ditanggapi Guru</span>
+                                                                    </span>
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -939,6 +938,143 @@
                     }, 2500);
                 }
             }
+
+            // Handler Reaksi Jempol Realtime Tanpa Reload
+            document.querySelectorAll('.reaction-form').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const btn = form.querySelector('.reaction-btn');
+                    if (!btn || btn.disabled) return;
+
+                    btn.disabled = true;
+                    btn.style.opacity = '0.7';
+
+                    const type = form.dataset.type || 'root';
+                    const discId = form.dataset.id;
+                    const csrfToken = form.querySelector('input[name="_token"]')?.value;
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: new FormData(form)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+
+                        if (!data || !data.success) {
+                            return;
+                        }
+
+                        const isAdded = data.action === 'added';
+                        const count = data.reactions_count || 0;
+                        const reactors = Array.isArray(data.reactors) ? data.reactors.join(', ') : '';
+
+                        const icon = btn.querySelector('i');
+                        const textSpan = btn.querySelector('.reaction-text');
+                        const countSpan = btn.querySelector('.reaction-count');
+                        const indicatorWrap = document.getElementById('reaction-indicator-' + type + '-' + discId);
+
+                        if (type === 'root') {
+                            if (isAdded) {
+                                btn.classList.add('text-primary', 'fw-bold');
+                                btn.style.background = 'rgba(37,99,235,.1)';
+                                btn.style.color = '#1d4ed8';
+                                btn.style.padding = '.2rem .55rem';
+                                btn.style.borderRadius = '999px';
+                                if (icon) icon.className = 'ti ti-thumb-up-filled';
+                                if (textSpan) textSpan.textContent = 'Ditanggapi Guru';
+                                btn.title = 'Batalkan jempol';
+                            } else {
+                                btn.classList.remove('text-primary', 'fw-bold');
+                                btn.style.background = '';
+                                btn.style.color = '';
+                                btn.style.padding = '';
+                                btn.style.borderRadius = '';
+                                if (icon) icon.className = 'ti ti-thumb-up';
+                                if (textSpan) textSpan.textContent = 'Beri Jempol';
+                                btn.title = 'Beri reaksi jempol agar siswa tahu komentarnya sudah ditanggapi';
+                            }
+
+                            if (countSpan) {
+                                countSpan.textContent = count;
+                                if (count > 0) {
+                                    countSpan.classList.remove('d-none');
+                                } else {
+                                    countSpan.classList.add('d-none');
+                                }
+                            }
+
+                            if (indicatorWrap) {
+                                if (count > 0) {
+                                    indicatorWrap.innerHTML = `
+                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 font-semibold reaction-indicator" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 0.22rem 0.55rem;" title="Diberi jempol oleh Guru: ${reactors}">
+                                            <i class="ti ti-thumb-up-filled text-success" style="font-size: 0.8rem;"></i>
+                                            <span>Ditanggapi Guru</span>
+                                            ${count > 1 ? `<span>(${count})</span>` : ''}
+                                        </span>
+                                    `;
+                                } else {
+                                    indicatorWrap.innerHTML = '';
+                                }
+                            }
+                        } else {
+                            // Balasan / Reply
+                            if (isAdded) {
+                                btn.classList.add('text-primary', 'fw-bold');
+                                btn.style.background = 'rgba(37,99,235,.1)';
+                                btn.style.color = '#1d4ed8';
+                                btn.style.padding = '.15rem .45rem';
+                                btn.style.borderRadius = '999px';
+                                if (icon) icon.className = 'ti ti-thumb-up-filled';
+                                if (textSpan) textSpan.textContent = 'Ditanggapi';
+                                btn.title = 'Batalkan jempol';
+                            } else {
+                                btn.classList.remove('text-primary', 'fw-bold');
+                                btn.style.background = '';
+                                btn.style.color = '';
+                                btn.style.padding = '';
+                                btn.style.borderRadius = '';
+                                if (icon) icon.className = 'ti ti-thumb-up';
+                                if (textSpan) textSpan.textContent = 'Jempol';
+                                btn.title = 'Beri jempol ke balasan siswa';
+                            }
+
+                            if (countSpan) {
+                                countSpan.textContent = count;
+                                if (count > 0) {
+                                    countSpan.classList.remove('d-none');
+                                } else {
+                                    countSpan.classList.add('d-none');
+                                }
+                            }
+
+                            if (indicatorWrap) {
+                                if (count > 0) {
+                                    indicatorWrap.innerHTML = `
+                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 font-semibold reaction-indicator" style="background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.65rem; padding: 0.18rem 0.45rem;" title="Diberi jempol oleh Guru: ${reactors}">
+                                            <i class="ti ti-thumb-up-filled text-success" style="font-size: 0.75rem;"></i>
+                                            <span>Ditanggapi Guru</span>
+                                        </span>
+                                    `;
+                                } else {
+                                    indicatorWrap.innerHTML = '';
+                                }
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Reaction request error:', err);
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    });
+                });
+            });
         });
     </script>
 </x-app-layout>
