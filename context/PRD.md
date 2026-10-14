@@ -261,9 +261,10 @@ Frontend adalah tampilan **di luar** admin dashboard (`/admin/*`) — dipakai ol
 
 | ID     | Requirement                                                                                                                                                        |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| FR-8.1 | Siswa dapat melihat daftar materi untuk kelas & mata pelajaran yang sedang dipilih (dari menu Kelas Saya)                                                          |
-| FR-8.2 | Siswa dapat membaca/mengakses materi dan menandainya sebagai selesai                                                                                               |
-| FR-8.3 | Siswa dapat berpartisipasi di ruang diskusi pada setiap materi (baca & posting komentar); komentar baru muncul **realtime tanpa reload** via Laravel Echo + Pusher |
+| FR-8.1  | Siswa dapat melihat daftar materi untuk kelas & mata pelajaran yang sedang dipilih (dari menu Kelas Saya)                                                                                                                                                                                           |
+| FR-8.2  | Siswa dapat membaca/mengakses materi dan menandainya sebagai selesai                                                                                                                                                                                                                                |
+| FR-8.3  | Siswa dapat berpartisipasi di ruang diskusi pada setiap materi (baca & posting komentar); komentar baru muncul **realtime tanpa reload** via Laravel Echo + Pusher                                                                                                                                    |
+| FR-8.3a | **Guru**: dapat memberikan reaksi jempol (toggle thumbs up) ke komentar siswa di ruang diskusi baik via backend (`admin.materials.show`) maupun frontend (`student.materials.show`). Siswa melihat badge "Ditanggapi Guru" pada komentarnya dan menerima notifikasi saat komentarnya ditanggapi. |
 
 #### 3.8.3 Tugas (Siswa)
 

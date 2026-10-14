@@ -250,11 +250,38 @@
                                 {!! nl2br(e($disc->comment)) !!}
                             </div>
 
-                            {{-- Tombol Balas --}}
-                            <div class="pt-2 mt-2 border-top d-flex align-items-center gap-2">
-                                <button type="button" class="md-btn-secondary" style="padding:.2rem .6rem;font-size:.72rem;" onclick="toggleReplyForm({{ $disc->id }})">
-                                    <i class="ti ti-corner-down-right"></i> Balas Komentar
-                                </button>
+                            {{-- Tombol Balas & Reaksi Jempol Guru --}}
+                            <div class="pt-2 mt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <form action="{{ route('admin.materials.discussions.react', [$material, $disc]) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @php
+                                            $hasReactedRoot = $disc->isReactedBy(Auth::user());
+                                            $teacherReactorsRoot = $disc->teacherReactions();
+                                        @endphp
+                                        <button type="submit" class="{{ $hasReactedRoot ? 'md-btn-primary' : 'md-btn-secondary' }}" style="padding:.2rem .6rem;font-size:.72rem;" title="{{ $hasReactedRoot ? 'Batalkan reaksi jempol' : 'Beri jempol agar siswa tahu komentarnya sudah ditanggapi' }}">
+                                            <i class="ti ti-thumb-up{{ $hasReactedRoot ? '-filled' : '' }}"></i>
+                                            <span>{{ $hasReactedRoot ? 'Ditanggapi Guru' : 'Beri Jempol' }}</span>
+                                            @if($teacherReactorsRoot->count() > 0)
+                                                <span class="badge ms-1" style="background:rgba(255,255,255,.3);font-size:.65rem;color:inherit;">{{ $teacherReactorsRoot->count() }}</span>
+                                            @endif
+                                        </button>
+                                    </form>
+
+                                    <button type="button" class="md-btn-secondary" style="padding:.2rem .6rem;font-size:.72rem;" onclick="toggleReplyForm({{ $disc->id }})">
+                                        <i class="ti ti-corner-down-right"></i> Balas Komentar
+                                    </button>
+                                </div>
+
+                                @if($disc->hasTeacherReaction())
+                                    @php
+                                        $teacherNamesRoot = $disc->teacherReactions()->pluck('user.name')->implode(', ');
+                                    @endphp
+                                    <div class="d-flex align-items-center gap-1" style="font-size:.72rem;color:#0ca678;font-weight:600;" title="Diberi jempol oleh: {{ $teacherNamesRoot }}">
+                                        <i class="ti ti-thumb-up-filled"></i> Ditanggapi Guru
+                                        <span class="text-muted fw-normal" style="font-size:.68rem;">({{ $teacherNamesRoot }})</span>
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Nested Replies --}}
@@ -263,6 +290,8 @@
                                     @foreach($disc->replies as $reply)
                                         @php
                                             $isTeacherReply = $reply->user && $reply->user->isGuru();
+                                            $hasReactedReply = $reply->isReactedBy(Auth::user());
+                                            $teacherReactorsReply = $reply->teacherReactions();
                                         @endphp
                                         <div class="p-2.5 rounded-3" style="background:{{ $isTeacherReply ? 'rgba(32,107,196,.06)' : 'var(--tblr-body-bg,#f8fafc)' }};border:1px solid var(--tblr-border-color,#e2e8f0);" id="discussion-item-{{ $reply->id }}">
                                             <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
@@ -292,6 +321,25 @@
 
                                             <div style="font-size:.8rem;line-height:1.5;color:var(--tblr-body-color);">
                                                 {!! nl2br(e($reply->comment)) !!}
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center mt-1.5 pt-1 border-top" style="border-color:var(--tblr-border-color,#e2e8f0) !important;">
+                                                <form action="{{ route('admin.materials.discussions.react', [$material, $reply]) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="border-0 bg-transparent p-0 d-inline-flex align-items-center gap-1" style="font-size:.72rem;color:{{ $hasReactedReply ? '#206bc4' : '#64748b' }};cursor:pointer;" title="{{ $hasReactedReply ? 'Batalkan jempol' : 'Beri jempol ke balasan siswa' }}">
+                                                        <i class="ti ti-thumb-up{{ $hasReactedReply ? '-filled' : '' }}"></i>
+                                                        <span class="{{ $hasReactedReply ? 'fw-bold' : '' }}">{{ $hasReactedReply ? 'Ditanggapi' : 'Jempol' }}</span>
+                                                        @if($teacherReactorsReply->count() > 0)
+                                                            <span class="text-muted" style="font-size:.65rem;">({{ $teacherReactorsReply->count() }})</span>
+                                                        @endif
+                                                    </button>
+                                                </form>
+
+                                                @if($reply->hasTeacherReaction())
+                                                    <span class="badge" style="background:rgba(12,166,120,.12);color:#0ca678;font-size:.62rem;padding:.1rem .35rem;">
+                                                        <i class="ti ti-thumb-up-filled"></i> Ditanggapi Guru
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                     @endforeach

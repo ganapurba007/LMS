@@ -359,4 +359,58 @@ class MaterialCrudTest extends TestCase
             'id' => $studentComment->id,
         ]);
     }
+
+    public function test_guru_can_toggle_reaction_to_student_comment_in_admin_panel(): void
+    {
+        $material = Material::create([
+            'title' => 'Materi Reaksi Jempol Admin',
+            'content_type' => 'text',
+            'content' => 'Konten materi...',
+            'subject_id' => $this->subject->id,
+            'class_id' => $this->class->id,
+            'instructor_id' => $this->guru->id,
+            'order' => 1,
+        ]);
+
+        $studentComment = \App\Models\MaterialDiscussion::create([
+            'material_id' => $material->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Pertanyaan siswa tentang konsep dasar materi.',
+        ]);
+
+        // 1. Guru memberikan reaksi jempol (toggle: ON)
+        $reactResponse = $this->actingAs($this->guru)->post(
+            route('admin.materials.discussions.react', [$material, $studentComment])
+        );
+
+        $reactResponse->assertSessionHas('success', 'Reaksi jempol berhasil diberikan.');
+        $this->assertDatabaseHas('material_discussion_reactions', [
+            'discussion_id' => $studentComment->id,
+            'user_id' => $this->guru->id,
+            'type' => 'thumbs_up',
+        ]);
+
+        // Verifikasi notifikasi terkirim ke siswa
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->siswa->id,
+            'type' => 'comment',
+            'title' => 'Tanggapan Guru: ' . $material->title,
+        ]);
+
+        // Verifikasi tampilan admin memuat status Ditanggapi Guru
+        $pageResponse = $this->actingAs($this->guru)->get(route('admin.materials.show', $material));
+        $pageResponse->assertStatus(200);
+        $pageResponse->assertSee('Ditanggapi Guru');
+
+        // 2. Guru membatalkan reaksi jempol (toggle: OFF)
+        $unreactResponse = $this->actingAs($this->guru)->post(
+            route('admin.materials.discussions.react', [$material, $studentComment])
+        );
+
+        $unreactResponse->assertSessionHas('success', 'Reaksi jempol berhasil dibatalkan.');
+        $this->assertDatabaseMissing('material_discussion_reactions', [
+            'discussion_id' => $studentComment->id,
+            'user_id' => $this->guru->id,
+        ]);
+    }
 }

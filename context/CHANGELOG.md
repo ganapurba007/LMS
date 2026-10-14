@@ -2,6 +2,25 @@
 
 > Catat setiap perubahan kode di sini selama implementasi.
 
+## [Fase 59] Teacher Discussion Thumbs-up Reaction (Reaksi Jempol Guru pada Diskusi Materi) — 2026-10-14
+
+### Ditambahkan & Diperbarui
+- **Fitur Reaksi Jempol Guru di Ruang Diskusi ([`Admin\MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Admin/MaterialController.php), [`Student\MaterialController.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Http/Controllers/Student/MaterialController.php))**:
+  - Guru dapat memberikan atau membatalkan reaksi jempol (toggle thumbs up) pada komentar siswa, baik komentar induk maupun komentar balasan.
+  - Reaksi dapat diberikan langsung dari panel admin (`admin.materials.discussions.react`) maupun dari antarmuka modul materi siswa (`student.materials.discussions.react`).
+  - Saat guru memberikan jempol, sistem secara otomatis menerbitkan notifikasi kepada siswa pemilik komentar dengan link langsung menuju `#discussion-item-{id}` yang bersangkutan.
+  - Endpoint mendukung permintaan AJAX/JSON maupun pengiriman formulir web standar.
+- **Skema Database & Model ([`material_discussion_reactions`](file:///c:/laragon/www/KELAS/lms_dani/context/SCHEMA.md), [`MaterialDiscussionReaction.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/MaterialDiscussionReaction.php), [`MaterialDiscussion.php`](file:///c:/laragon/www/KELAS/lms_dani/app/Models/MaterialDiscussion.php))**:
+  - Membuat tabel migrasi `material_discussion_reactions` dengan foreign key `discussion_id` & `user_id`, kolom `type` (`thumbs_up`), serta constraint `UNIQUE(discussion_id, user_id, type)`.
+  - Menambahkan relasi `reactions()`, helper `isReactedBy(?User $user)`, `teacherReactions()`, dan `hasTeacherReaction()` pada model `MaterialDiscussion`.
+  - Memperbarui eager loading di kedua controller (`reactions.user`, `replies.reactions.user`) dan mendistribusikan instance role via `rolesMap` untuk performa query 0 N+1.
+- **Tampilan Interaktif Backend & Frontend ([`admin/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/admin/materials/show.blade.php), [`student/materials/show.blade.php`](file:///c:/laragon/www/KELAS/lms_dani/resources/views/student/materials/show.blade.php))**:
+  - Pada panel admin materi: tombol interaktif jempol guru ("Beri Jempol" / "Ditanggapi Guru") dengan counter dan daftar nama guru yang menanggapi.
+  - Pada antarmuka siswa: badge indikator jempol hijau `"Ditanggapi Guru"` yang ramah dan jelas di sisi komentar dan balasan, serta tombol reaksi langsung bagi guru yang membuka modul dari frontend.
+- **Pengujian & Verifikasi ([`MaterialCrudTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Admin/MaterialCrudTest.php), [`StudentMaterialTest.php`](file:///c:/laragon/www/KELAS/lms_dani/tests/Feature/Student/StudentMaterialTest.php))**:
+  - Menambahkan 4 pengujian baru: `test_guru_can_toggle_reaction_to_student_comment_in_admin_panel`, `test_guru_can_toggle_reaction_to_student_comment_in_student_view`, `test_siswa_can_see_ditanggapi_guru_badge_on_reacted_comment`, dan `test_siswa_cannot_react_to_discussion_comment`.
+  - Seluruh test suite (193 passed, 734 assertions) sukses 100%.
+
 ## [Fase 58] Quiz Question Randomization Control (Acak / Urutkan Butir Soal) — 2026-09-29
 
 ### Ditambahkan & Diperbarui

@@ -246,4 +246,83 @@ class StudentMaterialTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('error');
     }
+
+    public function test_guru_can_toggle_reaction_to_student_comment_in_student_view(): void
+    {
+        $comment = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Komentar siswa untuk diuji reaksinya oleh guru.',
+        ]);
+
+        // Guru memberikan jempol di tampilan student
+        $response = $this->actingAs($this->guru)->post(
+            route('student.materials.discussions.react', [$this->materialClassA, $comment])
+        );
+
+        $response->assertSessionHas('success', 'Reaksi jempol berhasil diberikan.');
+        $this->assertDatabaseHas('material_discussion_reactions', [
+            'discussion_id' => $comment->id,
+            'user_id' => $this->guru->id,
+            'type' => 'thumbs_up',
+        ]);
+
+        // Verifikasi notifikasi untuk siswa
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->siswa->id,
+            'type' => 'comment',
+            'title' => 'Tanggapan Guru: ' . $this->materialClassA->title,
+        ]);
+
+        // Guru membatalkan jempol
+        $unreactResponse = $this->actingAs($this->guru)->post(
+            route('student.materials.discussions.react', [$this->materialClassA, $comment])
+        );
+
+        $unreactResponse->assertSessionHas('success', 'Reaksi jempol berhasil dibatalkan.');
+        $this->assertDatabaseMissing('material_discussion_reactions', [
+            'discussion_id' => $comment->id,
+            'user_id' => $this->guru->id,
+        ]);
+    }
+
+    public function test_siswa_can_see_ditanggapi_guru_badge_on_reacted_comment(): void
+    {
+        $comment = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Ini jawaban diskusi saya pak guru.',
+        ]);
+
+        // Guru memberi reaksi jempol
+        \App\Models\MaterialDiscussionReaction::create([
+            'discussion_id' => $comment->id,
+            'user_id' => $this->guru->id,
+            'type' => 'thumbs_up',
+        ]);
+
+        // Siswa membuka materi dan melihat badge "Ditanggapi Guru"
+        $response = $this->actingAs($this->siswa)->get(route('student.materials.show', $this->materialClassA));
+        $response->assertStatus(200);
+        $response->assertSee('Ditanggapi Guru');
+    }
+
+    public function test_siswa_cannot_react_to_discussion_comment(): void
+    {
+        $comment = MaterialDiscussion::create([
+            'material_id' => $this->materialClassA->id,
+            'user_id' => $this->siswa->id,
+            'comment' => 'Komentar siswa biasa.',
+        ]);
+
+        // Siswa mencoba memanggil endpoint reaction
+        $response = $this->actingAs($this->siswa)->post(
+            route('student.materials.discussions.react', [$this->materialClassA, $comment])
+        );
+
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('material_discussion_reactions', [
+            'discussion_id' => $comment->id,
+        ]);
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\MaterialBank;
 use App\Models\MaterialDiscussion;
+use App\Models\MaterialDiscussionReaction;
 use App\Models\MaterialProgress;
 use App\Models\Notification;
 use App\Models\Role;
@@ -16,7 +17,9 @@ use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -77,13 +80,26 @@ class MaterialController extends Controller
             abort(403, 'Anda tidak memiliki akses ke materi ini.');
         }
 
+        $hasReactionsTable = true;
+        try {
+            if (!Schema::hasTable('material_discussion_reactions')) {
+                Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {
+            $hasReactionsTable = false;
+        }
+
         // Load relations without nested .role — roles are assigned below via setRelation()
         $material->load([
             'subject',
             'schoolClass',
             'instructor',
-            'rootDiscussions' => function ($q) {
-                $q->with(['user', 'replies.user'])->latest();
+            'rootDiscussions' => function ($q) use ($hasReactionsTable) {
+                if ($hasReactionsTable) {
+                    $q->with(['user', 'reactions.user', 'replies.user', 'replies.reactions.user'])->latest();
+                } else {
+                    $q->with(['user', 'replies.user'])->latest();
+                }
             },
         ]);
         $material->loadCount('discussions');
@@ -92,13 +108,27 @@ class MaterialController extends Controller
         // discussion user via setRelation() — eliminates duplicate role queries.
         $rolesMap = Role::all()->keyBy('id');
 
-        $material->rootDiscussions->each(function ($disc) use ($rolesMap) {
+        $material->rootDiscussions->each(function ($disc) use ($rolesMap, $hasReactionsTable) {
             if ($disc->user) {
                 $disc->user->setRelation('role', $rolesMap->get($disc->user->role_id));
             }
-            $disc->replies->each(function ($reply) use ($rolesMap) {
+            if ($hasReactionsTable && $disc->relationLoaded('reactions')) {
+                $disc->reactions->each(function ($rx) use ($rolesMap) {
+                    if ($rx->user) {
+                        $rx->user->setRelation('role', $rolesMap->get($rx->user->role_id));
+                    }
+                });
+            }
+            $disc->replies->each(function ($reply) use ($rolesMap, $hasReactionsTable) {
                 if ($reply->user) {
                     $reply->user->setRelation('role', $rolesMap->get($reply->user->role_id));
+                }
+                if ($hasReactionsTable && $reply->relationLoaded('reactions')) {
+                    $reply->reactions->each(function ($rx) use ($rolesMap) {
+                        if ($rx->user) {
+                            $rx->user->setRelation('role', $rolesMap->get($rx->user->role_id));
+                        }
+                    });
                 }
             });
         });
@@ -407,6 +437,64 @@ class MaterialController extends Controller
         $discussion->delete();
 
         return back()->with('success', 'Komentar diskusi berhasil dihapus.');
+    }
+
+    public function toggleReaction(Request $request, Material $material, MaterialDiscussion $discussion)
+    {
+        $user = Auth::user();
+        if ($user->subjects()->exists() && !$user->subjects()->where('subjects.id', $material->subject_id)->exists()) {
+            abort(403, 'Anda tidak memiliki akses ke materi ini.');
+        }
+
+        if ($discussion->material_id !== $material->id) {
+            abort(404);
+        }
+
+        $existingReaction = MaterialDiscussionReaction::where('discussion_id', $discussion->id)
+            ->where('user_id', $user->id)
+            ->where('type', 'thumbs_up')
+            ->first();
+
+        if ($existingReaction) {
+            $existingReaction->delete();
+            $action = 'removed';
+            $message = 'Reaksi jempol berhasil dibatalkan.';
+        } else {
+            MaterialDiscussionReaction::create([
+                'discussion_id' => $discussion->id,
+                'user_id' => $user->id,
+                'type' => 'thumbs_up',
+            ]);
+            $action = 'added';
+            $message = 'Reaksi jempol berhasil diberikan.';
+
+            // Kirim notifikasi ke pembuat komentar jika bukan guru itu sendiri
+            if ($discussion->user_id !== $user->id) {
+                $studentTargetUrl = route('student.materials.show', $material) . '#discussion-item-' . $discussion->id;
+                Notification::create([
+                    'user_id' => $discussion->user_id,
+                    'type' => 'comment',
+                    'title' => 'Tanggapan Guru: ' . $material->title,
+                    'message' => 'Guru ' . $user->name . ' memberikan jempol pada komentar Anda di materi "' . $material->title . '"',
+                    'related_url' => $studentTargetUrl,
+                    'is_read' => false,
+                ]);
+            }
+        }
+
+        if ($request->wantsJson()) {
+            $teacherReactions = $discussion->reactions()->whereHas('user.role', fn($q) => $q->where('name', 'guru'))->with('user')->get();
+            return response()->json([
+                'success' => true,
+                'action' => $action,
+                'has_reaction' => $action === 'added',
+                'reactions_count' => $teacherReactions->count(),
+                'reactors' => $teacherReactions->pluck('user.name')->values(),
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
     }
 }
 

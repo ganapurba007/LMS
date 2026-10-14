@@ -58,6 +58,7 @@ Route::middleware(['auth'])->prefix('student')->as('student.')->group(function (
     Route::post('materials/{material}/complete', [StudentMaterialController::class, 'toggleComplete'])->name('materials.complete');
     Route::post('materials/{material}/toggle-complete', [StudentMaterialController::class, 'toggleComplete'])->name('materials.toggle-complete');
     Route::post('materials/{material}/discussions', [StudentMaterialController::class, 'storeComment'])->name('materials.discussions');
+    Route::post('materials/{material}/discussions/{discussion}/reaction', [StudentMaterialController::class, 'toggleReaction'])->name('materials.discussions.react');
     Route::delete('materials/{material}/discussions/{discussion}', [StudentMaterialController::class, 'destroyComment'])->name('materials.discussions.destroy');
 
     Route::get('assignments', [StudentAssignmentController::class, 'index'])->name('assignments.index');
@@ -117,6 +118,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('admin')->as('admin.')->group(f
     Route::get('materials/{material}/download', [MaterialController::class, 'downloadDocument'])->name('materials.download');
     Route::resource('materials', MaterialController::class);
     Route::post('materials/{material}/discussions', [MaterialController::class, 'storeComment'])->name('materials.discussions');
+    Route::post('materials/{material}/discussions/{discussion}/reaction', [MaterialController::class, 'toggleReaction'])->name('materials.discussions.react');
     Route::delete('materials/{material}/discussions/{discussion}', [MaterialController::class, 'destroyComment'])->name('materials.discussions.destroy');
 
     // Master Tugas CRUD

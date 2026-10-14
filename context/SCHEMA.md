@@ -98,6 +98,15 @@ material_discussions (ruang diskusi realtime materi)
 ├── comment (text)
 └── created_at, updated_at (timestamp, nullable)
 
+material_discussion_reactions (reaksi jempol / tanggapan guru pada komentar diskusi)
+├── id (bigint, unsigned, auto-increment, PK)
+├── discussion_id (bigint, unsigned, FK → material_discussions.id, ON DELETE CASCADE)
+├── user_id (bigint, unsigned, FK → users.id, ON DELETE CASCADE)
+├── type (string 20, default: 'thumbs_up')
+├── created_at, updated_at (timestamp, nullable)
+├── UNIQUE: (discussion_id, user_id, type)
+└── INDEX: idx_mat_disc_reactions_lookup (discussion_id, type)
+
 assignment_banks (bank tugas induk guru)
 ├── id (bigint, unsigned, auto-increment, PK)
 ├── instructor_id (bigint, unsigned, FK → users.id, ON DELETE CASCADE)
@@ -218,6 +227,7 @@ Class (classes) ──< User (siswa, via class_id)
       │
       ├──< Material (materials) ──< MaterialProgress (material_progress)
       │                        └──< MaterialDiscussion (material_discussions, self-referencing via parent_id)
+      │                                 └──< MaterialDiscussionReaction (material_discussion_reactions)
       ├──< Assignment (assignments) ──< AssignmentSubmission (assignment_submissions)
       └──< Quiz (quizzes) ──< QuizQuestion (quiz_questions) ──< QuizQuestionOption (quiz_question_options)
                 │
